@@ -6,13 +6,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3003;
 
 app.use(cors() );
 app.use(express.json() );
 
-const username = 'root';
-const password = '1234';
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
