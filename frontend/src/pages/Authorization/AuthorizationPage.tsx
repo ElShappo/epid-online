@@ -1,14 +1,9 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, Form, Input } from 'antd';
 import './AuthorizationPage.css'
-
-const onFinish = (values: any) => {
-  console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
+import { useDispatch } from 'react-redux';
+import { authorize, unauthorize } from '../../globalStore/authorizationSlice';
 
 type FieldType = {
   username?: string;
@@ -17,6 +12,41 @@ type FieldType = {
 };
 
 const AuthorizationPage = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const onFinish = async (values: any) => {
+    console.log('Passing values:');
+    console.log(values);
+    console.log(JSON.stringify(values));
+
+    try {
+      let response = await fetch('http://localhost:3002/authorization', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(values)
+      });
+
+      if (response.ok) {
+        console.log('Authorization successful!');
+        dispatch(authorize() );
+        navigate('/subjects/moscow');
+      } else {
+        console.error('Invalid username or password');
+        dispatch(unauthorize() );
+      }
+    } catch (error) {
+      console.error('Something went wrong');
+      dispatch(unauthorize() );
+    }
+  };
+  
+  const onFinishFailed = (errorInfo: any) => {
+    console.log('Failed:', errorInfo);
+  };
+
   return (
     <div className='authorization'>
       <Form

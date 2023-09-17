@@ -4,6 +4,7 @@ import store from "../globalStore/store";
 function subjectsPageLoader({request} : any) {
     const state = store.getState();
     if (!state.authorization.authorized) {
+        console.warn('User is not authorized: redirecting...');
         return redirect('/authorization');
     }
     console.log(state);

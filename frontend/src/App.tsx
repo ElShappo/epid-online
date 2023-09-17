@@ -8,6 +8,8 @@ import subjectsPageLoader from './loaders/subjectsPageLoader';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
 import "./App.css";
 import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
+import { Provider } from "react-redux";
+import store from "./globalStore/store";
 
 
 function App() {
@@ -29,7 +31,9 @@ function App() {
   ]);
 
   return (
+    <Provider store={store}>
       <RouterProvider router={router} fallbackElement={<div>Hey, I am loading!</div>}/>
+    </Provider>
   );
 }
 
