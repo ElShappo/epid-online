@@ -1,19 +1,16 @@
-import React, { useContext } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { AuthorizationContext } from './globalStore/index'
 import AuthorizationPage from './pages/Authorization/AuthorizationPage';
 import SubjectsPage from './pages/Subjects/SubjectsPage';
 import subjectsPageLoader from './loaders/subjectsPageLoader';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
 import "./App.css";
+import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 
 
 function App() {
-  const authorization = useContext(AuthorizationContext);
-
   const router = createBrowserRouter([
     {
       path: "/authorization",
@@ -21,12 +18,13 @@ function App() {
     },
     {
       path: "/subjects/:subjectName",
-      element: authorization === 'authorized' ? <SubjectsPage /> : <AuthorizationPage />,
+      element: <SubjectsPage />,
       loader: subjectsPageLoader,
     },
     {
       path: "*",
-      element: authorization === 'authorized' ? <NotFoundPage /> : <AuthorizationPage />
+      element: <NotFoundPage />,
+      loader: pageNotFoundLoader,
     }
   ]);
 
