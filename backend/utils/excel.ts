@@ -9,7 +9,7 @@ function createSubjectTreeNode(value: string, children?: SubjectTree): SubjectTr
       key: value,
       children: children,
     }
-  }
+}
 
 function getSubjectTree(ws: XLSX.WorkSheet) {
     let subjectTree = new Array(districts.length) as SubjectTree;

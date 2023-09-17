@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from 'express';
 import cors from "cors";
-import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -33,6 +32,6 @@ app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
-app.get('/federalSubjects', (req: Request, res: Response) => {
+app.get('/subjects', (req: Request, res: Response) => {
     
 })
