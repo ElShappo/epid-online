@@ -9,7 +9,10 @@ function subjectsPageLoader({request} : any) {
     }
     console.log(state);
     return defer({
-        subjects: 'test'
+        subjects: 'test',
+        promise: new Promise((resolve, reject) => {
+            setTimeout(() => reject(5), 5000);
+        })
     })
 }
 export default subjectsPageLoader;
