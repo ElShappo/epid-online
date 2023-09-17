@@ -29,9 +29,7 @@ function App() {
   ]);
 
   return (
-    <div className="App">
       <RouterProvider router={router} fallbackElement={<div>Hey, I am loading!</div>}/>
-    </div>
   );
 }
 
