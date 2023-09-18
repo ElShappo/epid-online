@@ -2,8 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from "cors";
 import dotenv from 'dotenv';
 import * as XLSX from 'xlsx';
-import readExcel from './utils/excel';
-import getSubjectTree from './utils/excel';
+import { mergeTables, getSubjectTree } from './utils/excel';
 
 dotenv.config();
 
@@ -52,7 +51,7 @@ app.get('/subjects', async (req: Request, res: Response) => {
     let keys = req.query.key as string | string[]; // 2.1. corresponds to 'Центральный федеральный округ'
     console.log(`Initial keys: ${keys}`);
 
-    const worksheets = [];
+    const worksheets = [] as XLSX.WorkSheet[];
 
     // no keys, single key or multiple keys may be passed as query params
     // for simplicity we always want to treat this data as array
@@ -71,8 +70,8 @@ app.get('/subjects', async (req: Request, res: Response) => {
     console.log(`Modified keys: ${keys}`);
 
     for (let key of keys) {
-      let ws = workbook.Sheets[key];
-      worksheets.push(XLSX.utils.sheet_to_html(ws));
+      let worksheet = workbook.Sheets[key];
+      worksheets.push(worksheet);
     }
-    res.send(worksheets[0]);
+    res.send(XLSX.utils.sheet_to_html(mergeTables(worksheets) ) );
 })

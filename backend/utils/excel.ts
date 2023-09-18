@@ -12,6 +12,106 @@ function createSubjectTreeNode(title: string, key: string, children?: SubjectTre
     }
 }
 
+function mergeTables(worksheets: XLSX.WorkSheet[]): XLSX.WorkSheet {
+  // if (worksheets.length === 1) {
+  //   console.log('Only one sheet has been added, do not merge anything ')
+  //   return worksheets[0];
+  // }
+  console.log('Preparing to merge sheets');
+
+  // 3D array: aoas[i] - i-th aoa, aoas[i][j] - j-th row of i-th aoa
+  let aoas = [] as any;
+  let finalAoa = [];
+
+  for (let worksheet of worksheets) {
+    let aoa = XLSX.utils.sheet_to_json(worksheet, {header: 1, 
+      range: { s: { c: 0, r: 0 }, e: { c: 10, r: 111 } } }
+    );
+    console.log(aoa);
+    aoas.push(aoa);
+  }
+  
+  function getCellSlice(aoas: any, rowIndex: number, columnIndex: number) {
+    // get 1D array: arr[i][rowIndex][colIndex], where 'i' loops over the list of 'aoas'
+    // 'rowIndex' and 'columnIndex' are fixed
+    return aoas.map((aoa: any) => aoa[rowIndex][columnIndex] );
+  }
+
+  // j - row, k - column
+  // col with index 0 (however, j should != 1) is left intact, values in other cols might change when summing values
+  // rows with indices <= 5 (except for row 1 with region name) and index = 7 are also left intact
+  for (let j = 0; j < aoas[0].length; ++j) {
+    let row = [];
+    if (j <= 5 && j !== 1 || j === 7) {
+      finalAoa.push(aoas[0][j]);
+      continue;
+    }
+    for (let k = 0; k < aoas[0][0].length; ++k) {
+      if (k === 0 && j !== 1) {
+        row.push(aoas[0][j][k]);
+        continue;
+      }
+
+      if (k === 0 && j === 1) {
+        let regionsList = getCellSlice(aoas, j, k).join(', ');
+        row.push(regionsList);
+        continue;
+      }
+
+      let cellSlice = getCellSlice(aoas, j, k);
+      cellSlice = cellSlice.filter((item: any) => {
+        let isNotNumber = true;
+        if (!isNaN(item) ) {
+          if (typeof item === 'string') {
+            if (item.trim().length !== 0) {
+              isNotNumber = false;
+            }
+          } else {
+            isNotNumber = false;
+          }
+        } 
+        return !isNotNumber;
+      });
+
+      if (cellSlice.length === 0) {
+        row.push('–');
+      } else {
+        row.push(cellSlice.reduce((sum: number, item: number) => sum + item, 0) );
+      }
+
+      // 1. this set will store only 'false'
+      //    iff all corresponding cells in chosen aoas store only numeric vals
+
+      // 2. this set will store only 'true'
+      //    iff all corresponding cells in chosen aoas store any type except numeric
+      //    (this is most likely to take place with empty cells or cells that store '-')
+
+      // 3. this set will store both 'false' and 'true'
+      //    iff in corresponding cells in aoas both numeric and non-numeric types occur
+      //    (this is most likely when user has chosen some sheet with no rural population
+      //    and some other sheet that has rural population)
+      
+      // let isNaNSet = new Set();
+      // cellSlice.forEach((item: any) => {
+      //   let res = true;
+      //   if (!isNaN(item) ) {
+      //     if (typeof item === 'string') {
+      //       if (item.trim().length !== 0) {
+      //         res = false;
+      //       }
+      //     } else {
+      //       res = false;
+      //     }
+      //   } 
+      //   isNaNSet.add(res);
+      // });
+      // row.push(cellSlice)
+    }
+    finalAoa.push(row);
+  }
+  return XLSX.utils.aoa_to_sheet(finalAoa);
+}
+
 function getSubjectTree(ws: XLSX.WorkSheet) {
     let subjectTree = new Array(districts.length) as SubjectTree;
 
@@ -68,4 +168,4 @@ function getSubjectTree(ws: XLSX.WorkSheet) {
 //     return promise;
 // }
 
-export default getSubjectTree;
+export {mergeTables, getSubjectTree};

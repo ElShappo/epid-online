@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
-import { Layout, TreeSelect } from 'antd';
+import { Button, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 const { Header, Content, Sider } = Layout;
@@ -14,13 +14,15 @@ const SubjectsPage = () => {
   const onChange = (newValue: string[]) => {
     console.log('Old value: ', value);
     console.log('New value: ', newValue);
-
-    let url = '/subjects';
-    let queryParams = newValue.map(key => `key=${key}`).join('&');
-
     setValue(newValue);
-    navigate(url + '?' + queryParams);
   };
+
+  const onTreeSubmit = () => {
+    console.log(`Submitting keys = ${value}`);
+    let url = '/subjects';
+    let queryParams = value.map((key: any) => `key=${key}`).join('&');
+    navigate(url + '?' + queryParams);
+  }
 
   return (
     <Layout>
@@ -48,7 +50,12 @@ const SubjectsPage = () => {
                       width: '100%',
                     },
                   };
-                  return <TreeSelect {...tProps} />
+                  return (
+                    <>
+                      <TreeSelect {...tProps} />
+                      <Button type="primary" onClick={onTreeSubmit}>Submit</Button>
+                    </>
+                  )
                 }}
               </Await>
             </React.Suspense>

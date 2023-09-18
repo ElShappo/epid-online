@@ -16,7 +16,7 @@ function subjectsPageLoader({request} : any) {
 
     const worksheetsUrl = new URL('http://localhost:3002/subjects');
     for (let key of keys) {
-        worksheetsUrl.searchParams.set('key', key);
+        worksheetsUrl.searchParams.append('key', key);
     }
 
     // set default key that corresponds to 'Центральный федеральный округ'
