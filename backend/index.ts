@@ -48,9 +48,9 @@ app.get('/subjectTree', (req: Request, res: Response) => {
   res.send(getSubjectTree(worksheet) );
 });
 
-app.get('/subjects/', async (req: Request, res: Response) => {
+app.get('/subjects', async (req: Request, res: Response) => {
     let keys = req.query.key as string | string[]; // 2.1. corresponds to 'Центральный федеральный округ'
-    console.log(keys);
+    console.log(`Initial keys: ${keys}`);
 
     const worksheets = [];
 

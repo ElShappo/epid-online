@@ -52,7 +52,7 @@ const AuthorizationPage = () => {
       if (response.ok) {
         console.log('Authorization successful!');
         dispatch(authorize() );
-        navigate('/subjects/moscow');
+        navigate('/subjects');
       } else {
         const errorText = 'Invalid username or password';
         showAuthorizationError(errorText);
