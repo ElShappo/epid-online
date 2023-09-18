@@ -29,7 +29,7 @@ function subjectsPageLoader({request} : any) {
     return defer({
         keys,
         subjectTree: fetch('http://localhost:3002/subjectTree').then(res => res.json() ),
-        worksheets: fetch(worksheetsUrl).then(res => res.text() ),
+        worksheets: fetch(worksheetsUrl).then(res => res.json() ),
         promise: new Promise((resolve, reject) => {
             setTimeout(() => reject(5), 5000);
         })

@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from "cors";
 import dotenv from 'dotenv';
 import * as XLSX from 'xlsx';
-import { mergeTables, getSubjectTree } from './utils/excel';
+import { getMergedTablesData, getSubjectTree } from './utils/excel';
 
 dotenv.config();
 
@@ -73,5 +73,5 @@ app.get('/subjects', async (req: Request, res: Response) => {
       let worksheet = workbook.Sheets[key];
       worksheets.push(worksheet);
     }
-    res.send(XLSX.utils.sheet_to_html(mergeTables(worksheets) ) );
+    res.send(getMergedTablesData(worksheets) );
 })

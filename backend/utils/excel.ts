@@ -12,11 +12,9 @@ function createSubjectTreeNode(title: string, key: string, children?: SubjectTre
     }
 }
 
-function mergeTables(worksheets: XLSX.WorkSheet[]): XLSX.WorkSheet {
-  // if (worksheets.length === 1) {
-  //   console.log('Only one sheet has been added, do not merge anything ')
-  //   return worksheets[0];
-  // }
+function getMergedTablesData(worksheets: XLSX.WorkSheet[]) {
+  // this function will return only part of the sheet (in aoa format) in range A7:J112 (ages + population data)
+
   console.log('Preparing to merge sheets');
 
   // 3D array: aoas[i] - i-th aoa, aoas[i][j] - j-th row of i-th aoa
@@ -25,9 +23,8 @@ function mergeTables(worksheets: XLSX.WorkSheet[]): XLSX.WorkSheet {
 
   for (let worksheet of worksheets) {
     let aoa = XLSX.utils.sheet_to_json(worksheet, {header: 1, 
-      range: { s: { c: 0, r: 0 }, e: { c: 10, r: 111 } } }
+      range: { s: { c: 0, r: 6 }, e: { c: 9, r: 111 } } }
     );
-    console.log(aoa);
     aoas.push(aoa);
   }
   
@@ -37,28 +34,17 @@ function mergeTables(worksheets: XLSX.WorkSheet[]): XLSX.WorkSheet {
     return aoas.map((aoa: any) => aoa[rowIndex][columnIndex] );
   }
 
-  // j - row, k - column
-  // col with index 0 (however, j should != 1) is left intact, values in other cols might change when summing values
-  // rows with indices <= 5 (except for row 1 with region name) and index = 7 are also left intact
   for (let j = 0; j < aoas[0].length; ++j) {
     let row = [];
-    if (j <= 5 && j !== 1 || j === 7) {
-      finalAoa.push(aoas[0][j]);
-      continue;
-    }
+
     for (let k = 0; k < aoas[0][0].length; ++k) {
-      if (k === 0 && j !== 1) {
-        row.push(aoas[0][j][k]);
-        continue;
-      }
-
-      if (k === 0 && j === 1) {
-        let regionsList = getCellSlice(aoas, j, k).join(', ');
-        row.push(regionsList);
-        continue;
-      }
-
       let cellSlice = getCellSlice(aoas, j, k);
+
+      if (k === 0) {
+        row.push(cellSlice[0]);
+        continue;
+      }
+      
       cellSlice = cellSlice.filter((item: any) => {
         let isNotNumber = true;
         if (!isNaN(item) ) {
@@ -78,38 +64,10 @@ function mergeTables(worksheets: XLSX.WorkSheet[]): XLSX.WorkSheet {
       } else {
         row.push(cellSlice.reduce((sum: number, item: number) => sum + item, 0) );
       }
-
-      // 1. this set will store only 'false'
-      //    iff all corresponding cells in chosen aoas store only numeric vals
-
-      // 2. this set will store only 'true'
-      //    iff all corresponding cells in chosen aoas store any type except numeric
-      //    (this is most likely to take place with empty cells or cells that store '-')
-
-      // 3. this set will store both 'false' and 'true'
-      //    iff in corresponding cells in aoas both numeric and non-numeric types occur
-      //    (this is most likely when user has chosen some sheet with no rural population
-      //    and some other sheet that has rural population)
-      
-      // let isNaNSet = new Set();
-      // cellSlice.forEach((item: any) => {
-      //   let res = true;
-      //   if (!isNaN(item) ) {
-      //     if (typeof item === 'string') {
-      //       if (item.trim().length !== 0) {
-      //         res = false;
-      //       }
-      //     } else {
-      //       res = false;
-      //     }
-      //   } 
-      //   isNaNSet.add(res);
-      // });
-      // row.push(cellSlice)
     }
     finalAoa.push(row);
   }
-  return XLSX.utils.aoa_to_sheet(finalAoa);
+  return finalAoa;
 }
 
 function getSubjectTree(ws: XLSX.WorkSheet) {
@@ -145,27 +103,4 @@ function getSubjectTree(ws: XLSX.WorkSheet) {
     return subjectTree;
 }
 
-// function readExcel(file: any) {
-//     const promise: Promise<SubjectTree> = new Promise((resolve, reject) => {
-//         const fileReader = new FileReader();
-//         fileReader.readAsArrayBuffer(file);
-
-//         fileReader.onload = (e) => {
-//             const bufferArray = e.target?.result;
-//             const wb = XLSX.read(bufferArray, {type: "buffer"});
-//             const wsname = wb.SheetNames[0];
-//             const ws = wb.Sheets[wsname];
-//             const subjectTree = getSubjectTree(ws);
-//             // const data = XLSX.utils.sheet_to_json(ws, {header: 1});
-//             console.log(subjectTree);
-//             resolve(subjectTree);
-//         };
-
-//         fileReader.onerror = (error) => {
-//             reject(error);
-//         };
-//     });
-//     return promise;
-// }
-
-export {mergeTables, getSubjectTree};
+export {getMergedTablesData, getSubjectTree};

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Await, useLoaderData } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Await, useLoaderData, useLocation } from 'react-router-dom';
 import { Button, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Table } from 'antd';
@@ -25,17 +25,6 @@ interface DataType {
   femalesRural: number | string;
 }
 
-// interface DataType {
-//   key: React.Key;
-//   name: string;
-//   age: number;
-//   street: string;
-//   building: string;
-//   number: number;
-//   companyAddress: string;
-//   companyName: string;
-//   gender: string;
-// }
 
 const columns: ColumnsType<DataType> = [
   {
@@ -136,27 +125,9 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-const data: DataType[] = [];
-for (let i = 0; i < 100; i++) {
-  data.push({
-    key: i,
-    age: i + 1,
-
-    malesFemalesAll: 'malesFemalesAll',
-    malesAll: 'malesAll',
-    femalesAll: 'femalesAll',
-
-    malesFemalesCity: 'malesFemalesCity',
-    malesCity: 'malesCity',
-    femalesCity: 'femalesCity',
-
-    malesFemalesRural: 'malesFemalesRural',
-    malesRural: 'malesRural',
-    femalesRural: 'femalesRural',
-  });
-}
-
 const SubjectsPage = () => {
+  const data: DataType[] = [];
+  let location = useLocation();
   const {keys, subjectTree, worksheets}: any = useLoaderData();
   const [value, setValue] = useState(keys);
   const navigate = useNavigate();
@@ -173,6 +144,10 @@ const SubjectsPage = () => {
     let queryParams = value.map((key: any) => `key=${key}`).join('&');
     navigate(url + '?' + queryParams);
   }
+
+  useEffect(() => {
+    console.log('Query parameters changed');
+  }, [location])
 
   return (
     <Layout>
@@ -219,10 +194,30 @@ const SubjectsPage = () => {
                 }
               >
                 {(resolved) => {
-                  const markup = { __html: resolved };
+                  console.log('Got data from sheets:');
+                  console.warn(resolved);
+                  resolved.forEach((row: any, i: number) => {
+                    data.push({
+                      key: i,
+                      age: row[0],
+
+                      malesFemalesAll: row[1],
+                      malesAll: row[2],
+                      femalesAll: row[3],
+
+                      malesFemalesCity: row[4],
+                      malesCity: row[5],
+                      femalesCity: row[6],
+
+                      malesFemalesRural: row[7],
+                      malesRural: row[8],
+                      femalesRural: row[9],
+                    });
+                  });
+                  console.log('Parsed data from sheets:');
+                  console.warn(data);
                   return (
                     <>
-                      <div dangerouslySetInnerHTML={markup}></div>
                       <Table
                         columns={columns}
                         dataSource={data}
