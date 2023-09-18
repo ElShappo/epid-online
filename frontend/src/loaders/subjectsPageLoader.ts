@@ -19,11 +19,17 @@ function subjectsPageLoader({request} : any) {
         worksheetsUrl.searchParams.set('key', key);
     }
 
+    // set default key that corresponds to 'Центральный федеральный округ'
+    if (keys.length === 0) {
+        keys.push('2.1.');
+    }
+
     console.log(`Preparing to fetch url = ${worksheetsUrl}`);
 
     return defer({
+        keys,
         subjectTree: fetch('http://localhost:3002/subjectTree').then(res => res.json() ),
-        worksheets: fetch(worksheetsUrl).then(res => res.json() ),
+        worksheets: fetch(worksheetsUrl).then(res => res.text() ),
         promise: new Promise((resolve, reject) => {
             setTimeout(() => reject(5), 5000);
         })

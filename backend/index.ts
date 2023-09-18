@@ -71,7 +71,8 @@ app.get('/subjects', async (req: Request, res: Response) => {
     console.log(`Modified keys: ${keys}`);
 
     for (let key of keys) {
-      worksheets.push(workbook.Sheets[key]);
+      let ws = workbook.Sheets[key];
+      worksheets.push(XLSX.utils.sheet_to_html(ws));
     }
-    res.send(worksheets);
+    res.send(worksheets[0]);
 })

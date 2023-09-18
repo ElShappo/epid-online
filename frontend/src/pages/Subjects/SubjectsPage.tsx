@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
 import { Layout, TreeSelect } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
 
 const SubjectsPage = () => {
-  const {subjectTree, worksheets, promise}: any = useLoaderData();
-  const [value, setValue] = useState(['2.1.']);
+  const {keys, subjectTree, worksheets}: any = useLoaderData();
+  const [value, setValue] = useState(keys);
+  const navigate = useNavigate();
   
   const onChange = (newValue: string[]) => {
-    console.log('onChange ', value);
+    console.log('Old value: ', value);
+    console.log('New value: ', newValue);
+
+    let url = '/subjects';
+    let queryParams = newValue.map(key => `key=${key}`).join('&');
+
     setValue(newValue);
+    navigate(url + '?' + queryParams);
   };
 
   return (
@@ -28,7 +36,7 @@ const SubjectsPage = () => {
                 }
               >
                 {(resolved) => {
-                  console.warn(resolved);
+                  // console.warn(resolved);
                   const tProps = {
                     treeData: resolved,
                     value,
@@ -46,14 +54,19 @@ const SubjectsPage = () => {
             </React.Suspense>
           </Sider>
           <Content style={{ padding: '0 24px', minHeight: 280 }}>
-          <React.Suspense fallback={<div>Loading subjects...</div>}>
+          <React.Suspense fallback={<div>Loading table...</div>}>
               <Await
-                resolve={promise}
+                resolve={worksheets}
                 errorElement={
-                  <div>Could not load subjects 😬</div>
+                  <div>Could not load table 😬</div>
                 }
               >
-                {(resolved) => <div>Resolved value: {resolved}</div>}
+                {(resolved) => {
+                  const markup = { __html: resolved };
+                  return (
+                    <div dangerouslySetInnerHTML={markup}></div>
+                  )
+                }}
               </Await>
             </React.Suspense>
           </Content>
