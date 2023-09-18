@@ -13,8 +13,11 @@ const port = process.env.PORT || 3003;
 app.use(cors() );
 app.use(express.json() );
 
-const username = process.env.USERNAME;
-const password = process.env.PASSWORD;
+const username = process.env.VALID_USERNAME;
+const password = process.env.VALID_PASSWORD;
+
+console.log(`Valid username: ${username}`);
+console.log(`Valid password: ${password}`);
 
 let workbook = XLSX.readFile('./files/Population2023.xlsx', {
   type: "file"

@@ -4,6 +4,7 @@ import { Button, Checkbox, Form, Input } from 'antd';
 import './AuthorizationPage.css'
 import { useDispatch } from 'react-redux';
 import { authorize, unauthorize } from '../../globalStore/authorizationSlice';
+import { message } from 'antd';
 
 type FieldType = {
   username?: string;
@@ -14,6 +15,24 @@ type FieldType = {
 const AuthorizationPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [messageApi, contextHolder] = message.useMessage();
+  const key = 'updatable';
+
+  function showAuthorizationLoading() {
+    messageApi.open({
+      key,
+      type: 'loading',
+      content: 'Loading...',
+    });
+  }
+
+  function showAuthorizationError(errorText: string) {
+    messageApi.open({
+      key,
+      type: 'error',
+      content: errorText,
+    });
+  };
 
   const onFinish = async (values: any) => {
     console.log('Passing values:');
@@ -21,6 +40,7 @@ const AuthorizationPage = () => {
     console.log(JSON.stringify(values));
 
     try {
+      showAuthorizationLoading();
       let response = await fetch('http://localhost:3002/authorization', {
         method: "POST",
         headers: {
@@ -34,11 +54,15 @@ const AuthorizationPage = () => {
         dispatch(authorize() );
         navigate('/subjects/moscow');
       } else {
-        console.error('Invalid username or password');
+        const errorText = 'Invalid username or password';
+        showAuthorizationError(errorText);
+        console.error(errorText);
         dispatch(unauthorize() );
       }
     } catch (error) {
-      console.error('Something went wrong');
+      const errorText = 'Something went wrong';
+      showAuthorizationError(errorText);
+      console.error(errorText);
       dispatch(unauthorize() );
     }
   };
@@ -49,6 +73,7 @@ const AuthorizationPage = () => {
 
   return (
     <div className='authorization'>
+      {contextHolder}
       <Form
       name="basic"
       labelCol={{ span: 8 }}
