@@ -1,37 +1,39 @@
 import { defer, redirect } from "react-router-dom";
 import store from "../globalStore/store";
 
-function subjectsPageLoader({request} : any) {
+function subjectsPageLoader({params} : any) {
     const state = store.getState();
+    console.log('Got state in subjectsPageLoader:');
     console.log(state);
+
+    let {keys} = params;
+    console.warn('Keys before formatting:');
+    console.warn(keys);
+    keys = keys.split(',');
+    console.log('Got keys in subjectsPageLoader:');
+    console.log(keys);
 
     if (!state.authorization.authorized) {
         console.warn('User is not authorized: redirecting...');
         return redirect('/authorization');
     }
-    const url = new URL(request.url);
-    const keys = url.searchParams.getAll('key');
-    
-    console.log(url.href);
-
-    const worksheetsUrl = new URL('http://localhost:3002/subjects');
+    // set default key that corresponds to 'Центральный федеральный округ'
+    if (keys.length === 0) {
+        console.warn('No keys passed (subjectsPageLoader): manually adding default 2.1. key')
+        keys.push('2.1.');
+    }
+    const worksheetsUrl = new URL(`http://localhost:3002/subjects/`);
     for (let key of keys) {
         worksheetsUrl.searchParams.append('key', key);
     }
-
-    // set default key that corresponds to 'Центральный федеральный округ'
-    if (keys.length === 0) {
-        keys.push('2.1.');
-    }
-
-    console.log(`Preparing to fetch url = ${worksheetsUrl}`);
+    console.log(`Fetching url (subjectsPageLoader) = ${worksheetsUrl}`);
 
     return defer({
         keys,
         subjectTree: fetch('http://localhost:3002/subjectTree').then(res => res.json() ),
         worksheets: fetch(worksheetsUrl).then(res => res.json() ),
         promise: new Promise((resolve, reject) => {
-            setTimeout(() => reject(5), 5000);
+            setTimeout(() => resolve(5), 2000);
         })
     })
 }

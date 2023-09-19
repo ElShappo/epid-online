@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Await, useLoaderData, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Await, useLoaderData } from 'react-router-dom';
 import { Button, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Table } from 'antd';
@@ -26,110 +26,110 @@ interface DataType {
 }
 
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Age (years)',
-    dataIndex: 'age',
-    key: 'age',
-    width: 100,
-    fixed: 'left',
-    // filters: [
-    //   {
-    //     text: 'Joe',
-    //     value: 'Joe',
-    //   },
-    //   {
-    //     text: 'John',
-    //     value: 'John',
-    //   },
-    // ],
-    // onFilter: (value: string | number | boolean, record: any) => record.name.indexOf(value) === 0,
-  },
-  {
-    title: 'All population',
-    children: [
-      {
-        title: 'Males and females',
-        dataIndex: 'malesFemalesAll',
-        key: 'malesFemalesAll',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-      {
-        title: 'Males',
-        dataIndex: 'malesAll',
-        key: 'malesAll',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-      {
-        title: 'Females',
-        dataIndex: 'femalesAll',
-        key: 'femalesAll',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-    ],
-  },
-  {
-    title: 'City population',
-    children: [
-      {
-        title: 'Males and females',
-        dataIndex: 'malesFemalesCity',
-        key: 'malesFemalesCity',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-      {
-        title: 'Males',
-        dataIndex: 'malesCity',
-        key: 'malesCity',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-      {
-        title: 'Females',
-        dataIndex: 'femalesCity',
-        key: 'femalesCity',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-    ],
-  },
-  {
-    title: 'Rural population',
-    children: [
-      {
-        title: 'Males and females',
-        dataIndex: 'malesFemalesRural',
-        key: 'malesFemalesRural',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-      {
-        title: 'Males',
-        dataIndex: 'malesRural',
-        key: 'malesRural',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-      {
-        title: 'Females',
-        dataIndex: 'femalesRural',
-        key: 'femalesRural',
-        width: 150,
-        // sorter: (a, b) => a.age - b.age,
-      },
-    ],
-  },
-];
 
 const SubjectsPage = () => {
-  const data: DataType[] = [];
-  let location = useLocation();
+  let data: DataType[] = [];
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Age (years)',
+      dataIndex: 'age',
+      key: 'age',
+      width: 100,
+      fixed: 'left',
+      // filters: [
+      //   {
+      //     text: 'Joe',
+      //     value: 'Joe',
+      //   },
+      //   {
+      //     text: 'John',
+      //     value: 'John',
+      //   },
+      // ],
+      // onFilter: (value: string | number | boolean, record: any) => record.name.indexOf(value) === 0,
+    },
+    {
+      title: 'All population',
+      children: [
+        {
+          title: 'Males and females',
+          dataIndex: 'malesFemalesAll',
+          key: 'malesFemalesAll',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+        {
+          title: 'Males',
+          dataIndex: 'malesAll',
+          key: 'malesAll',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+        {
+          title: 'Females',
+          dataIndex: 'femalesAll',
+          key: 'femalesAll',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+      ],
+    },
+    {
+      title: 'City population',
+      children: [
+        {
+          title: 'Males and females',
+          dataIndex: 'malesFemalesCity',
+          key: 'malesFemalesCity',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+        {
+          title: 'Males',
+          dataIndex: 'malesCity',
+          key: 'malesCity',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+        {
+          title: 'Females',
+          dataIndex: 'femalesCity',
+          key: 'femalesCity',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+      ],
+    },
+    {
+      title: 'Rural population',
+      children: [
+        {
+          title: 'Males and females',
+          dataIndex: 'malesFemalesRural',
+          key: 'malesFemalesRural',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+        {
+          title: 'Males',
+          dataIndex: 'malesRural',
+          key: 'malesRural',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+        {
+          title: 'Females',
+          dataIndex: 'femalesRural',
+          key: 'femalesRural',
+          width: 150,
+          // sorter: (a, b) => a.age - b.age,
+        },
+      ],
+    },
+  ];
   const {keys, subjectTree, worksheets}: any = useLoaderData();
   const [value, setValue] = useState(keys);
+  const [rows, setRows] = useState([]);
   const navigate = useNavigate();
   
   const onChange = (newValue: string[]) => {
@@ -140,14 +140,9 @@ const SubjectsPage = () => {
 
   const onTreeSubmit = () => {
     console.log(`Submitting keys = ${value}`);
-    let url = '/subjects';
-    let queryParams = value.map((key: any) => `key=${key}`).join('&');
-    navigate(url + '?' + queryParams);
+    let url = `/subjects/${value}`;
+    navigate(url);
   }
-
-  useEffect(() => {
-    console.log('Query parameters changed');
-  }, [location])
 
   return (
     <Layout>
@@ -163,7 +158,9 @@ const SubjectsPage = () => {
                 }
               >
                 {(resolved) => {
-                  // console.warn(resolved);
+                  console.log('Subject tree has been loaded');
+                  console.log(resolved);
+
                   const tProps = {
                     treeData: resolved,
                     value,
@@ -194,10 +191,10 @@ const SubjectsPage = () => {
                 }
               >
                 {(resolved) => {
-                  console.log('Got data from sheets:');
-                  console.warn(resolved);
-                  resolved.forEach((row: any, i: number) => {
-                    data.push({
+                  console.log('Data from sheet(-s) has been loaded');
+                  console.log(resolved);
+                  data = resolved.map((row: any, i: number) => {
+                    return {
                       key: i,
                       age: row[0],
 
@@ -212,7 +209,7 @@ const SubjectsPage = () => {
                       malesFemalesRural: row[7],
                       malesRural: row[8],
                       femalesRural: row[9],
-                    });
+                    }
                   });
                   console.log('Parsed data from sheets:');
                   console.warn(data);
@@ -224,6 +221,7 @@ const SubjectsPage = () => {
                         bordered
                         size="middle"
                         scroll={{ x: 'calc(700px + 50%)', y: 240 }}
+                        key={keys}
                       />
                     </>
                   )

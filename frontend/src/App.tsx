@@ -19,7 +19,7 @@ function App() {
       element: <AuthorizationPage />,
     },
     {
-      path: "/subjects",
+      path: "/subjects/:keys",
       element: <SubjectsPage />,
       loader: subjectsPageLoader,
     },
