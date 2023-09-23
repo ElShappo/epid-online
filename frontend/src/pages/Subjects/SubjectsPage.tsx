@@ -222,9 +222,10 @@ const SubjectsPage = () => {
                   console.log('Data from sheet(-s) has been loaded');
                   console.log(resolved);
 
-                  // 'data' includes all rows (summary and others)
+                  // 'data' includes all rows (summary; work group ages; and others)
                   // 0-th element of 'data' is summary
                   // 1st element of 'data' isn't of interest to us because it contains 'в том числе в возрасте, лет'
+                  // work group ages are 103-105 indices - they are also out of interest for us
                   data = resolved.map((row: any, i: number) => {
                     return {
                       key: i,
@@ -246,9 +247,11 @@ const SubjectsPage = () => {
                       proportionRural: (row[9] / row[8]).toFixed(2),
                     }
                   });
-
+                  
+                  // don't include first two elements from 'data' and work group ages
+                  const rowsWithoutSummary = data.slice(2, 103);
                   const summary = data[0];
-                  const rowsWithoutSummary = data.slice(2); // don't include first two elements from 'data'
+
                   console.log('Parsed data from sheets:');
                   console.warn(data);
                   return (
