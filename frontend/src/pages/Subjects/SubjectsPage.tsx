@@ -45,11 +45,16 @@ const SubjectsPage = () => {
       //     value: 'Joe',
       //   },
       //   {
-      //     text: 'John',
-      //     value: 'John',
+      //     text: 'Category 1',
+      //     value: 'Category 1',
+      //   },
+      //   {
+      //     text: 'Category 2',
+      //     value: 'Category 2',
       //   },
       // ],
-      // onFilter: (value: string | number | boolean, record: any) => record.name.indexOf(value) === 0,
+      // filterSearch: true,
+      // onFilter: (value: any, record) => String(record.age).startsWith(value),
     },
     {
       title: 'All population',
@@ -150,7 +155,6 @@ const SubjectsPage = () => {
   ];
   const {keys, subjectTree, worksheets}: any = useLoaderData();
   const [value, setValue] = useState(keys);
-  const [rows, setRows] = useState([]);
   const navigate = useNavigate();
   
   const onChange = (newValue: string[]) => {
@@ -214,6 +218,10 @@ const SubjectsPage = () => {
                 {(resolved) => {
                   console.log('Data from sheet(-s) has been loaded');
                   console.log(resolved);
+
+                  // 'data' includes all rows (summary and others)
+                  // 0-th element of 'data' is summary
+                  // 1st element of 'data' isn't of interest to us because it contains 'в том числе в возрасте, лет'
                   data = resolved.map((row: any, i: number) => {
                     return {
                       key: i,
@@ -235,11 +243,14 @@ const SubjectsPage = () => {
                       proportionRural: (row[9] / row[8]).toFixed(2),
                     }
                   });
+
+                  const summary = data[0];
+                  const rowsWithoutSummary = data.slice(2); // don't include first two elements from 'data'
                   console.log('Parsed data from sheets:');
                   console.warn(data);
                   return (
                     <>
-                      <TableComponent rows={data} columns={columns}></TableComponent>
+                      <TableComponent rowsWithoutSummary={rowsWithoutSummary} columns={columns} summary={summary}></TableComponent>
                     </>
                   )
                 }}
