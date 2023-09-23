@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
 import { Button, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import TableComponent from '../../components/TableComponent';
 
@@ -16,14 +15,17 @@ interface DataType {
   malesFemalesAll: number | string;
   malesAll: number | string;
   femalesAll: number | string;
+  proportionAll: number | string;
 
   malesFemalesCity: number | string;
   malesCity: number | string;
   femalesCity: number | string;
+  proportionCity: number | string;
 
   malesFemalesRural: number | string;
   malesRural: number | string;
   femalesRural: number | string;
+  proportionRural: number | string;
 }
 
 
@@ -73,6 +75,12 @@ const SubjectsPage = () => {
           width: 150,
           // sorter: (a, b) => a.age - b.age,
         },
+        {
+          title: 'Proportion',
+          dataIndex: 'proportionAll',
+          key: 'proportionAll',
+          width: 150
+        }
       ],
     },
     {
@@ -99,6 +107,12 @@ const SubjectsPage = () => {
           width: 150,
           // sorter: (a, b) => a.age - b.age,
         },
+        {
+          title: 'Proportion',
+          dataIndex: 'proportionCity',
+          key: 'proportionCity',
+          width: 150
+        }
       ],
     },
     {
@@ -125,6 +139,12 @@ const SubjectsPage = () => {
           width: 150,
           // sorter: (a, b) => a.age - b.age,
         },
+        {
+          title: 'Proportion',
+          dataIndex: 'proportionRural',
+          key: 'proportionRural',
+          width: 150
+        }
       ],
     },
   ];
@@ -202,28 +222,23 @@ const SubjectsPage = () => {
                       malesFemalesAll: row[1],
                       malesAll: row[2],
                       femalesAll: row[3],
+                      proportionAll: (row[3] / row[2]).toFixed(2),
 
                       malesFemalesCity: row[4],
                       malesCity: row[5],
                       femalesCity: row[6],
+                      proportionCity: (row[6] / row[5]).toFixed(2),
 
                       malesFemalesRural: row[7],
                       malesRural: row[8],
                       femalesRural: row[9],
+                      proportionRural: (row[9] / row[8]).toFixed(2),
                     }
                   });
                   console.log('Parsed data from sheets:');
                   console.warn(data);
                   return (
                     <>
-                      {/* <Table
-                        columns={columns}
-                        dataSource={data}
-                        bordered
-                        size="middle"
-                        scroll={{ x: 'calc(700px + 50%)', y: 240 }}
-                        key={keys}
-                      /> */}
                       <TableComponent rows={data} columns={columns}></TableComponent>
                     </>
                   )

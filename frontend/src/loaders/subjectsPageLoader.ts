@@ -7,11 +7,12 @@ function subjectsPageLoader({params} : any) {
     console.log(state);
 
     let {keys} = params;
-    console.warn('Keys before formatting:');
-    console.warn(keys);
-    keys = keys.split(',');
     console.log('Got keys in subjectsPageLoader:');
     console.log(keys);
+
+    keys = keys.split(',');
+    console.warn('Formatted keys in subjectsPageLoader:');
+    console.warn(keys);
 
     if (!state.authorization.authorized) {
         console.warn('User is not authorized: redirecting...');
@@ -19,7 +20,7 @@ function subjectsPageLoader({params} : any) {
     }
     // set default key that corresponds to 'Центральный федеральный округ'
     if (keys.length === 0) {
-        console.warn('No keys passed (subjectsPageLoader): manually adding default 2.1. key')
+        console.warn('Got no keys in subjectsPageLoader: manually adding default 2.1. key')
         keys.push('2.1.');
     }
     const worksheetsUrl = new URL(`http://localhost:3002/subjects/`);
