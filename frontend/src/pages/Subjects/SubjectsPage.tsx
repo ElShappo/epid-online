@@ -4,6 +4,7 @@ import { Button, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import TableComponent from '../../components/TableComponent';
 
 const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
@@ -215,14 +216,15 @@ const SubjectsPage = () => {
                   console.warn(data);
                   return (
                     <>
-                      <Table
+                      {/* <Table
                         columns={columns}
                         dataSource={data}
                         bordered
                         size="middle"
                         scroll={{ x: 'calc(700px + 50%)', y: 240 }}
                         key={keys}
-                      />
+                      /> */}
+                      <TableComponent rows={data} columns={columns}></TableComponent>
                     </>
                   )
                 }}
