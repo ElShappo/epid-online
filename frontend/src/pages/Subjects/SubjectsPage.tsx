@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import TableComponent from '../../components/TableComponent';
 import { DataType } from '../../types';
 import { columns } from '../../constants';
+import './SubjectsPage.css';
 
 const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
@@ -30,11 +31,14 @@ const SubjectsPage = () => {
   }
 
   return (
-    <Layout>
-      <Header>Russian population tracker</Header>
-      <Content>
-      <Layout style={{ padding: '24px 0', background: 'blue' }}>
-          <Sider style={{ background: 'red' }} width={200}>
+    <Layout className='top-layout'>
+      <Header className='header'>
+        <h1>Russian population tracker</h1>
+      </Header>
+
+      <Content className='content'>
+        <Layout className='content-layout'>
+          <Sider width={250} className='sider'>
             <React.Suspense fallback={<div>Loading tree of subjects...</div>}>
               <Await
                 resolve={subjectTree}
@@ -60,15 +64,15 @@ const SubjectsPage = () => {
                   return (
                     <>
                       <TreeSelect {...tProps} />
-                      <Button type="primary" onClick={onTreeSubmit}>Submit</Button>
+                      <Button type="primary" onClick={onTreeSubmit} className='submit-tree'>Submit</Button>
                     </>
                   )
                 }}
               </Await>
             </React.Suspense>
           </Sider>
-          <Content style={{ padding: '0 24px', minHeight: 280 }}>
-          <React.Suspense fallback={<div>Loading table...</div>}>
+          <Content className='content-table'>
+            <React.Suspense fallback={<div>Loading table...</div>}>
               <Await
                 resolve={worksheets}
                 errorElement={
@@ -152,12 +156,12 @@ const SubjectsPage = () => {
                   console.log('Parsed data from sheets:');
                   console.warn(data);
                   return (
-                    <>
-                      <Input.Search placeholder='Choose age(-s)...' onSearch={(value) => {
+                    <div className='table-with-input'>
+                      <Input.Search className='search-age' placeholder='Choose age(-s)...' onSearch={(value) => {
                         setSearchedText(value);
                       }}></Input.Search>
                       <TableComponent rowsWithoutSummary={rowsWithoutSummary} columns={columns} summary={!searchedText ? summary : undefined}></TableComponent>
-                    </>
+                    </div>
                   )
                 }}
               </Await>

@@ -1,0 +1,55 @@
+.top-layout {
+    height: 100vh;
+}
+
+.header {
+    height: 10vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #7F7FD5;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.content {
+    height: 90vh;
+    background: #06beb6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #48b1bf, #06beb6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #48b1bf, #06beb6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.content-layout {
+    padding: 2em 0.5em;
+    padding-left: 1.5em;
+    height: 100%;
+    background: #06beb6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #48b1bf, #06beb6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #48b1bf, #06beb6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.content-layout .sider {
+    background: white;
+    text-align: center;
+}
+
+.submit-tree {
+    margin-top: 1em;
+}
+
+.content-table {
+    padding-left: 2em;
+    padding-right: 1.5em;
+}
+
+.table-with-input {
+    height: 100%;
+}
+
+/* .search-age {
+    height: 10%;
+}
+
+.main-table {
+    height: 90%;
+} */
