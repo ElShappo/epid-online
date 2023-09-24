@@ -1,3 +1,6 @@
+import { DataType } from "./types";
+import type { ColumnsType } from 'antd/es/table';
+
 const subjects = [
     {
         title: 'Центральный федеральный округ',
@@ -128,4 +131,129 @@ const subjects = [
     }
 ];
 
-export default subjects;
+const columns: ColumnsType<DataType> = [
+    {
+      title: 'Age (years)',
+      dataIndex: 'age',
+      key: 'age',
+      width: 100,
+      fixed: 'left',
+      // filters: [
+      //   {
+      //     text: 'Joe',
+      //     value: 'Joe',
+      //   },
+      //   {
+      //     text: 'Category 1',
+      //     value: 'Category 1',
+      //   },
+      //   {
+      //     text: 'Category 2',
+      //     value: 'Category 2',
+      //   },
+      // ],
+      // filterSearch: true,
+      // onFilter: (value: any, record) => String(record.age).startsWith(value),
+    },
+    {
+      title: 'All population',
+      children: [
+        {
+          title: 'Males and females',
+          dataIndex: 'malesFemalesAll',
+          key: 'malesFemalesAll',
+          width: 150,
+          sorter: (a, b) => +a.malesFemalesAll - +b.malesFemalesAll,
+        },
+        {
+          title: 'Males',
+          dataIndex: 'malesAll',
+          key: 'malesAll',
+          width: 150,
+          sorter: (a, b) => +a.malesAll - +b.malesAll,
+        },
+        {
+          title: 'Females',
+          dataIndex: 'femalesAll',
+          key: 'femalesAll',
+          width: 150,
+          sorter: (a, b) => +a.femalesAll - +b.femalesAll,
+        },
+        {
+          title: 'Proportion',
+          dataIndex: 'proportionAll',
+          key: 'proportionAll',
+          width: 150,
+          sorter: (a, b) => +a.proportionAll - +b.proportionAll,
+        }
+      ],
+    },
+    {
+      title: 'City population',
+      children: [
+        {
+          title: 'Males and females',
+          dataIndex: 'malesFemalesCity',
+          key: 'malesFemalesCity',
+          width: 150,
+          sorter: (a, b) => +a.malesFemalesCity - +b.malesFemalesCity,
+        },
+        {
+          title: 'Males',
+          dataIndex: 'malesCity',
+          key: 'malesCity',
+          width: 150,
+          sorter: (a, b) => +a.malesCity - +b.malesCity,
+        },
+        {
+          title: 'Females',
+          dataIndex: 'femalesCity',
+          key: 'femalesCity',
+          width: 150,
+          sorter: (a, b) => +a.femalesCity - +b.femalesCity,
+        },
+        {
+          title: 'Proportion',
+          dataIndex: 'proportionCity',
+          key: 'proportionCity',
+          width: 150,
+          sorter: (a, b) => +a.proportionCity - +b.proportionCity,
+        }
+      ],
+    },
+    {
+      title: 'Rural population',
+      children: [
+        {
+          title: 'Males and females',
+          dataIndex: 'malesFemalesRural',
+          key: 'malesFemalesRural',
+          width: 150,
+          sorter: (a, b) => +a.malesFemalesRural - +b.malesFemalesRural,
+        },
+        {
+          title: 'Males',
+          dataIndex: 'malesRural',
+          key: 'malesRural',
+          width: 150,
+          sorter: (a, b) => +a.malesRural - +b.malesRural,
+        },
+        {
+          title: 'Females',
+          dataIndex: 'femalesRural',
+          key: 'femalesRural',
+          width: 150,
+          sorter: (a, b) => +a.femalesRural - +b.femalesRural,
+        },
+        {
+          title: 'Proportion',
+          dataIndex: 'proportionRural',
+          key: 'proportionRural',
+          width: 150,
+          sorter: (a, b) => +a.proportionRural - +b.proportionRural,
+        }
+      ],
+    },
+  ];
+
+export {subjects, columns};

@@ -2,139 +2,16 @@ import React, { useState } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
 import { Button, Input, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import type { ColumnsType } from 'antd/es/table';
 import TableComponent from '../../components/TableComponent';
 import { DataType } from '../../types';
+import { columns } from '../../constants';
 
 const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
 
 const SubjectsPage = () => {
   let data: DataType[] = [];
-  const columns: ColumnsType<DataType> = [
-    {
-      title: 'Age (years)',
-      dataIndex: 'age',
-      key: 'age',
-      width: 100,
-      fixed: 'left',
-      // filters: [
-      //   {
-      //     text: 'Joe',
-      //     value: 'Joe',
-      //   },
-      //   {
-      //     text: 'Category 1',
-      //     value: 'Category 1',
-      //   },
-      //   {
-      //     text: 'Category 2',
-      //     value: 'Category 2',
-      //   },
-      // ],
-      // filterSearch: true,
-      // onFilter: (value: any, record) => String(record.age).startsWith(value),
-    },
-    {
-      title: 'All population',
-      children: [
-        {
-          title: 'Males and females',
-          dataIndex: 'malesFemalesAll',
-          key: 'malesFemalesAll',
-          width: 150,
-          sorter: (a, b) => +a.malesFemalesAll - +b.malesFemalesAll,
-        },
-        {
-          title: 'Males',
-          dataIndex: 'malesAll',
-          key: 'malesAll',
-          width: 150,
-          sorter: (a, b) => +a.malesAll - +b.malesAll,
-        },
-        {
-          title: 'Females',
-          dataIndex: 'femalesAll',
-          key: 'femalesAll',
-          width: 150,
-          sorter: (a, b) => +a.femalesAll - +b.femalesAll,
-        },
-        {
-          title: 'Proportion',
-          dataIndex: 'proportionAll',
-          key: 'proportionAll',
-          width: 150,
-          sorter: (a, b) => +a.proportionAll - +b.proportionAll,
-        }
-      ],
-    },
-    {
-      title: 'City population',
-      children: [
-        {
-          title: 'Males and females',
-          dataIndex: 'malesFemalesCity',
-          key: 'malesFemalesCity',
-          width: 150,
-          sorter: (a, b) => +a.malesFemalesCity - +b.malesFemalesCity,
-        },
-        {
-          title: 'Males',
-          dataIndex: 'malesCity',
-          key: 'malesCity',
-          width: 150,
-          sorter: (a, b) => +a.malesCity - +b.malesCity,
-        },
-        {
-          title: 'Females',
-          dataIndex: 'femalesCity',
-          key: 'femalesCity',
-          width: 150,
-          sorter: (a, b) => +a.femalesCity - +b.femalesCity,
-        },
-        {
-          title: 'Proportion',
-          dataIndex: 'proportionCity',
-          key: 'proportionCity',
-          width: 150,
-          sorter: (a, b) => +a.proportionCity - +b.proportionCity,
-        }
-      ],
-    },
-    {
-      title: 'Rural population',
-      children: [
-        {
-          title: 'Males and females',
-          dataIndex: 'malesFemalesRural',
-          key: 'malesFemalesRural',
-          width: 150,
-          sorter: (a, b) => +a.malesFemalesRural - +b.malesFemalesRural,
-        },
-        {
-          title: 'Males',
-          dataIndex: 'malesRural',
-          key: 'malesRural',
-          width: 150,
-          sorter: (a, b) => +a.malesRural - +b.malesRural,
-        },
-        {
-          title: 'Females',
-          dataIndex: 'femalesRural',
-          key: 'femalesRural',
-          width: 150,
-          sorter: (a, b) => +a.femalesRural - +b.femalesRural,
-        },
-        {
-          title: 'Proportion',
-          dataIndex: 'proportionRural',
-          key: 'proportionRural',
-          width: 150,
-          sorter: (a, b) => +a.proportionRural - +b.proportionRural,
-        }
-      ],
-    },
-  ];
+
   const {keys, subjectTree, worksheets}: any = useLoaderData();
   const [value, setValue] = useState(keys);
   const [searchedText, setSearchedText] = useState("");
@@ -228,7 +105,6 @@ const SubjectsPage = () => {
                     }
                   });
 
-                  
                   // don't include first two elements from 'data' and work group ages
                   let rowsWithoutSummary = data.slice(2, 103);
                   const summary = data[0];
@@ -236,6 +112,14 @@ const SubjectsPage = () => {
                   function parser(row: any) {
                     let input = searchedText.trim();
                     let reg = /^(\d+(-|, ))*\d+$/;
+                    let age = String(row.age).trim() as string | number;
+
+                    if (age === 'до 1') {
+                      age = 0;
+                    }
+                    if (age === '100 и более') {
+                      age = 100;
+                    }
 
                     if (input.match(reg) ) {
                       let rangeReg = /\d+-\d+/g
@@ -243,7 +127,7 @@ const SubjectsPage = () => {
                       if (rangeMatches) {
                         for (let rangeMatch of rangeMatches) {
                           let [left, right] = rangeMatch.match(/\d+/g) as any;
-                          if (+row.age >= +left && +row.age <= +right) {
+                          if (+age >= +left && +age <= +right) {
                             return true;
                           }
                         }
@@ -253,7 +137,7 @@ const SubjectsPage = () => {
 
                       for (let singleNumberMatch of singleNumberMatches) {
                         let num = singleNumberMatch[1];
-                        if (+row.age === +num)  {
+                        if (+age === +num)  {
                           return true;
                         }
                       }
