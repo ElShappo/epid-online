@@ -1,34 +1,13 @@
 import React, { useState } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
-import { Button, Layout, TreeSelect } from 'antd';
+import { Button, Input, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import TableComponent from '../../components/TableComponent';
+import { DataType } from '../../types';
 
 const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
-
-interface DataType {
-  key: React.Key;
-  age: number | string;
-
-  malesFemalesAll: number | string;
-  malesAll: number | string;
-  femalesAll: number | string;
-  proportionAll: number | string;
-
-  malesFemalesCity: number | string;
-  malesCity: number | string;
-  femalesCity: number | string;
-  proportionCity: number | string;
-
-  malesFemalesRural: number | string;
-  malesRural: number | string;
-  femalesRural: number | string;
-  proportionRural: number | string;
-}
-
-
 
 const SubjectsPage = () => {
   let data: DataType[] = [];
@@ -158,6 +137,7 @@ const SubjectsPage = () => {
   ];
   const {keys, subjectTree, worksheets}: any = useLoaderData();
   const [value, setValue] = useState(keys);
+  const [searchedText, setSearchedText] = useState("");
   const navigate = useNavigate();
   
   const onChange = (newValue: string[]) => {
@@ -247,16 +227,52 @@ const SubjectsPage = () => {
                       proportionRural: (row[9] / row[8]).toFixed(2),
                     }
                   });
+
                   
                   // don't include first two elements from 'data' and work group ages
-                  const rowsWithoutSummary = data.slice(2, 103);
+                  let rowsWithoutSummary = data.slice(2, 103);
                   const summary = data[0];
+
+                  function parser(row: any) {
+                    let input = searchedText.trim();
+                    let reg = /^(\d+(-|, ))*\d+$/;
+
+                    if (input.match(reg) ) {
+                      let rangeReg = /\d+-\d+/g
+                      let rangeMatches = input.match(rangeReg);
+                      if (rangeMatches) {
+                        for (let rangeMatch of rangeMatches) {
+                          let [left, right] = rangeMatch.match(/\d+/g) as any;
+                          if (+row.age >= +left && +row.age <= +right) {
+                            return true;
+                          }
+                        }
+                      }
+                      let singleNumberReg = /(?:^| )(\d+)(?:,|$)/g
+                      let singleNumberMatches = Array.from(input.matchAll(singleNumberReg) );
+
+                      for (let singleNumberMatch of singleNumberMatches) {
+                        let num = singleNumberMatch[1];
+                        if (+row.age === +num)  {
+                          return true;
+                        }
+                      }
+                    }
+                    return false;
+                  }
+
+                  if (searchedText) {
+                    rowsWithoutSummary = rowsWithoutSummary.filter(parser);
+                  }
 
                   console.log('Parsed data from sheets:');
                   console.warn(data);
                   return (
                     <>
-                      <TableComponent rowsWithoutSummary={rowsWithoutSummary} columns={columns} summary={summary}></TableComponent>
+                      <Input.Search placeholder='Choose age(-s)...' onSearch={(value) => {
+                        setSearchedText(value);
+                      }}></Input.Search>
+                      <TableComponent rowsWithoutSummary={rowsWithoutSummary} columns={columns} summary={!searchedText ? summary : undefined}></TableComponent>
                     </>
                   )
                 }}
