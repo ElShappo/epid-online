@@ -2,8 +2,46 @@
     height: 100vh;
 }
 
+.navRow > * {
+    padding: 0.5em;
+}
+
+.subjectsNav {
+    width: 100%;
+    /* display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    align-content: center; */
+}
+
+.subjectsNav h1 {
+    text-align: center;
+    line-height: 1.5;
+    /* flex-grow: 1;
+    font-size: 2rem; */
+}
+/*
+.subjectsNav .buttonGroup {
+    flex-grow: 10;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}*/
+
+.buttonGroup {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+    gap: 1em;
+}
+
+.buttonGroup * {
+    /* flex-grow: 1; */
+}
+
 .header {
-    height: 10vh;
+    padding: 1em 2em;
+    height: auto;
     display: flex;
     justify-content: center;
     align-items: center;

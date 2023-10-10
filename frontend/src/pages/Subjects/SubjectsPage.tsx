@@ -6,6 +6,7 @@ import TableComponent from '../../components/TableComponent';
 import { DataType } from '../../types';
 import { columns } from '../../constants';
 import './SubjectsPage.css';
+import { Col, Row } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
@@ -33,7 +34,20 @@ const SubjectsPage = () => {
   return (
     <Layout className='top-layout'>
       <Header className='header'>
-        <h1>Russian population tracker</h1>
+        <nav className='subjectsNav'>
+          <Row justify={'center'} align={'middle'} className='navRow'>
+            <Col sm={{span: 24}} md={{span: 6}}>
+              <h1>ТРЕКЕР НАСЕЛЕНИЯ РФ</h1>
+            </Col>
+            <Col sm={{span: 24}} md={{span: 6, offset: 12}}>
+              <div className='buttonGroup'>
+                <Button>Таблицы</Button>
+                <Button>Графики</Button>
+                <Button>FAQ</Button>
+              </div>
+            </Col>
+          </Row>
+        </nav>
       </Header>
 
       <Content className='content'>
