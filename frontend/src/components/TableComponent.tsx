@@ -7,7 +7,7 @@ const TableComponent = (props: any) => {
         columns={props.columns}
         dataSource={props.rowsWithoutSummary}
         bordered
-        scroll={{ y: "50vh" }}
+        scroll={{ y: `${props.height}` }}
         pagination={false}
         summary={() => {
           if (props.summary) {

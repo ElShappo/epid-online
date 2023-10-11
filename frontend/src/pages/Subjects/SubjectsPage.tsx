@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Await, useLoaderData } from 'react-router-dom';
 import { Button, Input, Layout, TreeSelect } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,8 @@ import { DataType } from '../../types';
 import { columns } from '../../constants';
 import './SubjectsPage.css';
 import { Col, Row } from 'antd';
+import { LineChartOutlined, TableOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import * as XLSX from "xlsx";
 
 const { Header, Content, Sider } = Layout;
 const { SHOW_PARENT } = TreeSelect;
@@ -18,6 +20,8 @@ const SubjectsPage = () => {
   const [value, setValue] = useState(keys);
   const [searchedText, setSearchedText] = useState("");
   const navigate = useNavigate();
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef<any>(null);
   
   const onChange = (newValue: string[]) => {
     console.log('Old value: ', value);
@@ -31,9 +35,17 @@ const SubjectsPage = () => {
     navigate(url);
   }
 
+  // const handleExport = () => {
+  //   const wb = 
+  // }
+
+  useEffect(() => {
+    setHeaderHeight(headerRef.current.clientHeight)
+  }, []);
+
   return (
     <Layout className='top-layout'>
-      <Header className='header'>
+      <Header className='header' ref={headerRef}>
         <nav className='subjectsNav'>
           <Row justify={'center'} align={'middle'} className='navRow'>
             <Col sm={{span: 24}} md={{span: 6}}>
@@ -41,9 +53,9 @@ const SubjectsPage = () => {
             </Col>
             <Col sm={{span: 24}} md={{span: 6, offset: 12}}>
               <div className='buttonGroup'>
-                <Button>Таблицы</Button>
-                <Button>Графики</Button>
-                <Button>FAQ</Button>
+                <Button icon={<TableOutlined />}>Таблица</Button>
+                <Button icon={<LineChartOutlined />}>Графики</Button>
+                <Button icon={<QuestionCircleOutlined />}>FAQ</Button>
               </div>
             </Col>
           </Row>
@@ -174,7 +186,17 @@ const SubjectsPage = () => {
                       <Input.Search className='search-age' placeholder='Choose age(-s)...' onSearch={(value) => {
                         setSearchedText(value);
                       }}></Input.Search>
-                      <TableComponent rowsWithoutSummary={rowsWithoutSummary} columns={columns} summary={!searchedText ? summary : undefined}></TableComponent>
+                      <TableComponent height={`calc(60vh - ${headerHeight}px)`} rowsWithoutSummary={rowsWithoutSummary} columns={columns} summary={!searchedText ? summary : undefined}></TableComponent>
+                      <Button type='primary' onClick={() => {
+                        const workbook = XLSX.utils.book_new();
+                        const worksheet = XLSX.utils.aoa_to_sheet(resolved);
+                        
+                        XLSX.utils.book_append_sheet(workbook, worksheet, 'Лист1');
+                        XLSX.writeFile(workbook, 'table.xlsx', {
+                          bookType: 'xlsx',
+                          type: 'file'
+                        });
+                      }}>Export</Button>
                     </div>
                   )
                 }}
