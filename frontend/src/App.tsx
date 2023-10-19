@@ -10,6 +10,9 @@ import "./App.css";
 import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 import { Provider } from "react-redux";
 import store from "./globalStore/store";
+import ChartsPage from "./pages/Charts/ChartsPage";
+import chartsPageLoader from "./loaders/chartsPageLoader";
+import { MainPage } from "./pages/Main/MainPage";
 
 
 function App() {
@@ -19,15 +22,26 @@ function App() {
       element: <AuthorizationPage />,
     },
     {
-      path: "/subjects/:keys",
-      element: <SubjectsPage />,
-      loader: subjectsPageLoader,
+      path: "/main",
+      element: <MainPage />,
+      children: [
+        {
+          path: "subjects/:keys",
+          element: <SubjectsPage />,
+          loader: subjectsPageLoader,
+        },
+        {
+          path: "charts",
+          element: <ChartsPage />,
+          loader: chartsPageLoader,
+        }
+      ]
     },
     {
       path: "*",
       element: <NotFoundPage />,
       loader: pageNotFoundLoader,
-    }
+    },
   ]);
 
   return (

@@ -22,6 +22,11 @@ let workbook = XLSX.readFile('./files/Population2023.xlsx', {
   type: "file"
 });
 
+XLSX.writeFile(workbook, 'test.xlsx', {
+  bookType: 'xlsx',
+  type: 'file'
+})
+
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
 });
@@ -60,6 +65,8 @@ app.get('/subjects', async (req: Request, res: Response) => {
     }
 
     // remove irrelevant keys
+    // also make sure a user doesn't have access to 'Содержание' page
+    // even if it was manually written in url
     keys = keys.filter((key) => workbook.SheetNames.includes(key) && key !== 'Содержание');
 
     // make sure at least one key is present after filtering

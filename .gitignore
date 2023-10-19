@@ -12,6 +12,9 @@ coverage
 build
 dist
 
+#files
+*.xlsx
+
 # misc
 ~$*
 .DS_Store
