@@ -9,12 +9,3 @@
     background: linear-gradient(to right, #48b1bf, #06beb6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
-.subjectsNav {
-    width: 100%;
-}
-
-.subjectsNav h1 {
-    text-align: center;
-    line-height: 1.5;
-}
-

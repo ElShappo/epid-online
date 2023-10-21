@@ -1,6 +1,7 @@
 import { Table } from 'antd'
 
 const TableComponent = (props: any) => {
+  console.log(props.height)
   if (props.columns) {
     return (
       <Table
@@ -15,7 +16,7 @@ const TableComponent = (props: any) => {
             return (
               <Table.Summary fixed>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell index={0}>Summary</Table.Summary.Cell>
+                  <Table.Summary.Cell index={0}>Итого</Table.Summary.Cell>
 
                   <Table.Summary.Cell index={1}>{props.summary['malesFemalesAll']}</Table.Summary.Cell>
                   <Table.Summary.Cell index={2}>{props.summary['malesAll']}</Table.Summary.Cell>

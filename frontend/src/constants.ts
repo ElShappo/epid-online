@@ -133,10 +133,10 @@ const subjects = [
 
 const columns: ColumnsType<DataType> = [
     {
-      title: 'Age (years)',
+      title: 'Число лет',
       dataIndex: 'age',
       key: 'age',
-      width: 100,
+      width: 75,
       fixed: 'left',
       // filters: [
       //   {

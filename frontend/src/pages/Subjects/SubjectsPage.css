@@ -1,76 +1,41 @@
-.content-layout {
+.main-layout {
     display: flex;
-    flex-flow: row wrap;
-    height: 100%;
+    flex-flow: row;
+    height: 90vh;
     background: #06beb6;  /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, #48b1bf, #06beb6);  /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to right, #48b1bf, #06beb6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
-.content-table {
-    display: flex;
-    flex-flow: row wrap;
-    width: 100vw;
-}
-
-.content-table .sider {
-    width: 30vw;
+.sider {
+    width: 20vw;
+    height: 100%;
     background: rgb(227, 221, 221);
     text-align: center;
 }
 
-@media (max-width: 640px) {
-    .content-table .sider {
-        width: 40vw;
-    }
-}
-
-@media (max-width: 400px) {
-    .content-table .sider {
-        width: 100vw;
-        padding-bottom: 1em;
-    }
-}
-
 .submit-tree {
-    margin-top: 1em;
+    margin: 1em;
 }
 
 .table-with-input {
-    width: 70vw;
-    display: flex;
-    flex-flow: column wrap;
+    width: 80vw;
+    background: rgb(227, 221, 221);
 }
 
-@media (max-width: 640px) {
-    .table-with-input {
-        width: 60vw;
+.choose-regions-title {
+    padding-top: 0.5em;
+}
+
+.button-export {
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .main-layout {
+        flex-flow: column;
     }
-}
-
-@media (max-width: 400px) {
-    .table-with-input {
+    .sider, .table-with-input {
         width: 100vw;
     }
-}
-
-
-.chooseRegions {
-    padding: 0.5em 0;
-}
-
-.ant-input {
-    border-radius: 0;
-}
-
-.ant-input-group-addon > button {
-    border-radius: 0 !important;
-} 
-
-button.ant-btn {
-    border-radius: 0;
-}
-
-.ant-table-header, td, th, thead {
-    border-radius: 0 !important;
 }
