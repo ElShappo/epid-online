@@ -1,0 +1,11 @@
+.button-group {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+    gap: 1em;
+}
+
+.hamburger-button {
+    padding: 0 2em;
+    width: 100px;
+}
