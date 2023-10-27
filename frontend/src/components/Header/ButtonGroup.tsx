@@ -26,7 +26,7 @@ const HeaderButtonGroup = () => {
     {
       key: '2',
       label: (
-        <Button icon={<LineChartOutlined />}>Графики</Button>
+        <Button icon={<LineChartOutlined />} onClick={() => navigate('charts')}>Графики</Button>
       )
     },
     {
