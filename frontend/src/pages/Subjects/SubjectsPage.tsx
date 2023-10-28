@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { Await, useLoaderData } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
-import { Button, Input, Layout, TreeSelect } from "antd";
+import { Button, Input, TreeSelect } from "antd";
 import { useNavigate } from "react-router-dom";
 import TableComponent from "../../components/TableComponent";
 import { Typography } from "antd";
 import { DataType } from "../../types";
 import { columns } from "../../constants";
+import FileSaver from 'file-saver';
 import "./SubjectsPage.css";
-import * as XLSX from "xlsx";
 
-const { Content, Sider } = Layout;
+declare const ExcelJS: any;
+
 const { Title } = Typography;
 const { SHOW_PARENT } = TreeSelect;
 
@@ -177,46 +178,48 @@ const SubjectsPage = () => {
                 <Button
                   type="primary"
                   className="button-export"
-                  onClick={() => {
-                    let resolvedWithColumnTitles = [];
-
-                    resolvedWithColumnTitles.push([
-                      "Age (years)",
-                      "All population",
-                      ,
-                      ,
-                      "City population",
-                      ,
-                      ,
-                      "Rural population",
-                      ,
-                    ]);
-                    resolvedWithColumnTitles.push([
-                      "Males and females",
-                      "Males",
-                      "Females",
-                      "Proportion",
-                      "Males and females",
-                      "Males",
-                      "Females",
-                      "Proportion",
-                      "Males and females",
-                      "Males",
-                      "Females",
-                      "Proportion",
-                    ]);
-                    resolvedWithColumnTitles.push(...resolved);
-
-                    const workbook = XLSX.utils.book_new();
-                    const worksheet = XLSX.utils.aoa_to_sheet(
-                      resolvedWithColumnTitles
-                    );
-
-                    XLSX.utils.book_append_sheet(workbook, worksheet, "Лист1");
-                    XLSX.writeFile(workbook, "table.xlsx", {
-                      bookType: "xlsx",
-                      type: "file",
+                  onClick={async () => {
+                    const workbook = new ExcelJS.Workbook();
+                    workbook.addWorksheet('Лист1', {
+                      pageSetup: {
+                        horizontalCentered: true,
+                        verticalCentered: true,
+                      }
                     });
+                    const worksheet = workbook.getWorksheet('Лист1');
+
+                    let i = 1; // in Excel enumeration starts from 1
+                    for (let row of rowsWithoutSummary) {
+                      worksheet?.insertRow(i, [
+                        row.age,
+
+                        +row.malesFemalesAll,
+                        +row.malesAll,
+                        +row.femalesAll,
+                        +row.proportionAll,
+
+                        +row.malesFemalesCity,
+                        +row.malesCity,
+                        +row.femalesCity,
+                        +row.proportionCity,
+
+                        +row.malesFemalesRural,
+                        +row.malesRural,
+                        +row.femalesRural,
+                        +row.proportionRural
+                      ]);
+                      ++i;
+                    }
+                    worksheet?.insertRow(1, ['Число лет', 'all', 'all', 'all', 'all', 'city', 'city', 'city', 'city', 'rural', 'rural', 'rural', 'rural']);
+                    worksheet?.insertRow(2, ['Число лет', 'all', 'men', 'women', 'prop', 'all', 'men', 'women', 'prop', 'all', 'men', 'women', 'prop']);
+                    
+                    worksheet?.mergeCells('B1:E1');
+                    worksheet?.mergeCells('F1:I1');
+                    worksheet?.mergeCells('J1:M1');
+                    worksheet?.mergeCells('A1:A2');
+
+                    const buffer = await workbook.xlsx.writeBuffer();
+                    FileSaver.saveAs(new Blob([buffer]), "result.xlsx"); 
                   }}
                 >
                   Export
