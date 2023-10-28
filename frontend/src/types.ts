@@ -18,4 +18,16 @@ export interface DataType {
     proportionRural: number | string;
 }
 
+export type ChartDataset = {
+    data: number[];
+    label?: string;
+    borderColor?: string;
+    backgroundColor?: string;
+  };
+  
+export type ChartData = {
+    labels: string[] | number[];
+    datasets: ChartDataset[];
+  };
+
 export type DataIndex = keyof DataType;
