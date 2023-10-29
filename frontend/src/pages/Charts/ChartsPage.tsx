@@ -8,6 +8,7 @@ import { ChartDataset } from "../../types";
 const ChartsPage = () => {
   const [regionsIDs, setRegionsIDs] = useState<string[]>();
   const [subjects, setSubjects] = useState<any>();
+  const xlabels = Array.from(Array(101).keys());
 
   const [totalPopulationPerAge, setTotalPopulationPerAge] = useState<ChartDataset[]>([{data: []}]);
   const [ruralToCityPopulationRatioPerAge, setRuralToCityPopulationRatioPerAge] = useState<number[]>();
@@ -49,48 +50,54 @@ const ChartsPage = () => {
    />
 
   return (
-    <div className="charts">
-      {messageWrapper}
-      <div className="chart">
-        <LineChart
-          xlabels={Array.from(Array(101).keys())}
-          datasets={totalPopulationPerAge}
-        />
+    <div className="charts-with-tree">
+      <div className="charts">
+        {messageWrapper}
+        <div className="chart">
+          <LineChart
+            xlabels={xlabels}
+            datasets={totalPopulationPerAge}
+            title="Распределение по возрастам"
+          />
+        </div>
+        <div className="chart">
+          <LineChart
+            xlabels={xlabels}
+            datasets={[
+              {
+                data: [1, 2, 3],
+                label: "first",
+              },
+            ]}
+            title="Отношение сельского и городского населений"
+          />
+        </div>
+        <div className="chart">
+          <LineChart
+            xlabels={xlabels}
+            datasets={[
+              {
+                data: [1, 2, 3],
+                label: "first",
+              },
+            ]}
+            title="Отношения числа женщин к числу мужчин"
+          />
+        </div>
+      </div>
+      <div className="tree">
         <TreeSelect
-          showSearch
-          style={{ width: "100%" }}
-          value={regionsIDs}
-          dropdownStyle={{ maxWidth: "100%", maxHeight: 400, overflow: "auto" }}
-          placeholder="Выберите субъекты РФ"
-          allowClear
-          multiple
-          treeDefaultExpandAll
-          onChange={onRegionsIDsChange}
-          treeData={subjects}
-        />
-        <Button type="primary" onClick={onTreeSubmit}>Submit</Button>
-      </div>
-      <div className="chart">
-        <LineChart
-          xlabels={[1, 2, 3]}
-          datasets={[
-            {
-              data: [1, 2, 3],
-              label: "first",
-            },
-          ]}
-        />
-      </div>
-      <div className="chart">
-        <LineChart
-          xlabels={[1, 2, 3]}
-          datasets={[
-            {
-              data: [1, 2, 3],
-              label: "first",
-            },
-          ]}
-        />
+            showSearch
+            style={{ width: "50%" }}
+            value={regionsIDs}
+            dropdownStyle={{ maxWidth: "100%", overflow: "auto" }}
+            placeholder="Выберите субъекты РФ"
+            multiple
+            treeDefaultExpandAll
+            onChange={onRegionsIDsChange}
+            treeData={subjects}
+          />
+          <Button type="primary" onClick={onTreeSubmit} className="submit-tree">Submit</Button>
       </div>
     </div>
   );

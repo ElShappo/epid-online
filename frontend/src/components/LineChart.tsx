@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,6 +32,7 @@ type Props = {
 const LineChart = (props: Props) => {
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: props.position || "top",
@@ -47,6 +48,15 @@ const LineChart = (props: Props) => {
     labels: props.xlabels,
     datasets: props.datasets
   }
+
+  useEffect(() => {
+    function beforePrintHandler () {
+      for (let id in ChartJS.instances) {
+          ChartJS.instances[id].resize();
+      }
+    }
+    window.addEventListener('beforeprint', beforePrintHandler);
+  }, []);
 
   return <Line options={options} data={data as any} />;
 };
