@@ -20,6 +20,22 @@ function getTotalPopulationPerAge(worksheet: XLSX.WorkSheet) {
   return res;
 }
 
+function getRuralToCityPopulationRatioPerAge(worksheet: XLSX.WorkSheet) {
+  const res: number[] = [];
+  for (let i = 9; i < 110; ++i) {
+    res.push(worksheet[`H${i}`].v / worksheet[`E${i}`].v)
+  }
+  return res;
+}
+
+function getWomenToMenRatioPerAge(worksheet: XLSX.WorkSheet) {
+  const res: number[] = [];
+  for (let i = 9; i < 110; ++i) {
+    res.push(worksheet[`D${i}`].v / worksheet[`C${i}`].v)
+  }
+  return res;
+}
+
 function getMergedRegionsName(worksheets: XLSX.WorkSheet[]): string {
   let names: string[] = [];
   for (let worksheet of worksheets) {
@@ -119,4 +135,4 @@ function getSubjectTree(ws: XLSX.WorkSheet) {
     return subjectTree;
 }
 
-export {getTotalPopulationPerAge, getMergedRegionsName, getMergedTablesData, getSubjectTree};
+export {getTotalPopulationPerAge, getRuralToCityPopulationRatioPerAge, getWomenToMenRatioPerAge, getMergedRegionsName, getMergedTablesData, getSubjectTree};

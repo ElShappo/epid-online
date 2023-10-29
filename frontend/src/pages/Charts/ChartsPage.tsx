@@ -11,8 +11,8 @@ const ChartsPage = () => {
   const xlabels = Array.from(Array(101).keys());
 
   const [totalPopulationPerAge, setTotalPopulationPerAge] = useState<ChartDataset[]>([{data: []}]);
-  const [ruralToCityPopulationRatioPerAge, setRuralToCityPopulationRatioPerAge] = useState<number[]>();
-  const [womenToMenRatioPerAge, setWomenToMenRatioPerAge] = useState<number[]>();
+  const [ruralToCityRatioPerAge, setRuralToCityRatioPerAge] = useState<ChartDataset[]>([{data: []}]);
+  const [womenToMenRatioPerAge, setWomenToMenRatioPerAge] = useState<ChartDataset[]>([{data: []}]);
 
   const onRegionsIDsChange = (newValue: string[]) => {
     console.log(newValue);
@@ -21,11 +21,29 @@ const ChartsPage = () => {
 
   const onTreeSubmit = async () => {
     console.log(`Submitting keys = ${regionsIDs}`);
-    let regionsJsons = (regionsIDs as string[]).map(async (id) => 
-      (await fetch(`http://localhost:3002/subjectsPopulationsByAges?key=${id}`)).json() 
+
+    let populationPerAgeJsons = (regionsIDs as string[]).map(async (id) => 
+      (await fetch(`http://localhost:3002/populationPerAge?key=${id}`)).json() 
     );
-    let regionsData = await Promise.all(regionsJsons);
-    setTotalPopulationPerAge(regionsData);
+    let populationPerAgeData = await Promise.all(populationPerAgeJsons);
+    populationPerAgeData = populationPerAgeData.map(each => {
+      // each.backgroundColor = 'grey';
+      // each.borderColor = 'cyan';
+      return each;
+    })
+    setTotalPopulationPerAge(populationPerAgeData);
+
+    let ruralToCityRatioPerAgeJsons = (regionsIDs as string[]).map(async (id) => 
+      (await fetch(`http://localhost:3002/ruralToCityRatioPerAge?key=${id}`)).json() 
+    );
+    let ruralToCityRatioPerAgeData = await Promise.all(ruralToCityRatioPerAgeJsons);
+    setRuralToCityRatioPerAge(ruralToCityRatioPerAgeData);
+
+    let womenToMenRatioPerAgeJsons = (regionsIDs as string[]).map(async (id) => 
+      (await fetch(`http://localhost:3002/womenToMenRatioPerAge?key=${id}`)).json() 
+    );
+    let womenToMenRatioPerAgeData = await Promise.all(womenToMenRatioPerAgeJsons);
+    setWomenToMenRatioPerAge(womenToMenRatioPerAgeData);
 
     // setTotalPopulationPerAge(regionsData.map(region => {
     //     return {
@@ -51,6 +69,20 @@ const ChartsPage = () => {
 
   return (
     <div className="charts-with-tree">
+      <div className="tree">
+        <TreeSelect
+            showSearch
+            style={{ width: "50%" }}
+            value={regionsIDs}
+            dropdownStyle={{ maxWidth: "100%", overflow: "auto" }}
+            placeholder="Выберите субъекты РФ"
+            multiple
+            treeDefaultExpandAll
+            onChange={onRegionsIDsChange}
+            treeData={subjects}
+          />
+          <Button type="primary" onClick={onTreeSubmit} className="submit-tree">Submit</Button>
+      </div>
       <div className="charts">
         {messageWrapper}
         <div className="chart">
@@ -65,12 +97,7 @@ const ChartsPage = () => {
           <Chart
             type="Bar"
             xlabels={xlabels}
-            datasets={[
-              {
-                data: [1, 2, 3],
-                label: "first",
-              },
-            ]}
+            datasets={ruralToCityRatioPerAge}
             title="Отношение сельского и городского населений"
           />
         </div>
@@ -78,29 +105,10 @@ const ChartsPage = () => {
           <Chart
             type="Bar"
             xlabels={xlabels}
-            datasets={[
-              {
-                data: [1, 2, 3],
-                label: "first",
-              },
-            ]}
+            datasets={womenToMenRatioPerAge}
             title="Отношения числа женщин к числу мужчин"
           />
         </div>
-      </div>
-      <div className="tree">
-        <TreeSelect
-            showSearch
-            style={{ width: "50%" }}
-            value={regionsIDs}
-            dropdownStyle={{ maxWidth: "100%", overflow: "auto" }}
-            placeholder="Выберите субъекты РФ"
-            multiple
-            treeDefaultExpandAll
-            onChange={onRegionsIDsChange}
-            treeData={subjects}
-          />
-          <Button type="primary" onClick={onTreeSubmit} className="submit-tree">Submit</Button>
       </div>
     </div>
   );
