@@ -1,92 +1,74 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LineChart from "../../components/LineChart";
-import { TreeSelect, message } from "antd";
+import { Button, TreeSelect } from "antd";
 import "./ChartsPage.css";
+import MessageWrapper from "../../components/MessageWrapper";
+import { ChartDataset } from "../../types";
 
 const ChartsPage = () => {
-  const [populationByAge, setPopulationByAge] = useState<string[]>();
+  const [regionsIDs, setRegionsIDs] = useState<string[]>();
   const [subjects, setSubjects] = useState<any>();
-  const [messageApi] = message.useMessage();
-  const loadingMessageKey = "loadingMessage";
-  const errorMessageKey = "errorMessage";
 
-  const onPopulationByAgeChange = (newValue: string[]) => {
+  const [totalPopulationPerAge, setTotalPopulationPerAge] = useState<ChartDataset[]>([{data: []}]);
+  const [ruralToCityPopulationRatioPerAge, setRuralToCityPopulationRatioPerAge] = useState<number[]>();
+  const [womenToMenRatioPerAge, setWomenToMenRatioPerAge] = useState<number[]>();
+
+  const onRegionsIDsChange = (newValue: string[]) => {
     console.log(newValue);
-    setPopulationByAge(newValue);
+    setRegionsIDs(newValue);
   };
 
-  useEffect(() => {
-    async function loadSubjects() {
-      
-      // antd library doesn't supply message component with a delay
-      // so I implemented my own version
-      // the drawback is that there might be a situation where fetching subjects
-      // succeeds before the delay expires - in that case user will have to wait that additional time
-      // with that said to improve UX DO NOT SET delay over 1s
-      const loadingMessageDelay = 1000;
-      let loadingMessagePromise = new Promise(resolve => {
-        setTimeout(() => {
-          message.loading({
-            content: "Загружаю список субъектов РФ...",
-            duration: 0,
-            key: loadingMessageKey,
-            style: {
-              position: "absolute",
-              right: "1em",
-              top: "10vh",
-            },
-          });
-          resolve(undefined);
-        }, loadingMessageDelay)
-      });
+  const onTreeSubmit = async () => {
+    console.log(`Submitting keys = ${regionsIDs}`);
+    let regionsJsons = (regionsIDs as string[]).map(async (id) => (await fetch(`http://localhost:3002/subjectsPopulationsByAges?key=${id}`)).json() );
+    let regionsData = await Promise.all(regionsJsons);
+    console.error(subjects)
+    console.error(regionsData);
+    setTotalPopulationPerAge(regionsData);
 
-      try {
-        // extract only first promise which by the way already contains json with subjects
-        // the 2nd promise doesn't return anything useful and is only used to show loadingMessage after the delay expires
-        let [json] = await Promise.all([(await fetch("http://localhost:3002/subjectTree")).json(), loadingMessagePromise]);
-        setSubjects(json);
-      } catch (error) {
-        message.error({
-          content: "Не удалось загрузить субъекты РФ",
-          key: errorMessageKey,
-          style: {
-            position: "absolute",
-            right: "1em",
-            top: "10vh",
-          },
-        });
-        console.error("could not fetch subjects");
-      } finally {
-        message.destroy(loadingMessageKey);
-      }
-    }
-    loadSubjects();
-  }, [messageApi]);
+    // setTotalPopulationPerAge(regionsData.map(region => {
+    //     return {
+    //       data: region.slice(2, 103)
+    //       .reduce((arr: any, row: any) => {
+    //         arr.push(row[1]);
+    //         return arr;
+    //       }, []),
+    //       label: 'test'
+    //     }
+    //   }))
+      
+  };
+
+  const messageWrapper = <MessageWrapper delay={400} fetchAddress="http://localhost:3002/subjectTree"
+    loadingMessageContent="Загружаю список субъектов РФ..." errorMessageContent="Не удалось загрузить субъекты РФ"
+    setValue={setSubjects} style={{
+        position: "absolute",
+        right: "1em",
+        top: "10vh",
+      }}
+   />
 
   return (
     <div className="charts">
+      {messageWrapper}
       <div className="chart">
         <LineChart
-          xlabels={[1, 2, 3]}
-          datasets={[
-            {
-              data: [1, 2, 3],
-              label: "first",
-            },
-          ]}
+          xlabels={Array.from(Array(101).keys())}
+          datasets={totalPopulationPerAge}
         />
         <TreeSelect
           showSearch
           style={{ width: "100%" }}
-          value={populationByAge}
+          value={regionsIDs}
           dropdownStyle={{ maxWidth: "100%", maxHeight: 400, overflow: "auto" }}
           placeholder="Выберите субъекты РФ"
           allowClear
           multiple
           treeDefaultExpandAll
-          onChange={onPopulationByAgeChange}
+          onChange={onRegionsIDsChange}
           treeData={subjects}
         />
+        <Button type="primary" onClick={onTreeSubmit}>Submit</Button>
       </div>
       <div className="chart">
         <LineChart

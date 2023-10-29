@@ -23,9 +23,9 @@ ChartJS.register(
 );
 
 type Props = {
-  datasets: ChartDataset[];
+  datasets: ChartDataset[]; // holds data and legend
   xlabels: string[] | number[];
-  title?: string;
+  title?: string; // title of the whole chart
   position?: "top" | "right" | "bottom" | "left";
 };
 

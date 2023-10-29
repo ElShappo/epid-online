@@ -1,4 +1,4 @@
-import {defer, redirect} from 'react-router-dom'
+import {redirect} from 'react-router-dom'
 import store from "../globalStore/store";
 
 export default function chartsPageLoader() {

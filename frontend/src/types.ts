@@ -20,7 +20,7 @@ export interface DataType {
 
 export type ChartDataset = {
     data: number[];
-    label?: string;
+    label?: string; // a legend actually
     borderColor?: string;
     backgroundColor?: string;
   };
