@@ -25,6 +25,10 @@
 }
 
 @media (max-width: 800px) {
+    .nav-header {
+        gap: 2em;
+    }
+
     .main-button {
         font-size: 1.2em;
     }
@@ -34,6 +38,9 @@
 }
 
 @media (max-width: 500px) {
+    .nav-header {
+        gap: 1em;
+    }
     .main-button {
         font-size: 1em;
         width: auto;

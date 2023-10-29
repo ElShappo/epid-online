@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { Await, useLoaderData } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
-import { Button, Input, Layout, TreeSelect } from "antd";
+import { Button, Input, TreeSelect } from "antd";
 import { useNavigate } from "react-router-dom";
 import TableComponent from "../../components/TableComponent";
 import { Typography } from "antd";
 import { DataType } from "../../types";
 import { columns } from "../../constants";
+import FileSaver from 'file-saver';
 import "./SubjectsPage.css";
-import * as XLSX from "xlsx";
 
-const { Content, Sider } = Layout;
+declare const ExcelJS: any;
+
 const { Title } = Typography;
 const { SHOW_PARENT } = TreeSelect;
 
@@ -98,17 +99,26 @@ const SubjectsPage = () => {
                 malesFemalesAll: row[1],
                 malesAll: row[2],
                 femalesAll: row[3],
-                proportionAll: (row[3] / row[2]).toFixed(2),
+
+                // there can be regions with no data about specific age(-s)
+                // the absence of data is denoted with '–' in the original excel spreadsheet
+                // arithmetical operations on non-numeric values lead to NaN, which
+                // we do not want to show to the end user
+                // that's why if the operation result turns out to be NaN, that means we encountered
+                // corrupted or just no data - whichever happens to be the case we substitute it with '–'
+                // which will be shown to the end user
+                // surprisingly NaN.toFixed() returns 'NaN' (a JS string), that explains the strange comparisons in the code below
+                proportionAll: ((row[3] / row[2]).toFixed(2) !== 'NaN') ? (row[3] / row[2]).toFixed(2) : '–',
 
                 malesFemalesCity: row[4],
                 malesCity: row[5],
                 femalesCity: row[6],
-                proportionCity: (row[6] / row[5]).toFixed(2),
+                proportionCity: ((row[6] / row[5]).toFixed(2) !== 'NaN') ? (row[6] / row[5]).toFixed(2) : '–',
 
                 malesFemalesRural: row[7],
                 malesRural: row[8],
                 femalesRural: row[9],
-                proportionRural: (row[9] / row[8]).toFixed(2),
+                proportionRural: ((row[9] / row[8]).toFixed(2) !== 'NaN') ? (row[9] / row[8]).toFixed(2) : '–',
               };
             });
 
@@ -177,46 +187,48 @@ const SubjectsPage = () => {
                 <Button
                   type="primary"
                   className="button-export"
-                  onClick={() => {
-                    let resolvedWithColumnTitles = [];
-
-                    resolvedWithColumnTitles.push([
-                      "Age (years)",
-                      "All population",
-                      ,
-                      ,
-                      "City population",
-                      ,
-                      ,
-                      "Rural population",
-                      ,
-                    ]);
-                    resolvedWithColumnTitles.push([
-                      "Males and females",
-                      "Males",
-                      "Females",
-                      "Proportion",
-                      "Males and females",
-                      "Males",
-                      "Females",
-                      "Proportion",
-                      "Males and females",
-                      "Males",
-                      "Females",
-                      "Proportion",
-                    ]);
-                    resolvedWithColumnTitles.push(...resolved);
-
-                    const workbook = XLSX.utils.book_new();
-                    const worksheet = XLSX.utils.aoa_to_sheet(
-                      resolvedWithColumnTitles
-                    );
-
-                    XLSX.utils.book_append_sheet(workbook, worksheet, "Лист1");
-                    XLSX.writeFile(workbook, "table.xlsx", {
-                      bookType: "xlsx",
-                      type: "file",
+                  onClick={async () => {
+                    const workbook = new ExcelJS.Workbook();
+                    workbook.addWorksheet('Лист1', {
+                      pageSetup: {
+                        horizontalCentered: true,
+                        verticalCentered: true,
+                      }
                     });
+                    const worksheet = workbook.getWorksheet('Лист1');
+
+                    let i = 1; // in Excel enumeration starts from 1
+                    for (let row of rowsWithoutSummary) {
+                      worksheet?.insertRow(i, [
+                        row.age,
+
+                        +row.malesFemalesAll,
+                        +row.malesAll,
+                        +row.femalesAll,
+                        +row.proportionAll,
+
+                        +row.malesFemalesCity ? +row.malesFemalesCity : row.malesFemalesCity,
+                        +row.malesCity ? +row.malesCity : row.malesCity,
+                        +row.femalesCity ? +row.femalesCity : row.femalesCity,
+                        +row.proportionCity ? +row.proportionCity : row.proportionCity,
+
+                        +row.malesFemalesRural ? +row.malesFemalesRural : row.malesFemalesRural,
+                        +row.malesRural ? +row.malesRural : row.malesRural,
+                        +row.femalesRural ? +row.femalesRural : row.femalesRural,
+                        +row.proportionRural ? +row.proportionRural : row.proportionRural
+                      ]);
+                      ++i;
+                    }
+                    worksheet?.insertRow(1, ['Число лет', 'all', 'all', 'all', 'all', 'city', 'city', 'city', 'city', 'rural', 'rural', 'rural', 'rural']);
+                    worksheet?.insertRow(2, ['Число лет', 'all', 'men', 'women', 'prop', 'all', 'men', 'women', 'prop', 'all', 'men', 'women', 'prop']);
+                    
+                    worksheet?.mergeCells('B1:E1');
+                    worksheet?.mergeCells('F1:I1');
+                    worksheet?.mergeCells('J1:M1');
+                    worksheet?.mergeCells('A1:A2');
+
+                    const buffer = await workbook.xlsx.writeBuffer();
+                    FileSaver.saveAs(new Blob([buffer]), "result.xlsx"); 
                   }}
                 >
                   Export
