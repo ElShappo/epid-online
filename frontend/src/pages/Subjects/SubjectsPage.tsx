@@ -99,17 +99,26 @@ const SubjectsPage = () => {
                 malesFemalesAll: row[1],
                 malesAll: row[2],
                 femalesAll: row[3],
-                proportionAll: (row[3] / row[2]).toFixed(2),
+
+                // there can be regions with no data about specific age(-s)
+                // the absence of data is denoted with '–' in the original excel spreadsheet
+                // arithmetical operations on non-numeric values lead to NaN, which
+                // we do not want to show to the end user
+                // that's why if the operation result turns out to be NaN, that means we encountered
+                // corrupted or just no data - whichever happens to be the case we substitute it with '–'
+                // which will be shown to the end user
+                // surprisingly NaN.toFixed() returns 'NaN' (a JS string), that explains the strange comparisons in the code below
+                proportionAll: ((row[3] / row[2]).toFixed(2) !== 'NaN') ? (row[3] / row[2]).toFixed(2) : '–',
 
                 malesFemalesCity: row[4],
                 malesCity: row[5],
                 femalesCity: row[6],
-                proportionCity: (row[6] / row[5]).toFixed(2),
+                proportionCity: ((row[6] / row[5]).toFixed(2) !== 'NaN') ? (row[6] / row[5]).toFixed(2) : '–',
 
                 malesFemalesRural: row[7],
                 malesRural: row[8],
                 femalesRural: row[9],
-                proportionRural: (row[9] / row[8]).toFixed(2),
+                proportionRural: ((row[9] / row[8]).toFixed(2) !== 'NaN') ? (row[9] / row[8]).toFixed(2) : '–',
               };
             });
 
@@ -198,15 +207,15 @@ const SubjectsPage = () => {
                         +row.femalesAll,
                         +row.proportionAll,
 
-                        +row.malesFemalesCity,
-                        +row.malesCity,
-                        +row.femalesCity,
-                        +row.proportionCity,
+                        +row.malesFemalesCity ? +row.malesFemalesCity : row.malesFemalesCity,
+                        +row.malesCity ? +row.malesCity : row.malesCity,
+                        +row.femalesCity ? +row.femalesCity : row.femalesCity,
+                        +row.proportionCity ? +row.proportionCity : row.proportionCity,
 
-                        +row.malesFemalesRural,
-                        +row.malesRural,
-                        +row.femalesRural,
-                        +row.proportionRural
+                        +row.malesFemalesRural ? +row.malesFemalesRural : row.malesFemalesRural,
+                        +row.malesRural ? +row.malesRural : row.malesRural,
+                        +row.femalesRural ? +row.femalesRural : row.femalesRural,
+                        +row.proportionRural ? +row.proportionRural : row.proportionRural
                       ]);
                       ++i;
                     }

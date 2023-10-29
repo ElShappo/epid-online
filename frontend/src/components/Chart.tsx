@@ -8,8 +8,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  BarElement,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import { ChartData, ChartDataset } from "../types";
 
 ChartJS.register(
@@ -17,12 +18,14 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
 );
 
 type Props = {
+  type: 'Line' | 'Bar';
   datasets: ChartDataset[]; // holds data and legend
   xlabels: string[] | number[];
   title?: string; // title of the whole chart
@@ -57,8 +60,12 @@ const LineChart = (props: Props) => {
     }
     window.addEventListener('beforeprint', beforePrintHandler);
   }, []);
-
-  return <Line options={options} data={data as any} />;
+  
+  if (props.type === 'Line') {
+    return <Line options={options} data={data as any} />;
+  } else {
+    return <Bar options={options} data={data as any} />;
+  }
 };
 
 export default LineChart;

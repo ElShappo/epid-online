@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import LineChart from "../../components/LineChart";
+import Chart from "../../components/Chart";
 import { Button, TreeSelect } from "antd";
 import "./ChartsPage.css";
 import MessageWrapper from "../../components/MessageWrapper";
@@ -21,10 +21,10 @@ const ChartsPage = () => {
 
   const onTreeSubmit = async () => {
     console.log(`Submitting keys = ${regionsIDs}`);
-    let regionsJsons = (regionsIDs as string[]).map(async (id) => (await fetch(`http://localhost:3002/subjectsPopulationsByAges?key=${id}`)).json() );
+    let regionsJsons = (regionsIDs as string[]).map(async (id) => 
+      (await fetch(`http://localhost:3002/subjectsPopulationsByAges?key=${id}`)).json() 
+    );
     let regionsData = await Promise.all(regionsJsons);
-    console.error(subjects)
-    console.error(regionsData);
     setTotalPopulationPerAge(regionsData);
 
     // setTotalPopulationPerAge(regionsData.map(region => {
@@ -54,14 +54,16 @@ const ChartsPage = () => {
       <div className="charts">
         {messageWrapper}
         <div className="chart">
-          <LineChart
+          <Chart
+            type='Line'
             xlabels={xlabels}
             datasets={totalPopulationPerAge}
             title="Распределение по возрастам"
           />
         </div>
         <div className="chart">
-          <LineChart
+          <Chart
+            type="Bar"
             xlabels={xlabels}
             datasets={[
               {
@@ -73,7 +75,8 @@ const ChartsPage = () => {
           />
         </div>
         <div className="chart">
-          <LineChart
+          <Chart
+            type="Bar"
             xlabels={xlabels}
             datasets={[
               {
