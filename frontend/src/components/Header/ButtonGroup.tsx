@@ -26,7 +26,7 @@ const HeaderButtonGroup = () => {
     {
       key: '2',
       label: (
-        <Button icon={<LineChartOutlined />}>Графики</Button>
+        <Button icon={<LineChartOutlined />} onClick={() => navigate('charts')}>Графики</Button>
       )
     },
     {
@@ -45,7 +45,7 @@ const HeaderButtonGroup = () => {
         {
           screens.md 
             ? <Button type="primary" icon={<MenuOutlined />} className="hamburger-button" size="large"></Button>
-            : <Button type="primary" icon={<MenuOutlined />} className="hamburger-button"></Button>
+            : <Button type="primary" icon={<MenuOutlined />} className="hamburger-button" size="small"></Button>
         }
       </Dropdown>
     )
