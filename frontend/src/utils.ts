@@ -1,5 +1,5 @@
 import population from './assets/population.json'
-import { BoundsOrderException, PopulationException, RangeValidationException, RegionCodeException } from './exceptions';
+import { BoundsOrderException, RangeValidationException, RegionCodeException } from './exceptions';
 import { PopulationSingleRecord, Region } from './types';
 
 // given an input like: 1-5, 7, 10-14
@@ -46,13 +46,27 @@ function parsePositiveNumberRanges(input: string) {
     throw new RangeValidationException("Invalid input format");
 }
 
+class Regions {
+  regions: Region[]
+  async constructor() {
+    const response = await fetch('http://localhost:3002/regions')
+    this.regions = await response.json()
+  }
+  getRegionByName(name: string) {
+    return this.regions.find(region => region.territory === name)
+  }
+  getRegionByCode(code: string) {
+    return this.regions.find(region => region.territory_code === code)
+  }
+}
+
 class Population {
   population: PopulationSingleRecord[]
-  // regions: Region[]
+  regions: Regions
 
-  constructor() {
+  async constructor() {
     this.population = population as PopulationSingleRecord[]
-
+    this.regions = new Regions()
   }
 
   getRegionNameByCode() {
@@ -67,7 +81,7 @@ class Population {
     if (childLevels) {
       childLevels = childLevels.filter(value => value !== '0')
     } else {
-      throw new PopulationException('invalid code format')
+      throw new RegionCodeException()
     }
 
     const parentLevels = possibleParentCode.match(reg)
