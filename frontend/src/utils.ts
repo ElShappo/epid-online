@@ -1,22 +1,6 @@
-class RangeValidationException extends Error {
-    constructor(message: string) {
-        super(message)
-        this.name = 'RangeValidationError';
-    }
-}
-
-class BoundsOrderException extends RangeValidationException {
-    left: number;
-    right: number;
-
-    constructor(left: number, right: number) {
-        super(`Wrong bounds order: ${left} > ${right}`);
-
-        this.name = 'BoundsOrderException';
-        this.left = left;
-        this.right = right;
-    }
-}
+import population from './assets/population.json'
+import { BoundsOrderException, PopulationException, RangeValidationException, RegionCodeException } from './exceptions';
+import { PopulationSingleRecord, Region } from './types';
 
 // given an input like: 1-5, 7, 10-14
 // return set of numbers from 1 to 5, 7, 10 to 14
@@ -61,4 +45,47 @@ function parsePositiveNumberRanges(input: string) {
     }
     throw new RangeValidationException("Invalid input format");
 }
-export {RangeValidationException, BoundsOrderException, parsePositiveNumberRanges}
+
+class Population {
+  population: PopulationSingleRecord[]
+  // regions: Region[]
+
+  constructor() {
+    this.population = population as PopulationSingleRecord[]
+
+  }
+
+  getRegionNameByCode() {
+
+  }
+
+  #isChildOf(possibleChildCode: string, possibleParentCode: string) {
+    let reg = /\d+/g // e.g having 1.41.50 -> [1, 41, 50]
+
+    let childLevels = possibleChildCode.match(reg) as string[] || null
+
+    if (childLevels) {
+      childLevels = childLevels.filter(value => value !== '0')
+    } else {
+      throw new PopulationException('invalid code format')
+    }
+
+    const parentLevels = possibleParentCode.match(reg)
+  }
+
+  getYearSlice(year: number) {
+    return this.population.filter(row => row.year === year);
+  }
+
+
+  // get the population data for root and all of its' subregions
+  // the root can be defined by its code or region name
+  getPopulationOfSubregionsByRootCode(rootCode: string) {
+    return this.population.filter(row => {
+      if (row.territory_code)
+    })
+  }
+}
+
+
+export {RangeValidationException, BoundsOrderException, parsePositiveNumberRanges, Population}

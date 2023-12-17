@@ -10,6 +10,7 @@ import { columns } from "../../constants";
 import FileSaver from "file-saver";
 import "./SubjectsPage.css";
 import ExcelJS from "exceljs";
+import { Regions } from "../../utils";
 
 const { Title } = Typography;
 const { SHOW_PARENT } = TreeSelect;
@@ -35,6 +36,8 @@ const SubjectsPage = () => {
     const url = `/main/subjects/${value}`;
     navigate(url);
   };
+
+  const regions = new Regions();
 
   return (
     <div className="main-layout">
