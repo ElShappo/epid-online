@@ -21,11 +21,11 @@ export class BoundsOrderException extends RangeValidationException {
 export class PopulationException extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "PopulationException";
+    this.name = "RegionException";
   }
 }
 
-export class RegionException extends PopulationException {
+export class RegionException extends Error {
   regionName: string;
   regionCode: string;
 
