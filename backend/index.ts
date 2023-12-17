@@ -1,10 +1,8 @@
 import express, { Express, Request, Response } from 'express';
+import fs from 'fs'
 import cors from "cors";
 import dotenv from 'dotenv';
-import * as XLSX from 'xlsx';
-import { getMergedTablesData, getMergedRegionsName, getSubjectTree, getTotalPopulationPerAge, 
-  getRuralToCityPopulationRatioPerAge, getWomenToMenRatioPerAge } from './utils/excel';
-import { ChartDataset } from './types';
+import {PopulationSingleRecord} from './types'
 
 dotenv.config();
 
@@ -19,15 +17,6 @@ const password = process.env.VALID_PASSWORD;
 
 console.log(`Valid username: ${username}`);
 console.log(`Valid password: ${password}`);
-
-let workbook = XLSX.readFile('./files/Population2023.xlsx', {
-  type: "file"
-});
-
-XLSX.writeFile(workbook, 'test.xlsx', {
-  bookType: 'xlsx',
-  type: 'file'
-})
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
@@ -45,135 +34,35 @@ app.post('/authorization', (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
 
+app.get('/regions', (req: Request, res: Response) => {
+  const filename = './regions.json'
+  const population = JSON.parse(fs.readFileSync('population.json', 'utf8'))
+  // res.send('OK')
 
-app.get('/subjectTree', (req: Request, res: Response) => {
-  let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  res.send(getSubjectTree(worksheet) );
-});
+  if (!fs.existsSync(filename) ) {
+    console.log('No cached file found. Extracting regions...')
 
-app.get('/subjects', async (req: Request, res: Response) => {
-    let keys = req.query.key as string | string[]; // 2.1. corresponds to 'Центральный федеральный округ'
-    console.log(`Initial keys: ${keys}`);
+    const regionsStringified = (population as PopulationSingleRecord[]).map(row => {
+      const obj = {
+        terrirory: row.territory,
+        territory_code: row.territory_code
+      }
+      return JSON.stringify(obj)
+    })
+    const regionsWithoutDuplicates = Array.from(new Set(regionsStringified))
+    console.log(regionsWithoutDuplicates)
+    const regions = regionsWithoutDuplicates.map(item => JSON.parse(item))
 
-    const worksheets = [] as XLSX.WorkSheet[];
+    fs.writeFileSync(filename, JSON.stringify(regions, null, 4))
+    res.send(regions)
 
-    // no keys, single key or multiple keys may be passed as query params
-    // for simplicity we always want to treat this data as array
-    if (!Array.isArray(keys) ) {
-      keys = Array(keys);
-    }
+  } else {
+    console.log('Using cached file...')
 
-    // remove irrelevant keys
-    // also make sure a user doesn't have access to 'Содержание' page
-    // even if it was manually written in url
-    keys = keys.filter((key) => workbook.SheetNames.includes(key) && key !== 'Содержание');
-
-    // make sure at least one key is present after filtering
-    if (keys.length === 0) {
-      keys.push('2.1.');
-    }
-
-    console.log(`Modified keys: ${keys}`);
-
-    for (let key of keys) {
-      let worksheet = workbook.Sheets[key];
-      worksheets.push(worksheet);
-    }
-    res.send(getMergedTablesData(worksheets) );
-});
-
-app.get('/populationPerAge', async (req: Request, res: Response) => {
-    let keys = req.query.key as string | string[]; // 2.1. corresponds to 'Центральный федеральный округ'
-    console.log(`Initial keys: ${keys}`);
-
-    const worksheets = [] as XLSX.WorkSheet[];
-
-    // no keys, single key or multiple keys may be passed as query params
-    // for simplicity we always want to treat this data as array
-    if (!Array.isArray(keys) ) {
-      keys = Array(keys);
-    }
-
-    // remove irrelevant keys
-    // also make sure a user doesn't have access to 'Содержание' page
-    // even if it was manually written in url
-    keys = keys.filter((key) => workbook.SheetNames.includes(key) && key !== 'Содержание');
-
-    // make sure at least one key is present after filtering
-    if (keys.length === 0) {
-      keys.push('2.1.');
-    }
-
-    console.log(`Modified keys: ${keys}`);
-
-    let worksheet = workbook.Sheets[keys[0]]; // multiple keys may be passed but we take only one (let it be the first key)
-    res.send({
-      data: getTotalPopulationPerAge(worksheet),
-      label: getMergedRegionsName([worksheet])
-    });
-});
-
-app.get('/ruralToCityRatioPerAge', async (req: Request, res: Response) => {
-  let keys = req.query.key as string | string[]; // 2.1. corresponds to 'Центральный федеральный округ'
-  console.log(`Initial keys: ${keys}`);
-
-  const worksheets = [] as XLSX.WorkSheet[];
-
-  // no keys, single key or multiple keys may be passed as query params
-  // for simplicity we always want to treat this data as array
-  if (!Array.isArray(keys) ) {
-    keys = Array(keys);
+    const regions = fs.readFileSync(filename)
+    res.send(regions)
   }
-
-  // remove irrelevant keys
-  // also make sure a user doesn't have access to 'Содержание' page
-  // even if it was manually written in url
-  keys = keys.filter((key) => workbook.SheetNames.includes(key) && key !== 'Содержание');
-
-  // make sure at least one key is present after filtering
-  if (keys.length === 0) {
-    keys.push('2.1.');
-  }
-
-  console.log(`Modified keys: ${keys}`);
-
-  let worksheet = workbook.Sheets[keys[0]]; // multiple keys may be passed but we take only one (let it be the first key)
-  res.send({
-    data: getRuralToCityPopulationRatioPerAge(worksheet),
-    label: getMergedRegionsName([worksheet])
-  });
-});
-
-app.get('/womenToMenRatioPerAge', async (req: Request, res: Response) => {
-  let keys = req.query.key as string | string[]; // 2.1. corresponds to 'Центральный федеральный округ'
-  console.log(`Initial keys: ${keys}`);
-
-  const worksheets = [] as XLSX.WorkSheet[];
-
-  // no keys, single key or multiple keys may be passed as query params
-  // for simplicity we always want to treat this data as array
-  if (!Array.isArray(keys) ) {
-    keys = Array(keys);
-  }
-
-  // remove irrelevant keys
-  // also make sure a user doesn't have access to 'Содержание' page
-  // even if it was manually written in url
-  keys = keys.filter((key) => workbook.SheetNames.includes(key) && key !== 'Содержание');
-
-  // make sure at least one key is present after filtering
-  if (keys.length === 0) {
-    keys.push('2.1.');
-  }
-
-  console.log(`Modified keys: ${keys}`);
-
-  let worksheet = workbook.Sheets[keys[0]]; // multiple keys may be passed but we take only one (let it be the first key)
-  res.send({
-    data: getWomenToMenRatioPerAge(worksheet),
-    label: getMergedRegionsName([worksheet])
-  });
 });

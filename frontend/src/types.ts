@@ -33,8 +33,8 @@ export type ChartData = {
 export type DataIndex = keyof DataType;
 
 export type Region = {
-  region_name: string
-  region_code: string
+  territory: string
+  territory_code: string
 }
 
 export type PopulationSingleRecord = {

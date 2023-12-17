@@ -1,0 +1,410 @@
+[
+    {
+        "terrirory": "Российская Федерация",
+        "territory_code": "1.0.0"
+    },
+    {
+        "terrirory": "Центральный федеральный округ",
+        "territory_code": "1.1.0"
+    },
+    {
+        "terrirory": "Белгородская область",
+        "territory_code": "1.1.1"
+    },
+    {
+        "terrirory": "Брянская область",
+        "territory_code": "1.1.2"
+    },
+    {
+        "terrirory": "Владимирская область",
+        "territory_code": "1.1.3"
+    },
+    {
+        "terrirory": "Воронежская область",
+        "territory_code": "1.1.4"
+    },
+    {
+        "terrirory": "Ивановская область",
+        "territory_code": "1.1.5"
+    },
+    {
+        "terrirory": "Калужская область",
+        "territory_code": "1.1.6"
+    },
+    {
+        "terrirory": "Костромская область",
+        "territory_code": "1.1.7"
+    },
+    {
+        "terrirory": "Курская область",
+        "territory_code": "1.1.8"
+    },
+    {
+        "terrirory": "Липецкая область",
+        "territory_code": "1.1.9"
+    },
+    {
+        "terrirory": "Московская область",
+        "territory_code": "1.1.10"
+    },
+    {
+        "terrirory": "Орловская область",
+        "territory_code": "1.1.11"
+    },
+    {
+        "terrirory": "Рязанская область",
+        "territory_code": "1.1.12"
+    },
+    {
+        "terrirory": "Смоленская область",
+        "territory_code": "1.1.13"
+    },
+    {
+        "terrirory": "Тамбовская область",
+        "territory_code": "1.1.14"
+    },
+    {
+        "terrirory": "Тверская область",
+        "territory_code": "1.1.15"
+    },
+    {
+        "terrirory": "Тульская область",
+        "territory_code": "1.1.16"
+    },
+    {
+        "terrirory": "Ярославская область",
+        "territory_code": "1.1.17"
+    },
+    {
+        "terrirory": "г. Москва",
+        "territory_code": "1.1.18"
+    },
+    {
+        "terrirory": "Северо-Западный федеральный округ",
+        "territory_code": "1.2.0"
+    },
+    {
+        "terrirory": "Республика Карелия",
+        "territory_code": "1.2.1"
+    },
+    {
+        "terrirory": "Республика Коми",
+        "territory_code": "1.2.2"
+    },
+    {
+        "terrirory": "Архангельская область",
+        "territory_code": "1.2.3"
+    },
+    {
+        "terrirory": "Ненецкий автономный округ",
+        "territory_code": "1.2.4"
+    },
+    {
+        "terrirory": "Вологодская область",
+        "territory_code": "1.2.5"
+    },
+    {
+        "terrirory": "Калининградская область",
+        "territory_code": "1.2.6"
+    },
+    {
+        "terrirory": "Ленинградская область",
+        "territory_code": "1.2.7"
+    },
+    {
+        "terrirory": "Мурманская область",
+        "territory_code": "1.2.8"
+    },
+    {
+        "terrirory": "Новгородская область",
+        "territory_code": "1.2.9"
+    },
+    {
+        "terrirory": "Псковская область",
+        "territory_code": "1.2.10"
+    },
+    {
+        "terrirory": "г. Санкт-Петербург",
+        "territory_code": "1.2.11"
+    },
+    {
+        "terrirory": "Южный федеральный округ",
+        "territory_code": "1.3.0"
+    },
+    {
+        "terrirory": "Республика Адыгея",
+        "territory_code": "1.3.1"
+    },
+    {
+        "terrirory": "Республика Дагестан",
+        "territory_code": "1.4.1"
+    },
+    {
+        "terrirory": "Республика Ингушетия",
+        "territory_code": "1.4.2"
+    },
+    {
+        "terrirory": "Кабардино-Балкарская Республика",
+        "territory_code": "1.4.3"
+    },
+    {
+        "terrirory": "Республика Калмыкия",
+        "territory_code": "1.3.2"
+    },
+    {
+        "terrirory": "Карачаево-Черкесская Республика",
+        "territory_code": "1.4.4"
+    },
+    {
+        "terrirory": "Республика Северная Осетия-Алания",
+        "territory_code": "1.4.5"
+    },
+    {
+        "terrirory": "Чеченская Республика",
+        "territory_code": "1.4.6"
+    },
+    {
+        "terrirory": "Краснодарский край",
+        "territory_code": "1.3.4"
+    },
+    {
+        "terrirory": "Ставропольский край",
+        "territory_code": "1.4.7"
+    },
+    {
+        "terrirory": "Астраханская область",
+        "territory_code": "1.3.5"
+    },
+    {
+        "terrirory": "Волгоградская область",
+        "territory_code": "1.3.6"
+    },
+    {
+        "terrirory": "Ростовская область",
+        "territory_code": "1.3.7"
+    },
+    {
+        "terrirory": "Приволжский федеральный округ",
+        "territory_code": "1.5.0"
+    },
+    {
+        "terrirory": "Республика Башкортостан",
+        "territory_code": "1.5.1"
+    },
+    {
+        "terrirory": "Республика Марий Эл",
+        "territory_code": "1.5.2"
+    },
+    {
+        "terrirory": "Республика Мордовия",
+        "territory_code": "1.5.3"
+    },
+    {
+        "terrirory": "Республика Татарстан",
+        "territory_code": "1.5.4"
+    },
+    {
+        "terrirory": "Удмуртская Республика",
+        "territory_code": "1.5.5"
+    },
+    {
+        "terrirory": "Чувашская Республика",
+        "territory_code": "1.5.6"
+    },
+    {
+        "terrirory": "Пермский край",
+        "territory_code": "1.5.7"
+    },
+    {
+        "terrirory": "Кировская область",
+        "territory_code": "1.5.8"
+    },
+    {
+        "terrirory": "Нижегородская область",
+        "territory_code": "1.5.9"
+    },
+    {
+        "terrirory": "Оренбургская область",
+        "territory_code": "1.5.10"
+    },
+    {
+        "terrirory": "Пензенская область",
+        "territory_code": "1.5.11"
+    },
+    {
+        "terrirory": "Самарская область",
+        "territory_code": "1.5.12"
+    },
+    {
+        "terrirory": "Саратовская область",
+        "territory_code": "1.5.13"
+    },
+    {
+        "terrirory": "Ульяновская область",
+        "territory_code": "1.5.14"
+    },
+    {
+        "terrirory": "Уральский федеральный округ",
+        "territory_code": "1.6.0"
+    },
+    {
+        "terrirory": "Курганская область",
+        "territory_code": "1.6.1"
+    },
+    {
+        "terrirory": "Свердловская область",
+        "territory_code": "1.6.2"
+    },
+    {
+        "terrirory": "Тюменская область",
+        "territory_code": "1.6.3"
+    },
+    {
+        "terrirory": "Ханты-Мансийский автономный округ-Югра",
+        "territory_code": "1.6.4"
+    },
+    {
+        "terrirory": "Ямало-Ненецкий автономный округ",
+        "territory_code": "1.6.5"
+    },
+    {
+        "terrirory": "Челябинская область",
+        "territory_code": "1.6.6"
+    },
+    {
+        "terrirory": "Сибирский федеральный округ",
+        "territory_code": "1.7.0"
+    },
+    {
+        "terrirory": "Республика Алтай",
+        "territory_code": "1.7.1"
+    },
+    {
+        "terrirory": "Республика Бурятия",
+        "territory_code": "1.8.1"
+    },
+    {
+        "terrirory": "Республика Тыва",
+        "territory_code": "1.7.2"
+    },
+    {
+        "terrirory": "Республика Хакасия",
+        "territory_code": "1.7.3"
+    },
+    {
+        "terrirory": "Алтайский край",
+        "territory_code": "1.7.4"
+    },
+    {
+        "terrirory": "Забайкальский край",
+        "territory_code": "1.8.3"
+    },
+    {
+        "terrirory": "Красноярский край",
+        "territory_code": "1.7.5"
+    },
+    {
+        "terrirory": "Иркутская область",
+        "territory_code": "1.7.6"
+    },
+    {
+        "terrirory": "Кемеровская область-Кузбасс",
+        "territory_code": "1.7.7"
+    },
+    {
+        "terrirory": "Новосибирская область",
+        "territory_code": "1.7.8"
+    },
+    {
+        "terrirory": "Омская область",
+        "territory_code": "1.7.9"
+    },
+    {
+        "terrirory": "Томская область",
+        "territory_code": "1.7.10"
+    },
+    {
+        "terrirory": "Дальневосточный федеральный округ",
+        "territory_code": "1.8.0"
+    },
+    {
+        "terrirory": "Республика Саха (Якутия)",
+        "territory_code": "1.8.2"
+    },
+    {
+        "terrirory": "Камчатский край",
+        "territory_code": "1.8.4"
+    },
+    {
+        "terrirory": "Приморский край",
+        "territory_code": "1.8.5"
+    },
+    {
+        "terrirory": "Хабаровский край",
+        "territory_code": "1.8.6"
+    },
+    {
+        "terrirory": "Амурская область",
+        "territory_code": "1.8.7"
+    },
+    {
+        "terrirory": "Магаданская область",
+        "territory_code": "1.8.8"
+    },
+    {
+        "terrirory": "Сахалинская область",
+        "territory_code": "1.8.9"
+    },
+    {
+        "terrirory": "Еврейская автономная область",
+        "territory_code": "1.8.10"
+    },
+    {
+        "terrirory": "Чукотский автономный округ",
+        "territory_code": "1.8.11"
+    },
+    {
+        "terrirory": "Коми-Пермяцкий округ",
+        "territory_code": "1.5.15"
+    },
+    {
+        "terrirory": "Агинский Бурятский округ",
+        "territory_code": "1.8.12"
+    },
+    {
+        "terrirory": "Таймырский (Долгано-Ненецкий) округ",
+        "territory_code": "1.7.11"
+    },
+    {
+        "terrirory": "Эвенкийский округ",
+        "territory_code": "1.7.12"
+    },
+    {
+        "terrirory": "Усть-Ордынский Бурятский округ",
+        "territory_code": "1.7.13"
+    },
+    {
+        "terrirory": "Корякский округ",
+        "territory_code": "1.8.13"
+    },
+    {
+        "terrirory": "Северо-Кавказский федеральный округ",
+        "territory_code": "1.4.0"
+    },
+    {
+        "terrirory": "Архангельская область без автономии",
+        "territory_code": "1.2.12"
+    },
+    {
+        "terrirory": "Тюменская область без автономий",
+        "territory_code": "1.6.7"
+    },
+    {
+        "terrirory": "Республика Крым",
+        "territory_code": "1.3.3"
+    },
+    {
+        "terrirory": "г. Севастополь",
+        "territory_code": "1.3.8"
+    }
+]
