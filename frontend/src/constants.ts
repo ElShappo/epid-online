@@ -18,259 +18,141 @@ const availableYears = [
   2023
 ] as const;
 
-const subjects = [
-    {
-        title: 'Центральный федеральный округ',
-        children: [
-            "Белгородская область",
-            "Брянская область",
-            "Владимирская область",
-            "Воронежская область",
-            "Ивановская область",
-            "Калужская область",
-            "Костромская область",
-            "Курская область",
-            "Липецкая область",
-            "Московская область",
-            "Орловская область",
-            "Рязанская область",
-            "Смоленская область",
-            "Тамбовская область",
-            "Тверская область",
-            "Тульская область",
-            "Ярославская область",
-            "г. Москва"
-        ] 
-    },
-    {
-        title: 'Северо-Западный федеральный',
-        children: [
-            "Республика Карелия",
-            "Республика Коми",
-            "Архангельская область",
-            "Ненецкий автономный округ",
-            "Архангельская область без автономного округа",
-            "Вологодская область",
-            "Калининградская область",
-            "Ленинградская область",
-            "Мурманская область",
-            "Новгородская область",
-            "Псковская область",
-            "г. Санкт-Петербург"
-        ]
-    },
-    {
-        title: 'Южный федеральный округ',
-        children: [
-            "Республика Адыгея",
-            "Республика Калмыкия",
-            "Республика Крым",
-            "Краснодарский край",
-            "Астраханская область",
-            "Волгоградская область",
-            "Ростовская область",
-            "г. Севастополь"
-        ]
-    },
-    {
-        title: 'Северо-Кавказский федеральный округ',
-        children: [
-            "Республика Дагестан",
-            "Республика Ингушетия",
-            "Кабардино-Балкарская Республика",
-            "Карачаево-Черкесская Республика",
-            "Республика Северная Осетия – Алания",
-            "Чеченская Республика",
-            "Ставропольский край"
-        ]
-    },
-    {
-        title: 'Приволжский федеральный округ',
-        children: [
-            "Республика Башкортостан",
-            "Республика Марий Эл",
-            "Республика Мордовия",
-            "Республика Татарстан",
-            "Удмуртская Республика",
-            "Чувашская Республика",
-            "Пермский край",
-            "Кировская область",
-            "Нижегородская область",
-            "Оренбургская область",
-            "Пензенская область",
-            "Самарская область",
-            "Саратовская область",
-            "Ульяновская область"
-        ]
-    },
-    {
-        title: 'Уральский федеральный округ',
-        children: [
-            "Курганская область",
-            "Свердловская область",
-            "Тюменская область",
-            "Ханты-Мансийский автономный округ – Югра",
-            "Ямало-Ненецкий автономный округ",
-            "Тюменская область без автономных округов",
-            "Челябинская область"
-        ]
-    },
-    {
-        title: 'Сибирский федеральный округ',
-        children: [
-            "Республика Алтай",
-            "Республика Тыва",
-            "Республика Хакасия",
-            "Алтайский край",
-            "Красноярский край",
-            "Иркутская область",
-            "Кемеровская область – Кузбасс",
-            "Новосибирская область",
-            "Oмская область",
-            "Томская область"
-        ]
-    },
-    {
-        title: 'Дальневосточный федеральный округ',
-        children: [
-            "Республика Бурятия",
-            "Республика Саха (Якутия)",
-            "Забайкальский край",
-            "Камчатский край",
-            "Приморский край",
-            "Хабаровский край",
-            "Амурская область",
-            "Магаданская область",
-            "Сахалинская область",
-            "Еврейская автономная область",
-            "Чукотский автономный округ"
-        ]
-    }
-];
-
 const columns: ColumnsType<DataType> = [
     {
-      title: 'Число лет',
-      dataIndex: 'age',
-      key: 'age',
+      title: 'Год',
+      dataIndex: 'year',
+      key: 'year',
       width: 75,
       fixed: 'left',
-      // filters: [
-      //   {
-      //     text: 'Joe',
-      //     value: 'Joe',
-      //   },
-      //   {
-      //     text: 'Category 1',
-      //     value: 'Category 1',
-      //   },
-      //   {
-      //     text: 'Category 2',
-      //     value: 'Category 2',
-      //   },
-      // ],
-      // filterSearch: true,
-      // onFilter: (value: any, record) => String(record.age).startsWith(value),
     },
     {
-      title: 'All population',
+      title: 'Название',
+      dataIndex: 'territory',
+      key: 'territory',
+      width: 75,
+      fixed: 'left',
+    },
+    {
+      title: 'Код',
+      dataIndex: 'territory_code',
+      key: 'territory_code',
+      width: 75,
+      fixed: 'left',
+    },
+    {
+      title: 'Мин. возраст',
+      dataIndex: 'age_start',
+      key: 'age_start',
+      width: 75,
+      fixed: 'left',
+    },
+    {
+      title: 'Макс. возраст',
+      dataIndex: 'age_end',
+      key: 'age_end',
+      width: 75,
+      fixed: 'left',
+    },
+    {
+      title: 'Все население',
       children: [
         {
-          title: 'Males and females',
-          dataIndex: 'malesFemalesAll',
-          key: 'malesFemalesAll',
+          title: 'Мужчины и женщины',
+          dataIndex: 'all',
+          key: 'all',
           width: 150,
-          sorter: (a, b) => +a.malesFemalesAll - +b.malesFemalesAll,
+          sorter: (a, b) => +a.all - +b.all,
         },
         {
-          title: 'Males',
-          dataIndex: 'malesAll',
-          key: 'malesAll',
+          title: 'Мужчины',
+          dataIndex: 'all_men',
+          key: 'all_men',
           width: 150,
-          sorter: (a, b) => +a.malesAll - +b.malesAll,
+          sorter: (a, b) => +a.all_men - +b.all_men,
         },
         {
-          title: 'Females',
-          dataIndex: 'femalesAll',
-          key: 'femalesAll',
+          title: 'Женщины',
+          dataIndex: 'all_women',
+          key: 'all_women',
           width: 150,
-          sorter: (a, b) => +a.femalesAll - +b.femalesAll,
+          sorter: (a, b) => +a.all_women - +b.all_women,
         },
         {
-          title: 'Proportion',
-          dataIndex: 'proportionAll',
-          key: 'proportionAll',
+          title: 'Пропорция',
+          dataIndex: 'all_proportion',
+          key: 'all_proportion',
           width: 150,
-          sorter: (a, b) => +a.proportionAll - +b.proportionAll,
+          sorter: (a, b) => +a.all_proportion - +b.all_proportion,
         }
       ],
     },
     {
-      title: 'City population',
+      title: 'Городское население',
       children: [
         {
-          title: 'Males and females',
-          dataIndex: 'malesFemalesCity',
-          key: 'malesFemalesCity',
+          title: 'Мужчины и женщины',
+          dataIndex: 'urban_all',
+          key: 'urban_all',
           width: 150,
-          sorter: (a, b) => +a.malesFemalesCity - +b.malesFemalesCity,
+          sorter: (a, b) => +a.urban_all - +b.urban_all,
         },
         {
-          title: 'Males',
-          dataIndex: 'malesCity',
-          key: 'malesCity',
+          title: 'Мужчины',
+          dataIndex: 'urban_men',
+          key: 'urban_men',
           width: 150,
-          sorter: (a, b) => +a.malesCity - +b.malesCity,
+          sorter: (a, b) => +a.urban_men - +b.urban_men,
         },
         {
-          title: 'Females',
-          dataIndex: 'femalesCity',
-          key: 'femalesCity',
+          title: 'Женщины',
+          dataIndex: 'urban_women',
+          key: 'urban_women',
           width: 150,
-          sorter: (a, b) => +a.femalesCity - +b.femalesCity,
+          sorter: (a, b) => +a.urban_women - +b.urban_women,
         },
         {
-          title: 'Proportion',
-          dataIndex: 'proportionCity',
-          key: 'proportionCity',
+          title: 'Пропорция',
+          dataIndex: 'urban_proportion',
+          key: 'urban_proportion',
           width: 150,
-          sorter: (a, b) => +a.proportionCity - +b.proportionCity,
+          sorter: (a, b) => +a.urban_proportion - +b.urban_proportion,
         }
       ],
     },
     {
-      title: 'Rural population',
+      title: 'Сельское население',
       children: [
         {
-          title: 'Males and females',
-          dataIndex: 'malesFemalesRural',
-          key: 'malesFemalesRural',
+          title: 'Мужчины и женщины',
+          dataIndex: 'rural_all',
+          key: 'rural_all',
           width: 150,
-          sorter: (a, b) => +a.malesFemalesRural - +b.malesFemalesRural,
+          sorter: (a, b) => +a.rural_all - +b.rural_all,
         },
         {
-          title: 'Males',
-          dataIndex: 'malesRural',
-          key: 'malesRural',
+          title: 'Мужчины',
+          dataIndex: 'rural_men',
+          key: 'rural_men',
           width: 150,
-          sorter: (a, b) => +a.malesRural - +b.malesRural,
+          sorter: (a, b) => +a.rural_men - +b.rural_men,
         },
         {
-          title: 'Females',
-          dataIndex: 'femalesRural',
-          key: 'femalesRural',
+          title: 'Женщины',
+          dataIndex: 'rural_women',
+          key: 'rural_women',
           width: 150,
-          sorter: (a, b) => +a.femalesRural - +b.femalesRural,
+          sorter: (a, b) => +a.rural_women - +b.rural_women,
         },
         {
-          title: 'Proportion',
-          dataIndex: 'proportionRural',
-          key: 'proportionRural',
+          title: 'Пропорция',
+          dataIndex: 'rural_proportion',
+          key: 'rural_proportion',
           width: 150,
-          sorter: (a, b) => +a.proportionRural - +b.proportionRural,
+          sorter: (a, b) => +a.rural_proportion - +b.rural_proportion,
         }
       ],
     },
   ];
 
-export {availableYears, subjects, columns};
+export {availableYears, columns};

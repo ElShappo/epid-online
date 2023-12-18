@@ -4,20 +4,20 @@ export interface DataType {
     key: React.Key;
     age: number | string;
   
-    malesFemalesAll: number | string;
-    malesAll: number | string;
-    femalesAll: number | string;
-    proportionAll: number | string;
+    all: number | string;
+    all_men: number | string;
+    all_women: number | string;
+    all_proportion: number | string;
   
-    malesFemalesCity: number | string;
-    malesCity: number | string;
-    femalesCity: number | string;
-    proportionCity: number | string;
+    urban_all: number | string;
+    urban_men: number | string;
+    urban_women: number | string;
+    urban_proportion: number | string;
   
-    malesFemalesRural: number | string;
-    malesRural: number | string;
-    femalesRural: number | string;
-    proportionRural: number | string;
+    rural_all: number | string;
+    rural_men: number | string;
+    rural_women: number | string;
+    rural_proportion: number | string;
 }
 
 export type ChartDataset = {
@@ -55,12 +55,15 @@ export type PopulationSingleRecord = {
   all: number
   all_men: number
   all_women: number
+  all_proportion?: number
   urban_all: number,
   urban_men: number,
   urban_women: number,
+  urban_proportion?: number
   rural_all: number,
   rural_men: number,
   rural_women: number
+  rural_proportion?: number
 }
 
 export type availableYearsType = typeof availableYears[number]

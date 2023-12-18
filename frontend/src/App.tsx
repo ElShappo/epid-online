@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthorizationPage from "./pages/Authorization/AuthorizationPage";
-import SubjectsPage from "./pages/Subjects/SubjectsPage";
+// import SubjectsPage from "./pages/Subjects/SubjectsPage";
+import RegionsPage from "./pages/Subjects/RegionsPage";
 import subjectsPageLoader from "./loaders/subjectsPageLoader";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
@@ -19,8 +20,9 @@ function App() {
       element: <MainPage />,
       children: [
         {
-          path: "subjects/:keys",
-          element: <SubjectsPage />,
+          path: "subjects/:year",
+          // element: <SubjectsPage />,
+          element: <RegionsPage />,
           loader: subjectsPageLoader,
         },
         {

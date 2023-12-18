@@ -32,7 +32,7 @@ const HeaderButtonGroup = () => {
           type="primary"
           size={size}
           icon={<TableOutlined />}
-          onClick={() => navigate("subjects/2.1.")}
+          onClick={() => navigate("subjects/2023")}
         >
           Таблица
         </Button>

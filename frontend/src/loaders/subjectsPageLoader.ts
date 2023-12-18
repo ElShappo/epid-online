@@ -1,40 +1,58 @@
 import { defer, redirect } from "react-router-dom";
 import authorization from '../globalStore/authorization';
+import { availableYears } from "../constants";
+import { Population, Regions } from "../utils";
 
 function subjectsPageLoader({params} : any) {
     console.log('Got state in subjectsPageLoader:');
     console.log(authorization);
 
-    let {keys} = params;
-    console.log('Got keys in subjectsPageLoader:');
-    console.log(keys);
-
-    keys = keys.split(',');
-    console.warn('Formatted keys in subjectsPageLoader:');
-    console.warn(keys);
+    let {year} = params;
+    console.log('Got year in subjectsPageLoader:');
+    console.log(year);
 
     if (!authorization.get()) {
         console.warn('User is not authorized: redirecting...');
         return redirect('/authorization');
     }
-    // set default key that corresponds to 'Центральный федеральный округ'
-    if (keys.length === 0) {
-        console.warn('Got no keys in subjectsPageLoader: manually adding default 2.1. key')
-        keys.push('2.1.');
+
+    if (typeof year === 'string') {
+        year = +year
     }
-    const worksheetsUrl = new URL(`http://localhost:3002/subjects/`);
-    for (const key of keys) {
-        worksheetsUrl.searchParams.append('key', key);
+
+    if (!availableYears.includes(year)) {
+        const defaultYear = 2023
+        year = defaultYear
+        console.log(`Setting default year to ${defaultYear}`)
     }
-    console.log(`Fetching url (subjectsPageLoader) = ${worksheetsUrl}`);
+
+    const regionsPerYear: Regions[] = []
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const _year of availableYears) {
+        regionsPerYear.push(new Regions() )
+    }
+
+    // const regions = new Regions();
+
+    // (async function() {
+    //     await regions.setRegions(year)
+    //     console.warn('got regions:')
+    //     console.log(await regions.getRegions() )
+
+    //     console.log()
+    //     console.warn('tree-like structure: ')
+    //     console.log(regions.getAntDesignTreeSelectFormat('1.0.0'))
+    //     console.log(regions.getRegionByCode('1.1.0'))
+    // })()
+
+    const regionsPromises = regionsPerYear.map((regions, index) => regions.setRegions(availableYears[index]));
 
     return defer({
-        keys,
-        subjectTree: fetch('http://localhost:3002/subjectTree').then(res => res.json() ),
-        worksheets: fetch(worksheetsUrl).then(res => res.json() ),
-        promise: new Promise((resolve) => {
-            setTimeout(() => resolve(5), 2000);
-        })
+        year: year,
+        population: Promise.all(regionsPromises).then(() => new Population(regionsPerYear))
+        // subjectTree: fetch(`http://localhost:3002/regions?year=${keys}`).then(res => res.json() ),
+
     })
 }
 export default subjectsPageLoader;

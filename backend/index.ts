@@ -49,7 +49,7 @@ app.get('/regions', (req: Request, res: Response) => {
 
     const regionsStringified = (population as PopulationSingleRecord[]).filter(row => row.year === year as unknown as number).map(row => {
       const obj = {
-        terrirory: row.territory,
+        territory: row.territory,
         territory_code: row.territory_code
       }
       return JSON.stringify(obj)

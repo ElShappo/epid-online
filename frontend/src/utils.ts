@@ -47,7 +47,7 @@ function parsePositiveNumberRanges(input: string) {
     throw new RangeValidationException("Invalid input format");
 }
 
-class Regions {
+export class Regions {
   #regions: Region[] | null = null
 
   getRegionByName(name: string) {
@@ -162,7 +162,9 @@ class Regions {
     const result = this.getChildren(rootCode)
     return result.filter(region => !this.hasChildren(region.territory_code))
   }
-  getAntDesignTreeSelectFormat(rootCode: string) {
+  getAntDesignTreeSelectFormat(rootCode?: string) {
+    rootCode ??= this.#regions![0].territory_code
+    // console.log(`Current rootCode: ${rootCode}`)
     const node: AntDesignTree = {
       title: this.getRegionByCode(rootCode)!.territory,
       value: rootCode,
@@ -171,11 +173,14 @@ class Regions {
     } 
 
     if (this.hasChildren(rootCode)) {
+      // console.log(`${rootCode} does have children`)
       const children = this.getDirectChildren(rootCode) as Region[]
 
       for (const child of children) {
         node.children.push(this.getAntDesignTreeSelectFormat(child.territory_code) )
       }
+    } else {
+      // console.log(`${rootCode} doesn't have children`)
     }
     return node
 
@@ -217,21 +222,38 @@ class Regions {
 
 class Population {
   #population: PopulationSingleRecord[]
-  #regions: Regions[] = [] // for each year the regions structure may be different
+  #regionsPerYear: Regions[] = [] // for each year the regions structure may be different
 
-  constructor() {
+  constructor(regionsPerYear?: Regions[]) {
     this.#population = population as PopulationSingleRecord[]
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const _year of availableYears) {
-      this.#regions.push(new Regions() )
+    if (regionsPerYear) {
+      this.#regionsPerYear = regionsPerYear
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const _year of availableYears) {
+        this.#regionsPerYear.push(new Regions() )
+      }
+  
+      (async () => {
+        for (let i = 0; i < this.#regionsPerYear.length; ++i) {
+          await this.#regionsPerYear[i].setRegions(availableYears[i])
+        }
+      })()
     }
 
-    (async () => {
-      for (let i = 0; i < this.#regions.length; ++i) {
-        await this.#regions[i].setRegions(availableYears[i])
-      }
-    })()
+  }
+
+  getRegions(year: availableYearsType) {
+    return this.#regionsPerYear[availableYears.indexOf(year)]
+  }
+
+  getRegionsPerYear() {
+    return this.#regionsPerYear
+  }
+
+  getPopulation() {
+    return this.#population
   }
 
   getRegionPopulation(year: availableYearsType, regionCode: string) {
@@ -239,11 +261,6 @@ class Population {
       return row.year === year && row.territory_code === regionCode
     }).sort((a, b) => a.age_start - b.age_start)
   }
-
-  // getAgeRanges(year: availableYearsType) {
-  //   const currentPopulation = this.getYearSlice(year)
-  //   currentPopulation.
-  // }
 
   getYearSlice(year: availableYearsType) {
     return this.#population.filter(row => row.year === year);
@@ -253,7 +270,7 @@ class Population {
   // the root can be defined by its code or region name
   getMergedRegions(year: availableYearsType, rootCodes: string[]) {
     // get regions structure for chosen year
-    const currentRegions = this.#regions[availableYears.indexOf(year)]
+    const currentRegions = this.#regionsPerYear[availableYears.indexOf(year)]
     const rootNames = rootCodes.map(rootCode => currentRegions.getRegionByCode(rootCode)!.territory)
 
     // for each root we get corresponding leaves (nodes without children)
@@ -278,34 +295,26 @@ class Population {
            territory_code: rootCodes.join(', '),
            age_start: sum[i].age_start,
            age_end: sum[i].age_end,
+
            all: sum[i].all + curr[i].all,
            all_men: sum[i].all_men + curr[i].all_men,
            all_women: sum[i].all_women + curr[i].all_women,
+           all_proportion: (((sum[i].all_women + curr[i].all_women) / (sum[i].all_men + curr[i].all_men) ).toFixed(2) || 0) as number,
+
            urban_all: sum[i].urban_all + curr[i].urban_all,
            urban_men: sum[i].urban_men + curr[i].urban_men,
            urban_women: sum[i].urban_women + curr[i].urban_women,
+           urban_proportion: (((sum[i].urban_women + curr[i].urban_women) / (sum[i].urban_men + curr[i].urban_men)).toFixed(2) || 0) as number,
+
            rural_all: sum[i].rural_all + curr[i].rural_all,
            rural_men: sum[i].rural_men + curr[i].rural_men,
-           rural_women: sum[i].rural_women + curr[i].rural_women
+           rural_women: sum[i].rural_women + curr[i].rural_women,
+           rural_proportion: (((sum[i].rural_women + curr[i].rural_women) / (sum[i].rural_men + curr[i].rural_men)).toFixed(2) || 0) as number
          }
         )
       }
       return res
     })
-
-    // get population data that corresponds to chosen year
-    // and filter this data so it contains only the regions we want to sum
-    // const currentPopulation = this.getYearSlice(year).filter(populationRow => {
-    //   return leafNodes.map(row => row.territory_code).includes(populationRow.territory_code) 
-    // })
-
-    // const result: PopulationSingleRecord[] = []
-
-
-
-    // return this.population.filter(row => {
-    //   if (row.territory_code)
-    // })
   }
 }
 
