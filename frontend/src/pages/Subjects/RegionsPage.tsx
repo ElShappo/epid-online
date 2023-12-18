@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { Await, useLoaderData } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { Button, Input, TreeSelect } from "antd";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import TableComponent from "../../components/TableComponent";
 import { Typography } from "antd";
 // import { DataType } from "../../types";
 import { columns } from "../../constants";
 import FileSaver from "file-saver";
 import "./SubjectsPage.css";
-import { Population } from "../../utils";
+import { PopulationSingleYear } from "../../utils";
 import ExcelJS from "exceljs";
 
 const { Title } = Typography;
@@ -23,7 +23,7 @@ const RegionsPage = () => {
   const { year, population }: any = useLoaderData();
   const [value, setValue] = useState<any>();
   const [searchedText, setSearchedText] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const onChange = (newValue: string[]) => {
     console.log("Old value: ", value);
@@ -31,27 +31,25 @@ const RegionsPage = () => {
     setValue(newValue);
   };
 
-  const onTreeSubmit = () => {
-    console.log(`Submitting keys = ${value}`);
-    const url = `/main/subjects/${value}`;
-    navigate(url);
-  };
+  // const onTreeSubmit = () => {
+  //   console.log(`Submitting keys = ${value}`);
+  //   const url = `/main/subjects/${value}`;
+  //   navigate(url);
+  // };
 
   return (
     <div className="main-layout">
       <React.Suspense fallback={<div>Loading tree of subjects...</div>}>
         <Await
-          resolve={population as Population}
+          resolve={population as PopulationSingleYear}
           errorElement={<div>Could not load tree of subjects 😬</div>}
         >
-          {(resolved: Population) => {
+          {(resolved: PopulationSingleYear) => {
             console.log("Subject tree has been loaded");
             console.log(resolved);
 
             const tProps = {
-              treeData: [
-                resolved.getRegions(year).getAntDesignTreeSelectFormat(),
-              ],
+              treeData: [resolved.getRegions().getAntDesignTreeSelectFormat()],
               value,
               onChange,
               treeCheckable: true,
@@ -68,13 +66,13 @@ const RegionsPage = () => {
                     Выберите регионы:
                   </Title>
                   <TreeSelect {...tProps} className="tree" />
-                  <Button
+                  {/* <Button
                     type="primary"
                     onClick={onTreeSubmit}
                     className="submit-tree"
                   >
                     Подтвердить
-                  </Button>
+                  </Button> */}
                 </div>
                 {value ? (
                   <div className="table-with-input">
@@ -86,10 +84,7 @@ const RegionsPage = () => {
                     ></Input.Search>
                     <TableComponent
                       height={`calc(90vh - 252px)`}
-                      rowsWithoutSummary={resolved.getMergedRegions(
-                        year,
-                        value
-                      )}
+                      rowsWithoutSummary={resolved.getMergedRegions(value)}
                       columns={columns}
                       summary={undefined}
                       // summary={!searchedText ? summary : undefined}

@@ -220,6 +220,96 @@ export class Regions {
   // }
 }
 
+export class PopulationSingleYear {
+  #population: PopulationSingleRecord[]
+  #regions: Regions
+  #year: availableYearsType
+
+  constructor(year: availableYearsType, regions?: Regions) {
+    this.#year = year
+    this.#population = (population as PopulationSingleRecord[]).filter(row => row.year === this.#year)
+
+    if (regions) {
+      this.#regions = regions
+    } else {
+        this.#regions = new Regions();
+        (async () => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: this.#regions is really assigned before being used
+          await this.#regions.setRegions(this.#year)
+        })()
+    }
+  
+  }
+  getYear() {
+    return this.#year
+  }
+
+  getRegions() {
+    return this.#regions
+  }
+
+  getPopulation() {
+    return this.#population
+  }
+
+  getRegionPopulation(regionCode: string) {
+    return this.#population.filter(row => {
+      return row.year === this.#year && row.territory_code === regionCode
+    }).sort((a, b) => a.age_start - b.age_start)
+  }
+
+  // get the population data for root and all of its' subregions
+  // the root can be defined by its code or region name
+  getMergedRegions(rootCodes: string[]) {
+    // get regions structure for chosen year
+    const rootNames = rootCodes.map(rootCode => this.#regions.getRegionByCode(rootCode)!.territory)
+
+    // for each root we get corresponding leaves (nodes without children)
+    // the final array that holds every leaf might inlcude duplicates
+    // which are removed using new Set()
+    const leafCodes = Array.from(new Set(
+      rootCodes.map(rootCode => this.#regions.getLeafNodes(rootCode).map(leaf => leaf.territory_code)).flat()
+    ))
+
+    // for each node we get the population
+    // each node describes population for each age range
+    // thus the final variable is [][] (array of arrays)
+    const populationPerLeafNode = leafCodes.map(leafCode => this.getRegionPopulation(leafCode))
+
+    return populationPerLeafNode.reduce((sum, curr) => {
+      const res: PopulationSingleRecord[] = []
+      for (let i = 0; i < sum.length; ++i) {
+        res.push(
+          {
+           year: this.#year,
+           territory: rootNames.join(', '),
+           territory_code: rootCodes.join(', '),
+           age_start: sum[i].age_start,
+           age_end: sum[i].age_end,
+
+           all: sum[i].all + curr[i].all,
+           all_men: sum[i].all_men + curr[i].all_men,
+           all_women: sum[i].all_women + curr[i].all_women,
+           all_proportion: (((sum[i].all_women + curr[i].all_women) / (sum[i].all_men + curr[i].all_men) ).toFixed(2) || 0) as number,
+
+           urban_all: sum[i].urban_all + curr[i].urban_all,
+           urban_men: sum[i].urban_men + curr[i].urban_men,
+           urban_women: sum[i].urban_women + curr[i].urban_women,
+           urban_proportion: (((sum[i].urban_women + curr[i].urban_women) / (sum[i].urban_men + curr[i].urban_men)).toFixed(2) || 0) as number,
+
+           rural_all: sum[i].rural_all + curr[i].rural_all,
+           rural_men: sum[i].rural_men + curr[i].rural_men,
+           rural_women: sum[i].rural_women + curr[i].rural_women,
+           rural_proportion: (((sum[i].rural_women + curr[i].rural_women) / (sum[i].rural_men + curr[i].rural_men)).toFixed(2) || 0) as number
+         }
+        )
+      }
+      return res
+    })
+  }
+}
+
 class Population {
   #population: PopulationSingleRecord[]
   #regionsPerYear: Regions[] = [] // for each year the regions structure may be different
@@ -319,4 +409,4 @@ class Population {
 }
 
 
-export {RangeValidationException, BoundsOrderException, parsePositiveNumberRanges, Population}
+export {RangeValidationException, BoundsOrderException, parsePositiveNumberRanges}

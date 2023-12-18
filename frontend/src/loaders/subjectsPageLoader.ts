@@ -1,7 +1,7 @@
 import { defer, redirect } from "react-router-dom";
 import authorization from '../globalStore/authorization';
 import { availableYears } from "../constants";
-import { Population, Regions } from "../utils";
+import { PopulationSingleYear, Regions } from "../utils";
 
 function subjectsPageLoader({params} : any) {
     console.log('Got state in subjectsPageLoader:');
@@ -26,12 +26,7 @@ function subjectsPageLoader({params} : any) {
         console.log(`Setting default year to ${defaultYear}`)
     }
 
-    const regionsPerYear: Regions[] = []
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const _year of availableYears) {
-        regionsPerYear.push(new Regions() )
-    }
+    const regions: Regions = new Regions()
 
     // const regions = new Regions();
 
@@ -46,12 +41,9 @@ function subjectsPageLoader({params} : any) {
     //     console.log(regions.getRegionByCode('1.1.0'))
     // })()
 
-    const regionsPromises = regionsPerYear.map((regions, index) => regions.setRegions(availableYears[index]));
-
     return defer({
         year: year,
-        population: Promise.all(regionsPromises).then(() => new Population(regionsPerYear))
-        // subjectTree: fetch(`http://localhost:3002/regions?year=${keys}`).then(res => res.json() ),
+        population: regions.setRegions(year).then(() => new PopulationSingleYear(year, regions))
 
     })
 }

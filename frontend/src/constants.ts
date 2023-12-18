@@ -25,13 +25,16 @@ const columns: ColumnsType<DataType> = [
       key: 'year',
       width: 75,
       fixed: 'left',
+      align: 'center'
     },
     {
       title: 'Название',
       dataIndex: 'territory',
       key: 'territory',
-      width: 75,
+      width: 200,
       fixed: 'left',
+      align: 'center',
+      ellipsis: true
     },
     {
       title: 'Код',
@@ -39,20 +42,24 @@ const columns: ColumnsType<DataType> = [
       key: 'territory_code',
       width: 75,
       fixed: 'left',
+      align: 'center',
+      ellipsis: true
     },
     {
       title: 'Мин. возраст',
       dataIndex: 'age_start',
       key: 'age_start',
-      width: 75,
+      width: 85,
       fixed: 'left',
+      align: 'center',
     },
     {
       title: 'Макс. возраст',
       dataIndex: 'age_end',
       key: 'age_end',
-      width: 75,
+      width: 85,
       fixed: 'left',
+      align: 'center',
     },
     {
       title: 'Все население',
