@@ -1,4 +1,18 @@
-const NewSubjectsPage = () => {
+import { Input } from "antd";
+import TableComponent from "../../components/TableComponent";
+
+const RegionsPage = () => {
+  const treeProps = {
+    treeData: resolved,
+    value,
+    onChange,
+    treeCheckable: true,
+    showCheckedStrategy: SHOW_PARENT,
+    placeholder: "Please select",
+    style: {
+      width: "90%",
+    },
+  };
   return (
     <>
       <Input.Search
@@ -17,4 +31,4 @@ const NewSubjectsPage = () => {
   );
 };
 
-export default NewSubjectsPage;
+export default RegionsPage;

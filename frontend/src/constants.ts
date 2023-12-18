@@ -16,7 +16,7 @@ const availableYears = [
   2021,
   2022,
   2023
-];
+] as const;
 
 const subjects = [
     {

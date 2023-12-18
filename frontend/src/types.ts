@@ -1,3 +1,5 @@
+import { availableYears } from "./constants";
+
 export interface DataType {
     key: React.Key;
     age: number | string;
@@ -37,6 +39,13 @@ export type Region = {
   territory_code: string
 }
 
+export type AntDesignTree = {
+  title: string
+  value: string
+  key: string
+  children: AntDesignTree[]
+}
+
 export type PopulationSingleRecord = {
   year: number
   territory: string
@@ -53,3 +62,5 @@ export type PopulationSingleRecord = {
   rural_men: number,
   rural_women: number
 }
+
+export type availableYearsType = typeof availableYears[number]

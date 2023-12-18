@@ -21,11 +21,26 @@ export class BoundsOrderException extends RangeValidationException {
 export class PopulationException extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "RegionException";
+    this.name = "PopulationException";
   }
 }
 
-export class RegionException extends Error {
+export class RegionsException extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RegionsException";
+  }
+}
+
+export class EmptyRegionsException extends RegionsException {
+  constructor() {
+    super(
+      "Regions are empty: please check that the setRegions() method is called beforehand"
+    );
+  }
+}
+
+export class RegionException extends RegionsException {
   regionName: string;
   regionCode: string;
 
@@ -44,5 +59,11 @@ export class RegionException extends Error {
 export class RegionCodeException extends RegionException {
   constructor(regionName: string, regionCode: string) {
     super(regionName, regionCode, "region code error");
+  }
+}
+
+export class RegionNameException extends RegionException {
+  constructor(regionName: string, regionCode: string) {
+    super(regionName, regionCode, "region name error");
   }
 }

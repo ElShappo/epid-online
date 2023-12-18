@@ -38,14 +38,16 @@ app.listen(port, () => {
 });
 
 app.get('/regions', (req: Request, res: Response) => {
+  const year = +(req.query.year as unknown as number)
+  console.log('Year', year)
+  console.log(typeof(year))
   const filename = './regions.json'
   const population = JSON.parse(fs.readFileSync('population.json', 'utf8'))
-  // res.send('OK')
 
   if (!fs.existsSync(filename) ) {
     console.log('No cached file found. Extracting regions...')
 
-    const regionsStringified = (population as PopulationSingleRecord[]).map(row => {
+    const regionsStringified = (population as PopulationSingleRecord[]).filter(row => row.year === year as unknown as number).map(row => {
       const obj = {
         terrirory: row.territory,
         territory_code: row.territory_code
