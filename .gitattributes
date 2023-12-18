@@ -1,0 +1,2 @@
+diseases.json filter=lfs diff=lfs merge=lfs -text
+population.json filter=lfs diff=lfs merge=lfs -text
