@@ -18,6 +18,8 @@ const availableYears = [
   2023
 ] as const;
 
+export const defaultYear = availableYears.at(-1)
+
 const columns: ColumnsType<DataType> = [
     {
       title: 'Год',

@@ -411,6 +411,7 @@ export class PopulationSingleYear {
           const peopleCount = region.map(row => row.all);
           result.datasets.push({
             data: peopleCount,
+            label: this.#regions.getRegionByCode(rootCode)?.territory,
             borderColor: color.borderColor,
             backgroundColor: color.backgroundColor
           })
@@ -420,6 +421,7 @@ export class PopulationSingleYear {
           const ruralToUrban = region.map(row => row.rural_all / row.urban_all);
           result.datasets.push({
             data: ruralToUrban,
+            label: this.#regions.getRegionByCode(rootCode)?.territory,
             borderColor: color.borderColor,
             backgroundColor: color.backgroundColor
           })
@@ -429,6 +431,7 @@ export class PopulationSingleYear {
           const womenToMen = region.map(row => row.all_women / row.all_men);
           result.datasets.push({
             data: womenToMen,
+            label: this.#regions.getRegionByCode(rootCode)?.territory,
             borderColor: color.borderColor,
             backgroundColor: color.backgroundColor
           })

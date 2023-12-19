@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Chart from "../../components/Chart";
 import { TreeSelect } from "antd";
 import "./ChartsPage.css";
 // import MessageWrapper from "../../components/MessageWrapper";
 // import { ChartDataset } from "../../types";
 import React from "react";
-import { Await, useLoaderData } from "react-router-dom";
+import { Await, useLoaderData, useNavigate } from "react-router-dom";
 import { PopulationSingleYear } from "../../utils";
 import { observer } from "mobx-react-lite";
+import year from "../../globalStore/year";
 
 const ChartsPage = observer(() => {
-  const [regionsIDs, setRegionsIDs] = useState<string[]>();
-
+  const [selectedRegions, setSelectedRegions] = useState<string[]>();
+  const navigate = useNavigate();
   const { population }: any = useLoaderData();
 
   // const [totalPopulationPerAge, setTotalPopulationPerAge] = useState<
@@ -26,8 +27,19 @@ const ChartsPage = observer(() => {
 
   const onRegionsIDsChange = (newValue: string[]) => {
     console.log(newValue);
-    setRegionsIDs(newValue);
+    setSelectedRegions(newValue);
   };
+
+  useEffect(() => {
+    const url = `/main/charts/${year}`;
+    console.warn(`useEffect triggered with year = ${year}`);
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - the select field needs to be erased
+    setSelectedRegions();
+    navigate(url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year.get()]);
 
   // const onTreeSubmit = async () => {
   //   console.log(`Submitting keys = ${regionsIDs}`);
@@ -47,7 +59,7 @@ const ChartsPage = observer(() => {
                   <TreeSelect
                     showSearch
                     style={{ width: "50%" }}
-                    value={regionsIDs}
+                    value={selectedRegions}
                     dropdownStyle={{ maxWidth: "100%", overflow: "auto" }}
                     placeholder="Выберите субъекты РФ"
                     multiple
@@ -65,13 +77,13 @@ const ChartsPage = observer(() => {
                     Подтвердить
                   </Button> */}
                 </div>
-                {regionsIDs ? (
+                {selectedRegions ? (
                   <div className="charts">
                     <div className="chart">
                       <Chart
                         type="Line"
                         chartData={resolved.getDataForCharts(
-                          regionsIDs!,
+                          selectedRegions!,
                           "peoplePerAge"
                         )}
                         title="Распределение по возрастам"
@@ -81,7 +93,7 @@ const ChartsPage = observer(() => {
                       <Chart
                         type="Bar"
                         chartData={resolved.getDataForCharts(
-                          regionsIDs!,
+                          selectedRegions!,
                           "ruralToUrban"
                         )}
                         title="Отношение сельского и городского населений"
@@ -91,7 +103,7 @@ const ChartsPage = observer(() => {
                       <Chart
                         type="Bar"
                         chartData={resolved.getDataForCharts(
-                          regionsIDs!,
+                          selectedRegions!,
                           "womenToMen"
                         )}
                         title="Отношения числа женщин к числу мужчин"

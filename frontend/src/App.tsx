@@ -26,7 +26,7 @@ function App() {
           loader: subjectsPageLoader,
         },
         {
-          path: "charts",
+          path: "charts/:year",
           element: <ChartsPage />,
           loader: chartsPageLoader,
         },

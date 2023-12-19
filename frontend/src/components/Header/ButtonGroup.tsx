@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import "./ButtonGroup.css";
 import Settings from "../Settings";
+import { defaultYear } from "../../constants";
 
 const { useBreakpoint } = Grid;
 
@@ -32,7 +33,7 @@ const HeaderButtonGroup = () => {
           type="primary"
           size={size}
           icon={<TableOutlined />}
-          onClick={() => navigate("subjects/2023")}
+          onClick={() => navigate(`subjects/${defaultYear}`)}
         >
           Таблица
         </Button>
@@ -45,7 +46,7 @@ const HeaderButtonGroup = () => {
           size={size}
           type="primary"
           icon={<LineChartOutlined />}
-          onClick={() => navigate("charts")}
+          onClick={() => navigate(`charts/${defaultYear}`)}
         >
           Графики
         </Button>
