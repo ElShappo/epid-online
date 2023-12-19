@@ -10,8 +10,9 @@ import { useState } from "react";
 import { SettingOutlined } from "@ant-design/icons";
 import { observer } from "mobx-react-lite";
 import year from "../globalStore/year";
-import { availableYears } from "../constants";
+import { availableYears, defaultYear } from "../constants";
 import { availableYearsType } from "../types";
+import * as dayjs from "dayjs";
 
 type SettingsProps = {
   buttonSize: "small" | "middle" | "large";
@@ -71,6 +72,9 @@ const Settings = observer(({ buttonSize }: SettingsProps) => {
   //   }
   // };
 
+  const defaultFormattedDate = new Date();
+  defaultFormattedDate.setFullYear(defaultYear!);
+
   return (
     <>
       {contextHolder}
@@ -103,6 +107,7 @@ const Settings = observer(({ buttonSize }: SettingsProps) => {
             disabledDate={disabledYears}
             placeholder="Выберите год"
             style={{ flex: "1 1 0" }}
+            defaultValue={dayjs(defaultFormattedDate)}
           />
           {/* <div style={{ flex: "1 1 0", whiteSpace: "nowrap" }}>
             Введите год(-ы):

@@ -12,6 +12,7 @@
   "dependencies": {
     "antd": "^5.12.2",
     "chart.js": "^4.4.1",
+    "dayjs": "^1.11.10",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "mobx": "^6.12.0",
