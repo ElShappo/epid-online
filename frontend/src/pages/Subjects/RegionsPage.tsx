@@ -106,87 +106,90 @@ const RegionsPage = observer(() => {
                     <Button
                       type="primary"
                       className="button-export"
-                      // onClick={async () => {
-                      //   const workbook = new ExcelJS.Workbook();
-                      //   workbook.addWorksheet("Лист1", {
-                      //     pageSetup: {
-                      //       horizontalCentered: true,
-                      //       verticalCentered: true,
-                      //     },
-                      //   });
-                      //   const worksheet = workbook.getWorksheet("Лист1");
+                      onClick={async () => {
+                        const workbook = new ExcelJS.Workbook();
+                        workbook.addWorksheet("Лист1", {
+                          pageSetup: {
+                            horizontalCentered: true,
+                            verticalCentered: true,
+                          },
+                        });
+                        const worksheet = workbook.getWorksheet("Лист1");
 
-                      //   let i = 1; // in Excel enumeration starts from 1
-                      //   for (const row of rowsWithoutSummary) {
-                      //     worksheet?.insertRow(i, [
-                      //       row.age,
+                        let i = 2; // in Excel enumeration starts from 1
+                        for (const row of resolved.getMergedRegions(
+                          selectedRegions
+                        )) {
+                          worksheet?.insertRow(i, [
+                            +row.year,
+                            row.territory,
+                            row.territory_code,
 
-                      //       +row.malesFemalesAll,
-                      //       +row.malesAll,
-                      //       +row.femalesAll,
-                      //       +row.proportionAll,
+                            +row.age_start,
+                            +row.age_end,
 
-                      //       +row.malesFemalesCity
-                      //         ? +row.malesFemalesCity
-                      //         : row.malesFemalesCity,
-                      //       +row.malesCity ? +row.malesCity : row.malesCity,
-                      //       +row.femalesCity ? +row.femalesCity : row.femalesCity,
-                      //       +row.proportionCity
-                      //         ? +row.proportionCity
-                      //         : row.proportionCity,
+                            +row.all,
+                            +row.all_men,
+                            +row.all_women,
+                            +row.all_proportion!,
+                            +row.urban_all,
+                            +row.urban_men,
+                            +row.urban_women,
+                            +row.urban_proportion!,
+                            +row.rural_all,
+                            +row.rural_men,
+                            +row.rural_women,
+                            +row.rural_proportion!,
+                          ]);
+                          ++i;
+                        }
+                        worksheet?.insertRow(1, [
+                          "Год",
+                          "Название",
+                          "Код",
 
-                      //       +row.malesFemalesRural
-                      //         ? +row.malesFemalesRural
-                      //         : row.malesFemalesRural,
-                      //       +row.malesRural ? +row.malesRural : row.malesRural,
-                      //       +row.femalesRural
-                      //         ? +row.femalesRural
-                      //         : row.femalesRural,
-                      //       +row.proportionRural
-                      //         ? +row.proportionRural
-                      //         : row.proportionRural,
-                      //     ]);
-                      //     ++i;
-                      //   }
-                      //   worksheet?.insertRow(1, [
-                      //     "Число лет",
-                      //     "all",
-                      //     "all",
-                      //     "all",
-                      //     "all",
-                      //     "city",
-                      //     "city",
-                      //     "city",
-                      //     "city",
-                      //     "rural",
-                      //     "rural",
-                      //     "rural",
-                      //     "rural",
-                      //   ]);
-                      //   worksheet?.insertRow(2, [
-                      //     "Число лет",
-                      //     "all",
-                      //     "men",
-                      //     "women",
-                      //     "prop",
-                      //     "all",
-                      //     "men",
-                      //     "women",
-                      //     "prop",
-                      //     "all",
-                      //     "men",
-                      //     "women",
-                      //     "prop",
-                      //   ]);
+                          "Мин. возраст",
+                          "Макс. возраст",
 
-                      //   worksheet?.mergeCells("B1:E1");
-                      //   worksheet?.mergeCells("F1:I1");
-                      //   worksheet?.mergeCells("J1:M1");
-                      //   worksheet?.mergeCells("A1:A2");
+                          "Все население",
+                          "Все население (мужчины)",
+                          "Все население (женщины)",
+                          "Все население (пропорция ж/м)",
 
-                      //   const buffer = await workbook.xlsx.writeBuffer();
-                      //   FileSaver.saveAs(new Blob([buffer]), "result.xlsx");
-                      // }}
+                          "Городское население",
+                          "Городское население (мужчины)",
+                          "Городское население (женщины)",
+                          "Городское население (пропорция ж/м)",
+
+                          "Сельское население",
+                          "Сельское население (мужчины)",
+                          "Сельское население (женщины)",
+                          "Сельское население (пропорция ж/м)",
+                        ]);
+                        // worksheet?.insertRow(2, [
+                        //   "Число лет",
+                        //   "all",
+                        //   "men",
+                        //   "women",
+                        //   "prop",
+                        //   "all",
+                        //   "men",
+                        //   "women",
+                        //   "prop",
+                        //   "all",
+                        //   "men",
+                        //   "women",
+                        //   "prop",
+                        // ]);
+
+                        // worksheet?.mergeCells("B1:E1");
+                        // worksheet?.mergeCells("F1:I1");
+                        // worksheet?.mergeCells("J1:M1");
+                        // worksheet?.mergeCells("A1:A2");
+
+                        const buffer = await workbook.xlsx.writeBuffer();
+                        FileSaver.saveAs(new Blob([buffer]), "result.xlsx");
+                      }}
                     >
                       Экспортировать в Excel
                     </Button>
