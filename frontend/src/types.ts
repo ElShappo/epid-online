@@ -67,3 +67,10 @@ export type PopulationSingleRecord = {
 }
 
 export type availableYearsType = typeof availableYears[number]
+
+export type chartsDataMode = 'peoplePerAge' | 'ruralToUrban' | 'womenToMen'
+
+export type LineColor = {
+  backgroundColor: string;
+  borderColor: string;
+};

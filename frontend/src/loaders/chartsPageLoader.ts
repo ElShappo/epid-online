@@ -1,5 +1,7 @@
-import {redirect} from 'react-router-dom'
+import {defer, redirect} from 'react-router-dom'
 import authorization from '../globalStore/authorization';
+import { PopulationSingleYear, Regions } from '../utils';
+import year from '../globalStore/year';
 
 export default function chartsPageLoader() {
     console.log('Got state in chartsPageLoader:');
@@ -9,5 +11,15 @@ export default function chartsPageLoader() {
         console.warn('User is not authorized: redirecting...');
         return redirect('/authorization');
     }
-    return '';
+    console.log(`Current year: ${year.get()}`)
+    const regions: Regions = new Regions()
+
+    return defer({
+        population: regions.setRegions(year.get()).then(() => {
+            const result = new PopulationSingleYear(year.get(), regions)
+            console.log('hey there!')
+            console.log(result)
+            return result
+        })
+    })
 }

@@ -1,7 +1,7 @@
 import population from './assets/population.json'
 import { availableYears } from './constants';
-import { BoundsOrderException, EmptyRegionsException, RangeValidationException, RegionCodeException, RegionNameException } from './exceptions';
-import { AntDesignTree, PopulationSingleRecord, Region, availableYearsType } from './types';
+import { AgeStartException, AllException, AllMenException, AllWomenException, BoundsOrderException, EmptyRegionsException, RangeValidationException, RegionCodeException, RegionNameException, RuralAllException, RuralMenException, RuralWomenException, UrbanAllException, UrbanMenException, UrbanWomenException } from './exceptions';
+import { AntDesignTree, ChartData, LineColor, PopulationSingleRecord, Region, availableYearsType, chartsDataMode } from './types';
 
 // given an input like: 1-5, 7, 10-14
 // return set of numbers from 1 to 5, 7, 10 to 14
@@ -158,8 +158,11 @@ export class Regions {
     }
     return result
   }
-  getLeafNodes(rootCode: string) {
+  getLeafNodes(rootCode: string, includeRoot: boolean = true) {
     const result = this.getChildren(rootCode)
+    if (includeRoot) {
+      result.push(this.getRegionByCode(rootCode)!)
+    }
     return result.filter(region => !this.hasChildren(region.territory_code))
   }
   getAntDesignTreeSelectFormat(rootCode?: string) {
@@ -225,6 +228,84 @@ export class PopulationSingleYear {
   #regions: Regions
   #year: availableYearsType
 
+  #checkAgeStart() {
+    for (const row of this.#population) {
+      if (typeof row.age_start !== 'number' || row.age_start < 0) {
+        throw new AgeStartException(row)
+      }
+    }
+  }
+  #checkAgeEnd() {
+    for (const row of this.#population) {
+      if (typeof row.age_end !== 'number' || row.age_end < 0) {
+        throw new AgeStartException(row)
+      }
+    }
+  }
+  #checkAll() {
+    for (const row of this.#population) {
+      if (typeof row.all !== 'number' || row.all < 0) {
+        throw new AllException(row)
+      }
+    }
+  }
+  #checkAllMen() {
+    for (const row of this.#population) {
+      if (typeof row.all_men !== 'number' || row.all_men < 0) {
+        throw new AllMenException(row)
+      }
+    }
+  }
+  #checkAllWomen() {
+    for (const row of this.#population) {
+      if (typeof row.all_women !== 'number' || row.all_women < 0) {
+        throw new AllWomenException(row)
+      }
+    }
+  }
+  #checkUrbanAll() {
+    for (const row of this.#population) {
+      if (typeof row.urban_all !== 'number' || row.urban_all < 0) {
+        throw new UrbanAllException(row)
+      }
+    }
+  }
+  #checkUrbanMen() {
+    for (const row of this.#population) {
+      if (typeof row.urban_men !== 'number' || row.urban_men < 0) {
+        throw new UrbanMenException(row)
+      }
+    }
+  }
+  #checkUrbanWomen() {
+    for (const row of this.#population) {
+      if (typeof row.urban_women !== 'number' || row.urban_women < 0) {
+        throw new UrbanWomenException(row)
+      }
+    }
+  }
+  #checkRuralAll() {
+    for (const row of this.#population) {
+      if (typeof row.rural_all !== 'number' || row.rural_all < 0) {
+        throw new RuralAllException(row)
+      }
+    }
+  }
+  #checkRuralMen() {
+    for (const row of this.#population) {
+      if (typeof row.rural_men !== 'number' || row.rural_men < 0) {
+        throw new RuralMenException(row)
+      }
+    }
+  }
+  #checkRuralWomen() {
+    for (const row of this.#population) {
+      if (typeof row.rural_women !== 'number' || row.rural_women < 0) {
+        throw new RuralWomenException(row)
+      }
+    }
+  }
+
   constructor(year: availableYearsType, regions?: Regions) {
     this.#year = year
     this.#population = (population as PopulationSingleRecord[]).filter(row => row.year === this.#year)
@@ -239,7 +320,20 @@ export class PopulationSingleYear {
           await this.#regions.setRegions(this.#year)
         })()
     }
-  
+    this.#checkAgeStart()
+    this.#checkAgeEnd()
+
+    this.#checkAll()
+    this.#checkAllMen()
+    this.#checkAllWomen()
+
+    this.#checkUrbanAll()
+    this.#checkUrbanMen()
+    this.#checkUrbanWomen()
+
+    this.#checkRuralAll()
+    this.#checkRuralMen()
+    this.#checkRuralWomen()
   }
   getYear() {
     return this.#year
@@ -259,10 +353,111 @@ export class PopulationSingleYear {
     }).sort((a, b) => a.age_start - b.age_start)
   }
 
+  getAgeRanges() {
+    const firstRegionPopulation = this.getRegionPopulation(this.#regions.getRegions()![0].territory_code)
+    return firstRegionPopulation.map(row => {
+      return {
+        age_start: row.age_start,
+        age_end: row.age_end
+      }
+    })
+  }
+
+  // get only those age ranges, where age_start equals age_end
+  filterAgeRanges() {
+    const rawAgeRanges = this.getAgeRanges()
+    return rawAgeRanges.filter(ageRange => ageRange.age_start === ageRange.age_end)
+  }
+
+  getDataForCharts(rootCodes: string[], chartsMode: chartsDataMode): ChartData {
+    const colors: LineColor[] = [
+      {
+        backgroundColor: "#8390c7",
+        borderColor: "#8390c7",
+      },
+      {
+        backgroundColor: "#bf4b4b",
+        borderColor: "#bf4b4b",
+      },
+      {
+        backgroundColor: "#37a166",
+        borderColor: "#37a166",
+      },
+      {
+        backgroundColor: "#396d70",
+        borderColor: "#396d70",
+      },
+    ];
+
+    function pickColor(index: number) {
+      return colors[index % colors.length]
+    }
+    
+    const result = {
+      labels: [],
+      datasets: []
+    } as ChartData
+
+    let count = 0
+    for (const rootCode of rootCodes) {
+      const region = this.getRegionPopulation(rootCode).filter(
+        row => row.age_start === row.age_end
+      )
+      result.labels = region.map(row => row.age_start)
+      const color = pickColor(count)
+
+      switch (chartsMode) {
+        case 'peoplePerAge': {
+          const peopleCount = region.map(row => row.all);
+          result.datasets.push({
+            data: peopleCount,
+            borderColor: color.borderColor,
+            backgroundColor: color.backgroundColor
+          })
+          break
+        }
+        case 'ruralToUrban': {
+          const ruralToUrban = region.map(row => row.rural_all / row.urban_all);
+          result.datasets.push({
+            data: ruralToUrban,
+            borderColor: color.borderColor,
+            backgroundColor: color.backgroundColor
+          })
+          break
+        }
+        case 'womenToMen': {
+          const womenToMen = region.map(row => row.all_women / row.all_men);
+          result.datasets.push({
+            data: womenToMen,
+            borderColor: color.borderColor,
+            backgroundColor: color.backgroundColor
+          })
+          break
+        }
+      }
+      count += 1
+    }
+    return result
+  }
+
+  prettierFilteredAgeRanges() {
+    return this.filterAgeRanges().map(ageRange => ageRange.age_start)
+  }
+
   // get the population data for root and all of its' subregions
   // the root can be defined by its code or region name
   getMergedRegions(rootCodes: string[]) {
     // get regions structure for chosen year
+    if (rootCodes.length === 1) {
+      return this.getRegionPopulation(rootCodes[0]).map(row => {
+        return {
+          ...row,
+          all_proportion: (row.all_women / row.all_men).toFixed(2) || 0 as number,
+          urban_proportion: (row.urban_women / row.urban_men).toFixed(2) || 0 as number,
+          rural_proportion: (row.rural_women / row.rural_men).toFixed(2) || 0 as number
+        }
+      })
+    }
     const rootNames = rootCodes.map(rootCode => this.#regions.getRegionByCode(rootCode)!.territory)
 
     // for each root we get corresponding leaves (nodes without children)
@@ -310,7 +505,7 @@ export class PopulationSingleYear {
   }
 }
 
-class Population {
+export class Population {
   #population: PopulationSingleRecord[]
   #regionsPerYear: Regions[] = [] // for each year the regions structure may be different
 
@@ -331,7 +526,6 @@ class Population {
         }
       })()
     }
-
   }
 
   getRegions(year: availableYearsType) {

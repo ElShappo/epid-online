@@ -82,17 +82,17 @@ const AuthorizationPage = observer(() => {
         autoComplete="off"
       >
         <Form.Item<FieldType>
-          label="Username"
+          label="Логин"
           name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          rules={[{ required: true, message: "Введите свой логин" }]}
         >
           <Input />
         </Form.Item>
 
         <Form.Item<FieldType>
-          label="Password"
+          label="Пароль"
           name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[{ required: true, message: "Введите свой пароль" }]}
         >
           <Input.Password />
         </Form.Item>
@@ -102,12 +102,12 @@ const AuthorizationPage = observer(() => {
           valuePropName="checked"
           wrapperCol={{ offset: 8, span: 16 }}
         >
-          <Checkbox>Remember me</Checkbox>
+          <Checkbox>Запомнить</Checkbox>
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
-            Submit
+            Подтвердить
           </Button>
         </Form.Item>
       </Form>

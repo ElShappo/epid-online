@@ -11,7 +11,7 @@ import {
   BarElement,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
-import { ChartData, ChartDataset } from "../types";
+import { ChartData } from "../types";
 
 ChartJS.register(
   CategoryScale,
@@ -26,8 +26,7 @@ ChartJS.register(
 
 type Props = {
   type: "Line" | "Bar";
-  datasets: ChartDataset[]; // holds data and legend
-  xlabels: string[] | number[];
+  chartData: ChartData;
   title?: string; // title of the whole chart
   position?: "top" | "right" | "bottom" | "left";
 };
@@ -48,8 +47,8 @@ const LineChart = (props: Props) => {
   };
 
   const data: ChartData = {
-    labels: props.xlabels,
-    datasets: props.datasets,
+    labels: props.chartData.labels,
+    datasets: props.chartData.datasets,
   };
 
   useEffect(() => {

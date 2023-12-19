@@ -1,3 +1,5 @@
+import { PopulationSingleRecord } from "./types";
+
 export class RangeValidationException extends Error {
   constructor(message: string) {
     super(message);
@@ -18,10 +20,84 @@ export class BoundsOrderException extends RangeValidationException {
   }
 }
 
-export class PopulationException extends Error {
+export class PopulationSingleYearException extends Error {
   constructor(message: string) {
     super(message);
     this.name = "PopulationException";
+  }
+}
+
+export class SingleRecordException extends PopulationSingleYearException {
+  constructor(
+    populationSingleRecord: PopulationSingleRecord,
+    description?: string
+  ) {
+    let message =
+      "Error occurred within " + JSON.stringify(populationSingleRecord);
+    if (description) {
+      message += `: ${description}`;
+    }
+    super(message);
+  }
+}
+export class YearException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid year");
+  }
+}
+export class AgeStartException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid age start");
+  }
+}
+export class AgeEndException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid age end");
+  }
+}
+export class AllException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid all");
+  }
+}
+export class AllMenException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid all men");
+  }
+}
+export class AllWomenException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid all women");
+  }
+}
+export class UrbanAllException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid urban all");
+  }
+}
+export class UrbanMenException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid urban men");
+  }
+}
+export class UrbanWomenException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid urban women");
+  }
+}
+export class RuralAllException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid rural all");
+  }
+}
+export class RuralMenException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid rural men");
+  }
+}
+export class RuralWomenException extends SingleRecordException {
+  constructor(populationSingleRecord: PopulationSingleRecord) {
+    super(populationSingleRecord, "invalid rural women");
   }
 }
 

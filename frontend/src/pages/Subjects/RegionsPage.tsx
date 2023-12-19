@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Await, useLoaderData } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Await, useLoaderData, useNavigate } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { Button, Input, TreeSelect } from "antd";
 // import { useNavigate } from "react-router-dom";
@@ -11,24 +11,26 @@ import FileSaver from "file-saver";
 import "./SubjectsPage.css";
 import { PopulationSingleYear } from "../../utils";
 import ExcelJS from "exceljs";
+import { observer } from "mobx-react-lite";
+import year from "../../globalStore/year";
 
 const { Title } = Typography;
 const { SHOW_PARENT } = TreeSelect;
 
-const RegionsPage = () => {
+const RegionsPage = observer(() => {
   // let data: DataType[] = [];
   const headerHeight = useOutletContext();
   console.error(headerHeight);
 
-  const { year, population }: any = useLoaderData();
-  const [value, setValue] = useState<any>();
+  const { population }: any = useLoaderData();
+  const [selectedRegions, setSelectedRegions] = useState<any>();
   const [searchedText, setSearchedText] = useState("");
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const onChange = (newValue: string[]) => {
-    console.log("Old value: ", value);
+    console.log("Old value: ", selectedRegions);
     console.log("New value: ", newValue);
-    setValue(newValue);
+    setSelectedRegions(newValue);
   };
 
   // const onTreeSubmit = () => {
@@ -36,13 +38,23 @@ const RegionsPage = () => {
   //   const url = `/main/subjects/${value}`;
   //   navigate(url);
   // };
+  useEffect(() => {
+    const url = `/main/subjects/${year}`;
+    console.warn(`useEffect triggered with year = ${year}`);
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - the select field needs to be erased
+    setSelectedRegions();
+    navigate(url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year.get()]);
 
   return (
     <div className="main-layout">
-      <React.Suspense fallback={<div>Loading tree of subjects...</div>}>
+      <React.Suspense fallback={<div>Загружаю дерево регионов...</div>}>
         <Await
           resolve={population as PopulationSingleYear}
-          errorElement={<div>Could not load tree of subjects 😬</div>}
+          errorElement={<div>Не удалось загрузить дерево регионов</div>}
         >
           {(resolved: PopulationSingleYear) => {
             console.log("Subject tree has been loaded");
@@ -50,7 +62,7 @@ const RegionsPage = () => {
 
             const tProps = {
               treeData: [resolved.getRegions().getAntDesignTreeSelectFormat()],
-              value,
+              value: selectedRegions,
               onChange,
               treeCheckable: true,
               showCheckedStrategy: SHOW_PARENT,
@@ -74,7 +86,7 @@ const RegionsPage = () => {
                     Подтвердить
                   </Button> */}
                 </div>
-                {value ? (
+                {selectedRegions && selectedRegions.length > 0 ? (
                   <div className="table-with-input">
                     <Input.Search
                       placeholder="Укажите диапазон(-ы) возрастов (пример: 1-1, 5-5, 7-10)"
@@ -84,7 +96,9 @@ const RegionsPage = () => {
                     ></Input.Search>
                     <TableComponent
                       height={`calc(90vh - 252px)`}
-                      rowsWithoutSummary={resolved.getMergedRegions(value)}
+                      rowsWithoutSummary={resolved.getMergedRegions(
+                        selectedRegions
+                      )}
                       columns={columns}
                       summary={undefined}
                       // summary={!searchedText ? summary : undefined}
@@ -393,6 +407,6 @@ const RegionsPage = () => {
       </React.Suspense> */}
     </div>
   );
-};
+});
 
 export default RegionsPage;

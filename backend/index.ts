@@ -41,7 +41,7 @@ app.get('/regions', (req: Request, res: Response) => {
   const year = +(req.query.year as unknown as number)
   console.log('Year', year)
   console.log(typeof(year))
-  const filename = './regions.json'
+  const filename = `./regions${year}.json`
   const population = JSON.parse(fs.readFileSync('population.json', 'utf8'))
 
   if (!fs.existsSync(filename) ) {
