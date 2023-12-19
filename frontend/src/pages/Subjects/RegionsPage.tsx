@@ -24,7 +24,7 @@ const RegionsPage = observer(() => {
 
   const { population }: any = useLoaderData();
   const [selectedRegions, setSelectedRegions] = useState<any>();
-  const [searchedText, setSearchedText] = useState("");
+  const [ageFilters, setAgeFilters] = useState("");
   const navigate = useNavigate();
 
   const onChange = (newValue: string[]) => {
@@ -91,17 +91,24 @@ const RegionsPage = observer(() => {
                     <Input.Search
                       placeholder="Укажите диапазон(-ы) возрастов (пример: 1-1, 5-5, 7-10)"
                       onSearch={(value) => {
-                        setSearchedText(value);
+                        setAgeFilters(value);
                       }}
                     ></Input.Search>
                     <TableComponent
                       height={`calc(90vh - 252px)`}
-                      rowsWithoutSummary={resolved.getMergedRegions(
-                        selectedRegions
-                      )}
+                      rowsWithoutSummary={resolved
+                        .getMergedRegions(selectedRegions)
+                        .filter((row) => {
+                          if (!ageFilters) {
+                            return true;
+                          }
+                          const requiredRanges = ageFilters.split(", ");
+                          const currentRange = `${row.age_start}-${row.age_end}`;
+                          return requiredRanges.includes(currentRange);
+                        })}
                       columns={columns}
                       summary={undefined}
-                      // summary={!searchedText ? summary : undefined}
+                      // summary={!ageFilters ? summary : undefined}
                     ></TableComponent>
                     <Button
                       type="primary"
@@ -166,27 +173,6 @@ const RegionsPage = observer(() => {
                           "Сельское население (женщины)",
                           "Сельское население (пропорция ж/м)",
                         ]);
-                        // worksheet?.insertRow(2, [
-                        //   "Число лет",
-                        //   "all",
-                        //   "men",
-                        //   "women",
-                        //   "prop",
-                        //   "all",
-                        //   "men",
-                        //   "women",
-                        //   "prop",
-                        //   "all",
-                        //   "men",
-                        //   "women",
-                        //   "prop",
-                        // ]);
-
-                        // worksheet?.mergeCells("B1:E1");
-                        // worksheet?.mergeCells("F1:I1");
-                        // worksheet?.mergeCells("J1:M1");
-                        // worksheet?.mergeCells("A1:A2");
-
                         const buffer = await workbook.xlsx.writeBuffer();
                         FileSaver.saveAs(new Blob([buffer]), "result.xlsx");
                       }}
@@ -259,7 +245,7 @@ const RegionsPage = observer(() => {
             const summary = data[0];
 
             function parser(row: any) {
-              const input = searchedText.trim();
+              const input = ageFilters.trim();
               const reg = /^(\d+(-|, ))*\d+$/;
               let age = String(row.age).trim() as string | number;
 
@@ -296,7 +282,7 @@ const RegionsPage = observer(() => {
               return false;
             }
 
-            if (searchedText) {
+            if (ageFilters) {
               rowsWithoutSummary = rowsWithoutSummary.filter(parser);
             }
 
@@ -307,14 +293,14 @@ const RegionsPage = observer(() => {
                 <Input.Search
                   placeholder="Choose age(-s)..."
                   onSearch={(value) => {
-                    setSearchedText(value);
+                    setAgeFilters(value);
                   }}
                 ></Input.Search>
                 <TableComponent
                   height={`calc(90vh - 252px)`}
                   rowsWithoutSummary={rowsWithoutSummary}
                   columns={columns}
-                  summary={!searchedText ? summary : undefined}
+                  summary={!ageFilters ? summary : undefined}
                 ></TableComponent>
                 <Button
                   type="primary"
