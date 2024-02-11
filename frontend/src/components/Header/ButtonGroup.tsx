@@ -74,14 +74,14 @@ const HeaderButtonGroup = () => {
         <Button
           type="primary"
           icon={<MenuOutlined />}
-          className="hamburger-button"
+          className="hamburger-button px-8"
           size={size}
         ></Button>
       </Dropdown>
     );
   } else {
     return (
-      <div className="button-group">
+      <div className="button-group flex justify-center flex-wrap gap-4">
         {items.map((item) => (item as any).label)}
       </div>
     );
