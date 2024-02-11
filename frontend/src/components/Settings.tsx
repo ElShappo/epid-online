@@ -12,7 +12,7 @@ import { observer } from "mobx-react-lite";
 import year from "../globalStore/year";
 import { availableYears, defaultYear } from "../constants";
 import { availableYearsType } from "../types";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 
 type SettingsProps = {
   buttonSize: "small" | "middle" | "large";
