@@ -80,7 +80,7 @@ const HeaderButtonGroup = () => {
     );
   } else {
     return (
-      <div className="button-group flex justify-center flex-wrap gap-4">
+      <div className="button-group flex justify-center flex-wrap gap-4 max-md:text-sm max-sm:w-auto">
         {items.map((item) => (item as any).label)}
       </div>
     );
