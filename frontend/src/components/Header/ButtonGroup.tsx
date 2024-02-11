@@ -6,7 +6,6 @@ import {
   QuestionCircleOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import "./ButtonGroup.css";
 import Settings from "../Settings";
 import { defaultYear } from "../../constants";
 
