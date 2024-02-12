@@ -81,7 +81,9 @@ const Menu = () => {
   } else {
     return (
       <div className="button-group flex justify-center flex-wrap gap-4 max-md:text-sm max-sm:w-auto">
-        {items.map((item) => (item as any).label)}
+        {items.map((item, index) => {
+          return <span key={item?.key ?? index}>{(item as any).label}</span>;
+        })}
       </div>
     );
   }
