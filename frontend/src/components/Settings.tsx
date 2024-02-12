@@ -81,7 +81,7 @@ const Settings = observer(({ buttonSize }: SettingsProps) => {
       <Button
         size={buttonSize}
         icon={<SettingOutlined />}
-        type="primary"
+        type="text"
         onClick={showModal}
       >
         Настройки

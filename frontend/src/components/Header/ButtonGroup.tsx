@@ -29,7 +29,7 @@ const HeaderButtonGroup = () => {
       key: "1",
       label: (
         <Button
-          type="primary"
+          type="text"
           size={size}
           icon={<TableOutlined />}
           onClick={() => navigate(`subjects/${defaultYear}`)}
@@ -43,7 +43,7 @@ const HeaderButtonGroup = () => {
       label: (
         <Button
           size={size}
-          type="primary"
+          type="text"
           icon={<LineChartOutlined />}
           onClick={() => navigate(`charts/${defaultYear}`)}
         >
@@ -58,7 +58,7 @@ const HeaderButtonGroup = () => {
     {
       key: "4",
       label: (
-        <Button size={size} type="primary" icon={<QuestionCircleOutlined />}>
+        <Button size={size} type="text" icon={<QuestionCircleOutlined />}>
           FAQ
         </Button>
       ),
@@ -71,7 +71,7 @@ const HeaderButtonGroup = () => {
     return (
       <Dropdown menu={{ items }} placement="bottomRight">
         <Button
-          type="primary"
+          type="text"
           icon={<MenuOutlined />}
           className="hamburger-button px-8"
           size={size}

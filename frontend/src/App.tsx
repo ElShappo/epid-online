@@ -8,6 +8,7 @@ import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 import ChartsPage from "./pages/Charts/ChartsPage";
 import chartsPageLoader from "./loaders/chartsPageLoader";
 import { MainPage } from "./pages/Main/MainPage";
+import { ConfigProvider, theme } from "antd";
 
 function App() {
   const router = createBrowserRouter([
@@ -40,10 +41,20 @@ function App() {
   ]);
 
   return (
-    <RouterProvider
-      router={router}
-      fallbackElement={<div>Hey, I am loading!</div>}
-    />
+    <ConfigProvider
+      theme={{
+        // 1. Use dark algorithm
+        algorithm: theme.darkAlgorithm,
+
+        // 2. Combine dark algorithm and compact algorithm
+        // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
+      }}
+    >
+      <RouterProvider
+        router={router}
+        fallbackElement={<div>Hey, I am loading!</div>}
+      />
+    </ConfigProvider>
   );
 }
 

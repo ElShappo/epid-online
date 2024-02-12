@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import Chart from "../../components/Chart";
 import { TreeSelect } from "antd";
 import "./ChartsPage.css";
-// import MessageWrapper from "../../components/MessageWrapper";
-// import { ChartDataset } from "../../types";
 import React from "react";
 import { Await, useLoaderData, useNavigate } from "react-router-dom";
 import { PopulationSingleYear } from "../../utils";
@@ -14,16 +12,6 @@ const ChartsPage = observer(() => {
   const [selectedRegions, setSelectedRegions] = useState<string[]>();
   const navigate = useNavigate();
   const { population }: any = useLoaderData();
-
-  // const [totalPopulationPerAge, setTotalPopulationPerAge] = useState<
-  //   ChartDataset[]
-  // >([{ data: [] }]);
-  // const [ruralToCityRatioPerAge, setRuralToCityRatioPerAge] = useState<
-  //   ChartDataset[]
-  // >([{ data: [] }]);
-  // const [womenToMenRatioPerAge, setWomenToMenRatioPerAge] = useState<
-  //   ChartDataset[]
-  // >([{ data: [] }]);
 
   const onRegionsIDsChange = (newValue: string[]) => {
     console.log(newValue);
@@ -40,10 +28,6 @@ const ChartsPage = observer(() => {
     navigate(url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year.get()]);
-
-  // const onTreeSubmit = async () => {
-  //   console.log(`Submitting keys = ${regionsIDs}`);
-  // };
 
   return (
     <div className="charts-with-tree">
@@ -69,13 +53,6 @@ const ChartsPage = observer(() => {
                       resolved.getRegions().getAntDesignTreeSelectFormat(),
                     ]}
                   />
-                  {/* <Button
-                    type="primary"
-                    onClick={onTreeSubmit}
-                    className="submit-tree"
-                  >
-                    Подтвердить
-                  </Button> */}
                 </div>
                 {selectedRegions ? (
                   <div className="charts">
