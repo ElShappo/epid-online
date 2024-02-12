@@ -1,11 +1,24 @@
 import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import HeaderButtonGroup from "./ButtonGroup";
+import HeaderButtonGroup from "./Menu/Menu";
+import { useEffect, useRef } from "react";
 
-const Header = () => {
+type HeaderProps = {
+  setHeaderHeight: React.Dispatch<React.SetStateAction<number>>;
+};
+
+const Header = ({ setHeaderHeight }: HeaderProps) => {
   const navigate = useNavigate();
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      setHeaderHeight((ref.current as HTMLElement).clientHeight);
+    }
+  }, [setHeaderHeight]);
+
   return (
-    <header className="header bg-slate-800 p-8">
+    <header className="header bg-slate-800 p-8" ref={ref}>
       <nav className="nav-header h-full flex flex-wrap justify-center items-center content-center gap-20 max-md:gap-8 max-sm:gap-5">
         <Button
           type="text"

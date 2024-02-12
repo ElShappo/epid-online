@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Checkbox, Form, Input } from "antd";
 import "./AuthorizationPage.css";
 import { message } from "antd";
-import authorization from "../../globalStore/authorization";
+import authorization from "../../store/authorization";
 import { observer } from "mobx-react-lite";
 type FieldType = {
   username?: string;

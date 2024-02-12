@@ -9,7 +9,7 @@ import "./SubjectsPage.css";
 import { PopulationSingleYear } from "../../utils";
 import ExcelJS from "exceljs";
 import { observer } from "mobx-react-lite";
-import year from "../../globalStore/year";
+import year from "../../store/year";
 
 const { SHOW_PARENT } = TreeSelect;
 
@@ -40,7 +40,10 @@ const RegionsPage = observer(() => {
   }, [year.get()]);
 
   return (
-    <div className="main-layout">
+    <div
+      className="main-layout flex"
+      style={{ height: `calc(100vh - ${headerHeight})` }}
+    >
       <React.Suspense fallback={<div>Загружаю дерево регионов...</div>}>
         <Await
           resolve={population as PopulationSingleYear}
@@ -63,7 +66,13 @@ const RegionsPage = observer(() => {
             };
             return (
               <>
-                <div className="sider">
+                <div
+                  className={
+                    !selectedRegions || !selectedRegions.length
+                      ? "flex items-center justify-center w-full px-52"
+                      : "w-[20vw]"
+                  }
+                >
                   <TreeSelect {...tProps} className="tree" />
                 </div>
                 {selectedRegions && selectedRegions.length > 0 ? (

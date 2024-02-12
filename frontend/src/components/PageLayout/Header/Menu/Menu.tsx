@@ -6,12 +6,12 @@ import {
   QuestionCircleOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import Settings from "../Settings";
-import { defaultYear } from "../../constants";
+import Settings from "./Settings/Settings";
+import { defaultYear } from "../../../../constants";
 
 const { useBreakpoint } = Grid;
 
-const HeaderButtonGroup = () => {
+const Menu = () => {
   const screens = useBreakpoint() as any;
   const navigate = useNavigate();
 
@@ -87,4 +87,4 @@ const HeaderButtonGroup = () => {
   }
 };
 
-export default HeaderButtonGroup;
+export default Menu;

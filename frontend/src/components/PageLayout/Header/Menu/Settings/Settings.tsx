@@ -1,17 +1,10 @@
-import {
-  Button,
-  DatePicker,
-  DatePickerProps,
-  // Input,
-  Modal,
-  message,
-} from "antd";
+import { Button, DatePicker, DatePickerProps, Modal, message } from "antd";
 import { useState } from "react";
 import { SettingOutlined } from "@ant-design/icons";
 import { observer } from "mobx-react-lite";
-import year from "../globalStore/year";
-import { availableYears, defaultYear } from "../constants";
-import { availableYearsType } from "../types";
+import year from "../../../../../store/year";
+import { availableYears, defaultYear } from "../../../../../constants";
+import { availableYearsType } from "../../../../../types";
 import dayjs from "dayjs";
 
 type SettingsProps = {

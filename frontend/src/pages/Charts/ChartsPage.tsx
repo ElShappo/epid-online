@@ -6,7 +6,7 @@ import React from "react";
 import { Await, useLoaderData, useNavigate } from "react-router-dom";
 import { PopulationSingleYear } from "../../utils";
 import { observer } from "mobx-react-lite";
-import year from "../../globalStore/year";
+import year from "../../store/year";
 
 const ChartsPage = observer(() => {
   const [selectedRegions, setSelectedRegions] = useState<string[]>();

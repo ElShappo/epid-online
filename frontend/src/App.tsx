@@ -1,13 +1,12 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthorizationPage from "./pages/Authorization/AuthorizationPage";
-// import SubjectsPage from "./pages/Subjects/SubjectsPage";
 import RegionsPage from "./pages/Subjects/RegionsPage";
 import subjectsPageLoader from "./loaders/subjectsPageLoader";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 import ChartsPage from "./pages/Charts/ChartsPage";
 import chartsPageLoader from "./loaders/chartsPageLoader";
-import { MainPage } from "./pages/Main/MainPage";
+import { PageLayout } from "./components/PageLayout/PageLayout";
 import { ConfigProvider, theme } from "antd";
 
 function App() {
@@ -18,7 +17,7 @@ function App() {
     },
     {
       path: "/main",
-      element: <MainPage />,
+      element: <PageLayout />,
       children: [
         {
           path: "subjects/:year",
