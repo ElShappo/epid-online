@@ -33,15 +33,42 @@ type Props = {
 
 const LineChart = (props: Props) => {
   const options = {
+    scales: {
+      x: {
+        grid: {
+          color: "#524543",
+        },
+        ticks: {
+          color: "#dddfe1",
+        },
+      },
+      y: {
+        grid: {
+          color: "#524543",
+        },
+        ticks: {
+          color: "#dddfe1",
+        },
+      },
+    },
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         position: props.position || "top",
+        labels: {
+          color: "#dddfe1",
+        },
       },
       title: {
         display: !!props.title,
         text: props.title,
+        color: "#dddfe1",
+        font: {
+          size: 17,
+          family: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif",
+          weight: 400,
+        },
       },
     },
   };
