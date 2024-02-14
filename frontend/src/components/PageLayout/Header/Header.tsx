@@ -11,7 +11,11 @@ const Header = ({ setHeaderHeight }: HeaderProps) => {
 
   useEffect(() => {
     if (ref.current) {
-      setHeaderHeight((ref.current as HTMLElement).clientHeight);
+      const getTabsHeight = () => {
+        console.log((ref.current! as HTMLElement).offsetHeight);
+        setHeaderHeight((ref.current! as HTMLElement).offsetHeight);
+      };
+      new ResizeObserver(getTabsHeight).observe(ref.current);
     }
   }, [setHeaderHeight]);
 

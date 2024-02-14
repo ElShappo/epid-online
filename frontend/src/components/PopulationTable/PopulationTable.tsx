@@ -4,7 +4,6 @@ import { Button, Input, TreeSelect } from "antd";
 import TableComponent from "../TableComponent";
 import { columns } from "../../constants";
 import FileSaver from "file-saver";
-import "./SubjectsPage.css";
 import { PopulationSingleYear } from "../../utils";
 import ExcelJS from "exceljs";
 import { observer } from "mobx-react-lite";
@@ -19,7 +18,7 @@ const RegionsPage = observer(() => {
   const [populationPerRegions, setPopulationPerRegions] =
     useState<PopulationSingleYear>();
   const [gotRegions, setGotRegions] = useState<boolean>(false);
-  const [selectedRegions, setSelectedRegions] = useState<any>();
+  const [selectedRegions, setSelectedRegions] = useState<string[]>();
   const [ageFilters, setAgeFilters] = useState("");
 
   const treeData = useMemo(() => {
@@ -37,9 +36,9 @@ const RegionsPage = observer(() => {
       treeCheckable: true,
       showCheckedStrategy: SHOW_PARENT,
       placeholder: "Выберите регионы",
-      style: {
-        width: "90%",
-      },
+      // style: {
+      //   width: "90%",
+      // },
     };
   }, [populationPerRegions, selectedRegions]);
 
@@ -63,20 +62,20 @@ const RegionsPage = observer(() => {
   }, []);
 
   return (
-    <div className="main-layout flex">
+    <div className="flex gap-3 w-full max-md:flex-col">
       {gotRegions ? (
         <>
           <div
             className={
               !selectedRegions || !selectedRegions.length
-                ? "flex items-center justify-center w-full px-52"
-                : "w-[20vw]"
+                ? "flex items-center justify-center w-full px-96 max-xl:px-64 max-lg:px-36 max-sm:px-0"
+                : "md:flex-none md:w-[20%]"
             }
           >
-            <TreeSelect {...(treeData as any)} className="tree" />
+            <TreeSelect {...(treeData as any)} className="h-auto w-full" />
           </div>
           {selectedRegions && selectedRegions.length > 0 ? (
-            <div className="table-with-input">
+            <div className="md:flex-initial md:w-[80%]">
               <Input.Search
                 placeholder="Укажите диапазон(-ы) возрастов (пример: 1-1, 5-5, 7-10)"
                 onSearch={(value) => {
@@ -101,7 +100,7 @@ const RegionsPage = observer(() => {
               ></TableComponent>
               <Button
                 type="primary"
-                className="button-export"
+                className="w-full"
                 onClick={async () => {
                   const workbook = new ExcelJS.Workbook();
                   workbook.addWorksheet("Лист1", {

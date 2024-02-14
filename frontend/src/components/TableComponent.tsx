@@ -5,7 +5,6 @@ const TableComponent = (props: any) => {
   if (props.columns) {
     return (
       <Table
-        className="mainTable"
         columns={props.columns}
         dataSource={props.rowsWithoutSummary}
         bordered
