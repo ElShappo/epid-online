@@ -10,7 +10,7 @@ const Body = ({ headerHeight }: BodyProps) => {
       className="overflow-auto"
       style={{ height: `calc(100vh - ${headerHeight}px)` }}
     >
-      <Outlet />
+      <Outlet context={headerHeight} />
     </div>
   );
 };

@@ -49,7 +49,7 @@ const AuthorizationPage = observer(() => {
       if (response.ok) {
         console.log("Authorization successful!");
         authorization.authorize();
-        navigate("/main");
+        navigate("/");
       } else {
         const errorText = "Invalid username or password";
         showAuthorizationError(errorText);

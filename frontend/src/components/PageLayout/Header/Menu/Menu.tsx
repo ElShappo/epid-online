@@ -1,13 +1,9 @@
 import { Button, Dropdown, Grid, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import {
-  LineChartOutlined,
-  TableOutlined,
-  QuestionCircleOutlined,
-  MenuOutlined,
-} from "@ant-design/icons";
+import { QuestionCircleOutlined, MenuOutlined } from "@ant-design/icons";
 import Settings from "./Settings/Settings";
 import { defaultYear } from "../../../../constants";
+import PeopleIcon from "@mui/icons-material/People";
 
 const { useBreakpoint } = Grid;
 
@@ -31,23 +27,11 @@ const Menu = () => {
         <Button
           type="text"
           size={size}
-          icon={<TableOutlined />}
-          onClick={() => navigate(`subjects/${defaultYear}`)}
+          icon={<PeopleIcon />}
+          className="flex"
+          onClick={() => navigate(`/population`)}
         >
-          Таблица
-        </Button>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-        <Button
-          size={size}
-          type="text"
-          icon={<LineChartOutlined />}
-          onClick={() => navigate(`charts/${defaultYear}`)}
-        >
-          Графики
+          Население
         </Button>
       ),
     },

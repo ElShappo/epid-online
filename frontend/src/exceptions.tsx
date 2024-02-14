@@ -27,6 +27,14 @@ export class PopulationSingleYearException extends Error {
   }
 }
 
+export class PopulationEmptyRegionsException extends PopulationSingleYearException {
+  constructor() {
+    super(
+      "Regions are empty: please check that the setRegions() method is called beforehand"
+    );
+  }
+}
+
 export class SingleRecordException extends PopulationSingleYearException {
   constructor(
     populationSingleRecord: PopulationSingleRecord,
@@ -40,6 +48,7 @@ export class SingleRecordException extends PopulationSingleYearException {
     super(message);
   }
 }
+
 export class YearException extends SingleRecordException {
   constructor(populationSingleRecord: PopulationSingleRecord) {
     super(populationSingleRecord, "invalid year");

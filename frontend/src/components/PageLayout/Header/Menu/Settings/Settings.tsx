@@ -41,30 +41,6 @@ const Settings = observer(({ buttonSize }: SettingsProps) => {
     return !availableYears.includes(current.year());
   }
 
-  // const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   const input: string = (e.target as any).value;
-
-  //   try {
-  //     const result = parsePositiveNumberRanges(input);
-  //     years.replace(Array.from(result));
-  //     console.log(`Parsed years from input: ${result}`);
-  //   } catch (error) {
-  //     console.error(error);
-
-  //     if (error instanceof BoundsOrderException) {
-  //       messageApi.open({
-  //         type: "error",
-  //         content: `Неверный порядок в диапазоне: поменяйте местами ${error.left} и ${error.right}`,
-  //       });
-  //     } else {
-  //       messageApi.open({
-  //         type: "error",
-  //         content: `Неверный формат`,
-  //       });
-  //     }
-  //   }
-  // };
-
   const defaultFormattedDate = new Date();
   defaultFormattedDate.setFullYear(defaultYear!);
 

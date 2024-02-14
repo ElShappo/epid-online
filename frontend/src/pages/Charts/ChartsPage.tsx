@@ -19,7 +19,7 @@ const ChartsPage = observer(() => {
   };
 
   useEffect(() => {
-    const url = `/main/charts/${year}`;
+    const url = `/charts/${year}`;
     console.warn(`useEffect triggered with year = ${year}`);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
