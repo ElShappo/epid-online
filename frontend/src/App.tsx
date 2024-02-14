@@ -5,6 +5,7 @@ import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 import { PageLayout } from "./components/PageLayout/PageLayout";
 import { ConfigProvider, theme } from "antd";
 import PopulationPage from "./pages/Population/PopulationPage";
+import CalculationsPage from "./pages/Calculations/CalculationsPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -19,6 +20,10 @@ function App() {
         {
           path: "population",
           element: <PopulationPage />,
+        },
+        {
+          path: "calculations",
+          element: <CalculationsPage />,
         },
       ],
     },

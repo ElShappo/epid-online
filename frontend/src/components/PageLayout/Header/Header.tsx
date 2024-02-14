@@ -21,7 +21,7 @@ const Header = ({ setHeaderHeight }: HeaderProps) => {
 
   return (
     <header className="header bg-slate-800 p-8" ref={ref}>
-      <nav className="nav-header h-full flex flex-wrap justify-center items-center content-center gap-20 max-md:gap-8 max-sm:gap-5">
+      <nav className="nav-header h-full flex flex-wrap justify-center items-center content-center gap-20 max-md:gap-y-4 max-sm:gap-y-0">
         <Logo />
         <Menu />
       </nav>

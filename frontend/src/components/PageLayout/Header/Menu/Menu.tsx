@@ -4,6 +4,7 @@ import { QuestionCircleOutlined, MenuOutlined } from "@ant-design/icons";
 import Settings from "./Settings/Settings";
 import { defaultYear } from "../../../../constants";
 import PeopleIcon from "@mui/icons-material/People";
+import CalculateIcon from "@mui/icons-material/Calculate";
 
 const { useBreakpoint } = Grid;
 
@@ -18,7 +19,7 @@ const Menu = () => {
       ? "middle"
       : "small";
 
-  const showHamburger = screens.lg || screens.xl || screens.xxl ? false : true;
+  const showHamburger = screens.xl || screens.xxl ? false : true;
 
   const items: MenuProps["items"] = [
     {
@@ -32,6 +33,20 @@ const Menu = () => {
           onClick={() => navigate(`/population`)}
         >
           Население
+        </Button>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <Button
+          type="text"
+          size={size}
+          icon={<CalculateIcon />}
+          className="flex"
+          onClick={() => navigate(`/calculations`)}
+        >
+          Расчёты
         </Button>
       ),
     },
@@ -58,7 +73,7 @@ const Menu = () => {
           type="text"
           icon={<MenuOutlined />}
           className="hamburger-button px-8"
-          size={size}
+          size="large"
         ></Button>
       </Dropdown>
     );
