@@ -1,98 +1,105 @@
 import { useEffect, useState } from "react";
 import Chart from "../../components/Chart";
 import { TreeSelect } from "antd";
-import "./ChartsPage.css";
-import React from "react";
-import { Await, useLoaderData, useNavigate } from "react-router-dom";
-import { PopulationSingleYear } from "../../utils";
 import { observer } from "mobx-react-lite";
 import year from "../../store/year";
+import { PopulationSingleYear } from "../../utils";
+import { useOutletContext } from "react-router-dom";
 
 const ChartsPage = observer(() => {
-  const [selectedRegions, setSelectedRegions] = useState<string[]>();
-  const navigate = useNavigate();
-  const { population }: any = useLoaderData();
+  const headerHeight = useOutletContext();
+  console.log(headerHeight);
 
-  const onRegionsIDsChange = (newValue: string[]) => {
-    console.log(newValue);
+  const [populationPerRegions, setPopulationPerRegions] =
+    useState<PopulationSingleYear>();
+  const [gotRegions, setGotRegions] = useState<boolean>(false);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>();
+
+  const onChange = (newValue: string[]) => {
+    console.log("Old value: ", selectedRegions);
+    console.log("New value: ", newValue);
     setSelectedRegions(newValue);
   };
 
   useEffect(() => {
-    const url = `/charts/${year}`;
-    console.warn(`useEffect triggered with year = ${year}`);
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - the select field needs to be erased
-    setSelectedRegions();
-    navigate(url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year.get()]);
+    async function init() {
+      console.log(`useEffect triggered with year = ${year}`);
+      const populationSingleYear = new PopulationSingleYear(year.get());
+      try {
+        await populationSingleYear.setRegions();
+        setPopulationPerRegions(populationSingleYear);
+        setGotRegions(true);
+      } catch (error) {
+        console.error("could not load regions");
+        console.error(error);
+      }
+    }
+    init();
+    return () => {
+      setGotRegions(false);
+    };
+  }, []);
 
   return (
-    <div className="charts-with-tree">
-      <React.Suspense fallback={<div>Загружаю дерево...</div>}>
-        <Await
-          resolve={population as PopulationSingleYear}
-          errorElement={<div>Не удалось загрузить дерево</div>}
-        >
-          {(resolved: PopulationSingleYear) => {
-            return (
-              <>
-                <div className="tree" style={{ paddingBottom: "1em" }}>
-                  <TreeSelect
-                    showSearch
-                    style={{ width: "50%" }}
-                    value={selectedRegions}
-                    dropdownStyle={{ maxWidth: "100%", overflow: "auto" }}
-                    placeholder="Выберите субъекты РФ"
-                    multiple
-                    treeDefaultExpandAll
-                    onChange={onRegionsIDsChange}
-                    treeData={[
-                      resolved.getRegions().getAntDesignTreeSelectFormat(),
-                    ]}
-                  />
-                </div>
-                {selectedRegions ? (
-                  <div className="charts">
-                    <div className="chart">
-                      <Chart
-                        type="Line"
-                        chartData={resolved.getDataForCharts(
-                          selectedRegions!,
-                          "peoplePerAge"
-                        )}
-                        title="Распределение по возрастам"
-                      />
-                    </div>
-                    <div className="chart">
-                      <Chart
-                        type="Bar"
-                        chartData={resolved.getDataForCharts(
-                          selectedRegions!,
-                          "ruralToUrban"
-                        )}
-                        title="Отношение сельского и городского населений"
-                      />
-                    </div>
-                    <div className="chart">
-                      <Chart
-                        type="Bar"
-                        chartData={resolved.getDataForCharts(
-                          selectedRegions!,
-                          "womenToMen"
-                        )}
-                        title="Отношения числа женщин к числу мужчин"
-                      />
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            );
-          }}
-        </Await>
-      </React.Suspense>
+    <div className="flex flex-wrap gap-3 w-full max-md:flex-col">
+      {gotRegions ? (
+        <>
+          <div className="flex justify-center w-full px-96 max-xl:px-64 max-lg:px-36 max-sm:px-0">
+            <TreeSelect
+              showSearch
+              value={selectedRegions}
+              placeholder="Выберите регионы"
+              multiple
+              onChange={onChange}
+              treeData={[
+                populationPerRegions!
+                  .getRegions()!
+                  .getAntDesignTreeSelectFormat(),
+              ]}
+              style={{ width: "100%" }}
+            />
+          </div>
+          {selectedRegions && selectedRegions.length ? (
+            <div
+              className="w-full flex flex-wrap"
+              style={{ height: `calc(100vh - ${headerHeight}px - 117px)` }}
+            >
+              <div className="w-1/3 max-xl:w-full">
+                <Chart
+                  type="Line"
+                  chartData={populationPerRegions!.getDataForCharts(
+                    selectedRegions!,
+                    "peoplePerAge"
+                  )}
+                  title="Распределение по возрастам"
+                />
+              </div>
+              <div className="w-1/3 max-xl:w-full">
+                <Chart
+                  type="Bar"
+                  chartData={populationPerRegions!.getDataForCharts(
+                    selectedRegions!,
+                    "ruralToUrban"
+                  )}
+                  title="Отношение сельского и городского населений"
+                />
+              </div>
+              <div className="w-1/3 max-xl:w-full">
+                <Chart
+                  type="Bar"
+                  chartData={populationPerRegions!.getDataForCharts(
+                    selectedRegions!,
+                    "womenToMen"
+                  )}
+                  title="Отношения числа женщин к числу мужчин"
+                />
+              </div>
+            </div>
+          ) : null}
+        </>
+      ) : (
+        <div>Loading regions...</div>
+      )}
     </div>
   );
 });

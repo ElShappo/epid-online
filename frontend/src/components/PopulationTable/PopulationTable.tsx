@@ -36,9 +36,6 @@ const RegionsPage = observer(() => {
       treeCheckable: true,
       showCheckedStrategy: SHOW_PARENT,
       placeholder: "Выберите регионы",
-      // style: {
-      //   width: "90%",
-      // },
     };
   }, [populationPerRegions, selectedRegions]);
 
@@ -74,7 +71,7 @@ const RegionsPage = observer(() => {
           >
             <TreeSelect {...(treeData as any)} className="h-auto w-full" />
           </div>
-          {selectedRegions && selectedRegions.length > 0 ? (
+          {selectedRegions && selectedRegions.length ? (
             <div className="md:flex-initial md:w-[80%]">
               <Input.Search
                 placeholder="Укажите диапазон(-ы) возрастов (пример: 1-1, 5-5, 7-10)"
