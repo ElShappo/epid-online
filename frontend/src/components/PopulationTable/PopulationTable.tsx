@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Button, Input, TreeSelect } from "antd";
-import TableComponent from "../TableComponent";
+import TableComponent from "../TableComponent/TableComponent";
 import { columns } from "../../constants";
 import FileSaver from "file-saver";
 import { PopulationSingleYear } from "../../utils";

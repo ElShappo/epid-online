@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import Chart from "../../components/Chart";
+import Chart from "../ChartComponent/ChartComponent";
 import { TreeSelect } from "antd";
 import { observer } from "mobx-react-lite";
 import year from "../../store/year";
 import { PopulationSingleYear } from "../../utils";
 import { useOutletContext } from "react-router-dom";
 
-const ChartsPage = observer(() => {
+const PopulationCharts = observer(() => {
   const headerHeight = useOutletContext();
   console.log(headerHeight);
 
@@ -104,4 +104,4 @@ const ChartsPage = observer(() => {
   );
 });
 
-export default ChartsPage;
+export default PopulationCharts;

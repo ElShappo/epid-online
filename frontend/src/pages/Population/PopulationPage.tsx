@@ -1,20 +1,20 @@
 import React from "react";
 import { TableOutlined, LineChartOutlined } from "@ant-design/icons";
 import { Tabs } from "antd";
-import ChartsPage from "../Charts/ChartsPage";
-import RegionsPage from "../../components/PopulationTable/PopulationTable";
+import PopulationCharts from "../../components/PopulationCharts/PopulationCharts";
+import PopulationTable from "../../components/PopulationTable/PopulationTable";
 
 const items = [
   {
     key: "1",
     label: "Таблица",
     icon: <TableOutlined />,
-    children: <RegionsPage />,
+    children: <PopulationTable />,
   },
   {
     key: "2",
     label: "Графики",
-    children: <ChartsPage />,
+    children: <PopulationCharts />,
     icon: <LineChartOutlined />,
   },
 ];
