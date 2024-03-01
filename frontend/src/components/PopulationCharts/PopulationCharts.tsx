@@ -38,7 +38,7 @@ const PopulationCharts = observer(() => {
     return () => {
       setGotRegions(false);
     };
-  }, []);
+  }, [year.get()]);
 
   return (
     <div className="flex flex-wrap gap-3 w-full max-md:flex-col">

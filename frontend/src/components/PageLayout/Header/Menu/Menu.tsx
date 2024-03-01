@@ -2,7 +2,6 @@ import { Button, Dropdown, Grid, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import { QuestionCircleOutlined, MenuOutlined } from "@ant-design/icons";
 import Settings from "./Settings/Settings";
-import { defaultYear } from "../../../../constants";
 import PeopleIcon from "@mui/icons-material/People";
 import CalculateIcon from "@mui/icons-material/Calculate";
 

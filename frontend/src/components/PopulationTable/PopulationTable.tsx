@@ -41,7 +41,7 @@ const RegionsPage = observer(() => {
 
   useEffect(() => {
     async function init() {
-      console.log(`useEffect triggered with year = ${year}`);
+      console.log(`useEffect triggered with year = ${year.get()}`);
       const populationSingleYear = new PopulationSingleYear(year.get());
       try {
         await populationSingleYear.setRegions();
@@ -56,7 +56,8 @@ const RegionsPage = observer(() => {
     return () => {
       setGotRegions(false);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year.get()]);
 
   return (
     <div className="flex gap-3 w-full max-md:flex-col">
