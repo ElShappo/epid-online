@@ -8,6 +8,8 @@ const availableYears = [
 
 export const defaultYear = availableYears.at(-1);
 
+export const upperYearBound = 199;
+
 const columns: ColumnsType<DataType> = [
   {
     title: "Год",
@@ -158,11 +160,9 @@ export const textAreaTitlesAllChecked = [
 
   "Число заболевших (мужчины, Россия)",
   "Число заболевших (женщины, Россия)",
-  "Общее число заболевших (Россия)",
 
   "Число заболевших (мужчины, выбран. регионы)",
   "Число заболевших (женщины, выбран. регионы)",
-  "Общее число заболевших (выбран. регионы)",
 ];
 
 export const textAreaTitlesAllUnchecked = [
@@ -183,11 +183,9 @@ export const textAreaTitlesGenderRecognitionChecked = [
 
   "Число заболевших (мужчины, Россия)",
   "Число заболевших (женщины, Россия)",
-  "Общее число заболевших (Россия)",
 
   "Число заболевших (мужчины, выбран. регионы)",
   "Число заболевших (женщины, выбран. регионы)",
-  "Общее число заболевших (выбран. регионы)",
 ];
 
 export { availableYears, columns };

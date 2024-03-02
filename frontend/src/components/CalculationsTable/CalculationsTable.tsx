@@ -328,7 +328,7 @@ const CalculationsTable = observer(() => {
 
   useEffect(() => {
     async function init() {
-      console.log(`useEffect triggered with year = ${year}`);
+      console.log(`useEffect triggered with year = ${year.get()}`);
       const populationSingleYear = new PopulationSingleYear(year.get());
       try {
         await populationSingleYear.setRegions();

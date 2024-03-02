@@ -1,76 +1,78 @@
 import { availableYears } from "./constants";
 
 export interface DataType {
-    key: React.Key;
-    age: number | string;
-  
-    all: number | string;
-    all_men: number | string;
-    all_women: number | string;
-    all_proportion: number | string;
-  
-    urban_all: number | string;
-    urban_men: number | string;
-    urban_women: number | string;
-    urban_proportion: number | string;
-  
-    rural_all: number | string;
-    rural_men: number | string;
-    rural_women: number | string;
-    rural_proportion: number | string;
+  key: React.Key;
+  age: number | string;
+
+  all: number | string;
+  all_men: number | string;
+  all_women: number | string;
+  all_proportion: number | string;
+
+  urban_all: number | string;
+  urban_men: number | string;
+  urban_women: number | string;
+  urban_proportion: number | string;
+
+  rural_all: number | string;
+  rural_men: number | string;
+  rural_women: number | string;
+  rural_proportion: number | string;
 }
 
 export type ChartDataset = {
-    data: number[];
-    label?: string; // a legend actually
-    borderColor?: string;
-    backgroundColor?: string;
-  };
-  
+  data: number[];
+  label?: string; // a legend actually
+  borderColor?: string;
+  backgroundColor?: string;
+};
+
 export type ChartData = {
-    labels: string[] | number[];
-    datasets: ChartDataset[];
-  };
+  labels: string[] | number[];
+  datasets: ChartDataset[];
+};
 
 export type DataIndex = keyof DataType;
 
 export type Region = {
-  territory: string
-  territory_code: string
-}
+  territory: string;
+  territory_code: string;
+};
 
 export type AntDesignTree = {
-  title: string
-  value: string
-  key: string
-  children: AntDesignTree[]
-}
+  title: string;
+  value: string;
+  key: string;
+  children: AntDesignTree[];
+};
 
 export type PopulationSingleRecord = {
-  year: number
-  territory: string
-  territory_code: string
-  age_start: number
-  age_end: number
-  all: number
-  all_men: number
-  all_women: number
-  all_proportion?: number
-  urban_all: number,
-  urban_men: number,
-  urban_women: number,
-  urban_proportion?: number
-  rural_all: number,
-  rural_men: number,
-  rural_women: number
-  rural_proportion?: number
-}
+  year: number;
+  territory: string;
+  territory_code: string;
+  age_start: number;
+  age_end: number;
+  all: number;
+  all_men: number;
+  all_women: number;
+  all_proportion?: number;
+  urban_all: number;
+  urban_men: number;
+  urban_women: number;
+  urban_proportion?: number;
+  rural_all: number;
+  rural_men: number;
+  rural_women: number;
+  rural_proportion?: number;
+};
 
-export type availableYearsType = typeof availableYears[number]
+export type availableYearsType = (typeof availableYears)[number];
 
-export type chartsDataMode = 'peoplePerAge' | 'ruralToUrban' | 'womenToMen'
+export type chartsDataMode = "peoplePerAge" | "ruralToUrban" | "womenToMen";
 
 export type LineColor = {
   backgroundColor: string;
   borderColor: string;
 };
+
+export type Sex = "male" | "female";
