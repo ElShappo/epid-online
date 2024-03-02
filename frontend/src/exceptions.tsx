@@ -147,8 +147,20 @@ export class RegionCodeException extends RegionException {
   }
 }
 
+export class RegionCodeNotFoundException extends RegionException {
+  constructor(regionName: string, regionCode: string) {
+    super(regionName, regionCode, "region code not found");
+  }
+}
+
 export class RegionNameException extends RegionException {
   constructor(regionName: string, regionCode: string) {
     super(regionName, regionCode, "region name error");
+  }
+}
+
+export class RegionNameNotFoundException extends RegionException {
+  constructor(regionName: string, regionCode: string) {
+    super(regionName, regionCode, "region name not found");
   }
 }

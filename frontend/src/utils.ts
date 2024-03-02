@@ -1,5 +1,5 @@
 import population from "./assets/population.json";
-import { availableYears } from "./constants";
+import { availableYears, upperYearBound } from "./constants";
 import {
   AgeStartException,
   AllException,
@@ -10,7 +10,9 @@ import {
   PopulationEmptyRegionsException,
   RangeValidationException,
   RegionCodeException,
+  RegionCodeNotFoundException,
   RegionNameException,
+  RegionsException,
   RuralAllException,
   RuralMenException,
   RuralWomenException,
@@ -21,9 +23,11 @@ import {
 import {
   AntDesignTree,
   ChartData,
+  DiscretizedPopulationData,
   LineColor,
   PopulationSingleRecord,
   Region,
+  Sex,
   availableYearsType,
   chartsDataMode,
 } from "./types";
@@ -377,6 +381,165 @@ export class PopulationSingleYear {
   getPopulation() {
     return this.#population;
   }
+
+  // there is no year-by-year population info for 80+ year olds
+  // there are only single chunks of data for 80+ and 85+ that are available
+  // (i.e. there is no year-by-year division in both of these chunks)
+
+  // but epid-related calculations might require such year-by-year info
+  // in that case we interpolate the data: to get a number of people year-by-year between 80 and 85 years,
+  // we subtrack number of 80 year olds from a number of 85 year olds and divide the result by 5
+
+  // to get number of 85+ year olds year-by-year,
+  // we assume that for each subsequent year the half of the population dies (geometric progression)
+  getByAge(
+    regionCode: string,
+    age: number
+  ): PopulationSingleRecord | undefined {
+    const population = this.getRegionPopulation(regionCode);
+    if (!population.length) {
+      throw new RegionCodeNotFoundException("", regionCode);
+    }
+    const _80UpYearOlds = population.find(
+      (record) => record.age_start === 80 && record.age_end === upperYearBound
+    );
+    const _85UpYearOlds = population.find(
+      (record) => record.age_start === 85 && record.age_end === upperYearBound
+    );
+
+    if (this.#regions) {
+      const regionName = this.#regions.getRegionByCode(regionCode)!.territory;
+
+      if (age < 80) {
+        return this.getPopulation().find(
+          (record) =>
+            record.age_start === record.age_end && record.age_start === age
+        );
+      } else if (age >= 80 && age < 85) {
+        if (!_80UpYearOlds || !_85UpYearOlds) {
+          throw new Error("could not discretize unexisting age groups");
+        }
+
+        const _80To85OldsPerYearAll = Math.floor(
+          (_80UpYearOlds.all - _85UpYearOlds.all) / 5
+        );
+        const _80To85OldsPerYearAllMen = Math.floor(
+          (_80UpYearOlds.all_men - _85UpYearOlds.all_men) / 5
+        );
+        const _80To85OldsPerYearAllWomen = Math.floor(
+          (_80UpYearOlds.all_women - _85UpYearOlds.all_women) / 5
+        );
+
+        const _80To85OldsPerYearUrbanAll = Math.floor(
+          (_80UpYearOlds.urban_all - _85UpYearOlds.urban_all) / 5
+        );
+        const _80To85OldsPerYearUrbanMen = Math.floor(
+          (_80UpYearOlds.urban_men - _85UpYearOlds.urban_men) / 5
+        );
+        const _80To85OldsPerYearUrbanWomen = Math.floor(
+          (_80UpYearOlds.urban_women - _85UpYearOlds.urban_women) / 5
+        );
+
+        const _80To85OldsPerYearRuralAll = Math.floor(
+          (_80UpYearOlds.rural_all - _85UpYearOlds.rural_all) / 5
+        );
+        const _80To85OldsPerYearRuralMen = Math.floor(
+          (_80UpYearOlds.rural_men - _85UpYearOlds.rural_men) / 5
+        );
+        const _80To85OldsPerYearRuralWomen = Math.floor(
+          (_80UpYearOlds.rural_women - _85UpYearOlds.rural_women) / 5
+        );
+
+        return {
+          year: this.#year,
+          territory: regionName,
+          territory_code: regionCode,
+
+          age_start: age,
+          age_end: age,
+
+          all: _80To85OldsPerYearAll,
+          all_men: _80To85OldsPerYearAllMen,
+          all_women: _80To85OldsPerYearAllWomen,
+
+          urban_all: _80To85OldsPerYearUrbanAll,
+          urban_men: _80To85OldsPerYearUrbanMen,
+          urban_women: _80To85OldsPerYearUrbanWomen,
+
+          rural_all: _80To85OldsPerYearRuralAll,
+          rural_men: _80To85OldsPerYearRuralMen,
+          rural_women: _80To85OldsPerYearRuralWomen,
+        };
+      } else {
+        if (!_80UpYearOlds || !_85UpYearOlds) {
+          throw new Error("could not discretize unexisting age groups");
+        }
+        const numberOfDivisions = age - 85;
+
+        const res = {
+          year: this.#year,
+          territory: regionName,
+          territory_code: regionCode,
+
+          age_start: age,
+          age_end: age,
+
+          all: _85UpYearOlds.all,
+          all_men: _85UpYearOlds.all_men,
+          all_women: _85UpYearOlds.all_women,
+
+          urban_all: _85UpYearOlds.urban_all,
+          urban_men: _85UpYearOlds.urban_men,
+          urban_women: _85UpYearOlds.urban_women,
+
+          rural_all: _85UpYearOlds.rural_all,
+          rural_men: _85UpYearOlds.rural_men,
+          rural_women: _85UpYearOlds.rural_women,
+        };
+
+        for (let i = 0; i < numberOfDivisions; ++i) {
+          const all_delta =
+            res.all_men -
+            Math.floor(res.all_men / 2) +
+            res.all_women -
+            Math.floor(res.all_women / 2);
+
+          res.all_men = Math.floor(res.all_men / 2);
+          res.all_women = Math.floor(res.all_women / 2);
+          res.all -= all_delta;
+
+          const urban_delta =
+            res.urban_men -
+            Math.floor(res.urban_men / 2) +
+            res.urban_women -
+            Math.floor(res.urban_women / 2);
+
+          res.urban_men = Math.floor(res.urban_men / 2);
+          res.urban_women = Math.floor(res.urban_women / 2);
+          res.urban_all -= urban_delta;
+
+          const rural_delta =
+            res.rural_men -
+            Math.floor(res.rural_men / 2) +
+            res.rural_women -
+            Math.floor(res.rural_women / 2);
+
+          res.rural_men = Math.floor(res.rural_men / 2);
+          res.rural_women = Math.floor(res.rural_women / 2);
+          res.rural_all -= rural_delta;
+        }
+        return res;
+      }
+    } else {
+      throw new PopulationEmptyRegionsException();
+    }
+  }
+
+  // get total number of people of chosen age group and sex in the chosen regions
+  n(regionCodes: string[], k1: number, k2?: number, m?: Sex) {}
+
+  // get fraction of people of chosen age group and sex in the chosen regions
+  h(regionCodes: string[], k1: number, k2?: number, m?: Sex) {}
 
   getRegionPopulation(regionCode: string) {
     return this.#population
