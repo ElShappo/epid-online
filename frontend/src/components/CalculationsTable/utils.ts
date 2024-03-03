@@ -1,5 +1,3 @@
-import { PopulationSingleYear } from "../../utils";
-
 class TextAreaContentException extends Error {
   constructor(message: string) {
     super(message);
@@ -69,73 +67,3 @@ export class TextAreaContentHandler {
     return this.#textAreaSplitted;
   }
 }
-
-// function discretizeAgesFrom80(populationSingleYear: PopulationSingleYear) {
-//   const population = populationSingleYear.getPopulation();
-
-//   const _80UpYearOlds = population.find(
-//     (record) => record.age_start === 80 && record.age_end === 199
-//   );
-//   const _85UpYearOlds = population.find(
-//     (record) => record.age_start === 85 && record.age_end === 199
-//   );
-
-//   if (!_80UpYearOlds || !_85UpYearOlds) {
-//     throw new Error("could not discretize unexisting age groups");
-//   }
-
-//   const _80To85OldsPerYearAll = Math.floor(
-//     (_80UpYearOlds?.all - _85UpYearOlds.all) / 5
-//   );
-//   const _80To85OldsPerYearAllMen = Math.floor(
-//     (_80UpYearOlds?.all_men - _85UpYearOlds.all_men) / 5
-//   );
-//   const _80To85OldsPerYearAllWomen = Math.floor(
-//     (_80UpYearOlds?.all_women - _85UpYearOlds.all_women) / 5
-//   );
-
-//   const _80To85OldsPerYearUrbanAll = Math.floor(
-//     (_80UpYearOlds?.urban_all - _85UpYearOlds.urban_all) / 5
-//   );
-//   const _80To85OldsPerYearUrbanMen = Math.floor(
-//     (_80UpYearOlds?.urban_men - _85UpYearOlds.urban_men) / 5
-//   );
-//   const _80To85OldsPerYearUrbanWomen = Math.floor(
-//     (_80UpYearOlds?.urban_women - _85UpYearOlds.urban_women) / 5
-//   );
-
-//   const _80To85OldsPerYearRuralAll = Math.floor(
-//     (_80UpYearOlds?.rural_all - _85UpYearOlds.rural_all) / 5
-//   );
-//   const _80To85OldsPerYearRuralMen = Math.floor(
-//     (_80UpYearOlds?.rural_men - _85UpYearOlds.rural_men) / 5
-//   );
-//   const _80To85OldsPerYearRuralWomen = Math.floor(
-//     (_80UpYearOlds?.rural_women - _85UpYearOlds.rural_women) / 5
-//   );
-// }
-
-// // get number of people of chosen age group and sex
-// function n(
-//   populationSingleYear: PopulationSingleYear,
-//   k1: number,
-//   k2?: number,
-//   m?: Sex
-// ) {
-//   let result = 0;
-//   if (!k2) {
-//     k2 = k1;
-//   }
-//   const population = populationSingleYear.getPopulation();
-//   // const _80_85 = population.find(record => record.age_start === 80 && record.age_end === 199).
-//   switch (m) {
-//     case "male":
-//       if (k1 > 85 && k2 > 85) {
-//       }
-//       for (let i = k1; i <= k2; ++i) {
-//         result += population.filter(
-//           (record) => record.age_start === record.age_end
-//         );
-//       }
-//   }
-// }
