@@ -154,7 +154,22 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-export const textAreaTitlesAllChecked = [
+const textAreaAvailableTitles = [
+  "Начальный возраст",
+  "Конечный возраст",
+
+  "Число заболевших (мужчины, Россия)",
+  "Число заболевших (женщины, Россия)",
+  "Общее число заболевших (Россия)",
+
+  "Число заболевших (мужчины, выбран. регионы)",
+  "Число заболевших (женщины, выбран. регионы)",
+  "Общее число заболевших (выбран. регионы)",
+] as const;
+
+export type TextAreaTitle = (typeof textAreaAvailableTitles)[number];
+
+export const textAreaTitlesAllChecked: TextAreaTitle[] = [
   "Начальный возраст",
   "Конечный возраст",
 
@@ -165,20 +180,20 @@ export const textAreaTitlesAllChecked = [
   "Число заболевших (женщины, выбран. регионы)",
 ];
 
-export const textAreaTitlesAllUnchecked = [
+export const textAreaTitlesAllUnchecked: TextAreaTitle[] = [
   "Начальный возраст",
   "Общее число заболевших (Россия)",
   "Общее число заболевших (выбран. регионы)",
 ];
 
-export const textAreaTitlesAgeEndChecked = [
+export const textAreaTitlesAgeEndChecked: TextAreaTitle[] = [
   "Начальный возраст",
   "Конечный возраст",
   "Общее число заболевших (Россия)",
   "Общее число заболевших (выбран. регионы)",
 ];
 
-export const textAreaTitlesGenderRecognitionChecked = [
+export const textAreaTitlesGenderRecognitionChecked: TextAreaTitle[] = [
   "Начальный возраст",
 
   "Число заболевших (мужчины, Россия)",

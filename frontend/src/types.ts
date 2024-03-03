@@ -76,3 +76,10 @@ export type LineColor = {
 };
 
 export type Sex = "male" | "female";
+
+export type TextAreaContentMeta = {
+  content: string;
+  delimSymbol: string;
+  allowOnlyIntegers: boolean;
+  upperBound: number | null | undefined;
+};
