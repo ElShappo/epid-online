@@ -6,7 +6,14 @@ import {
   textAreaTitlesGenderRecognitionChecked,
   upperYearBound,
 } from "../../constants";
-import { PopulationSingleRecord, TextAreaContentMeta } from "../../types";
+import {
+  PopulationSingleRecord,
+  Row,
+  RowKey,
+  Sex,
+  TextAreaContentMeta,
+} from "../../types";
+import { PopulationSingleYear } from "../../utils";
 
 class TextAreaReaderException extends Error {
   constructor(message: string) {
@@ -106,6 +113,13 @@ class EpidCalculatorTitlesException extends EpidCalculatorException {
   }
 }
 
+class EpidCalculatorIntensiveMorbidityException extends EpidCalculatorException {
+  constructor() {
+    super("could not calculate intensive morbidity");
+    this.name = "EpidCalculatorIntensiveMorbidityException";
+  }
+}
+
 class EpidCalculatorInternalLogicException extends EpidCalculatorException {
   constructor() {
     super("something really bad happened");
@@ -115,7 +129,7 @@ class EpidCalculatorInternalLogicException extends EpidCalculatorException {
 
 export class EpidCalculator {
   #textAreas: Map<TextAreaTitle, string[]>;
-  #population: PopulationSingleRecord[];
+  #population: PopulationSingleYear;
 
   // check that titles are in the correct configuration
   // (i.e they are in one of 4 available states which are determined by the checked options in the checkbox)
@@ -181,7 +195,7 @@ export class EpidCalculator {
 
   constructor(
     textAreas: Map<TextAreaTitle, TextAreaContentMeta>,
-    population: PopulationSingleRecord[]
+    population: PopulationSingleYear
   ) {
     this.#textAreas = new Map();
     this.#population = population;
@@ -209,6 +223,69 @@ export class EpidCalculator {
       endAges.push(String(upperYearBound));
       this.#textAreas.set("Конечный возраст", endAges);
     }
+  }
+
+  #getRowIndexWithSpecificStartEndAges(k1: number, k2: number) {
+    const startAges = this.#textAreas.get("Начальный возраст")!;
+    const endAges = this.#textAreas.get("Конечный возраст")!;
+
+    for (let i = 0; i < startAges.length; ++i) {
+      if (startAges[i] === String(k1) && endAges[i] === String(k2)) {
+        return i;
+      }
+    }
+    return null;
+  }
+
+  getRowWithSpecificStartEndAges(k1: number, k2: number): Row | null {
+    const index = this.#getRowIndexWithSpecificStartEndAges(k1, k2);
+
+    if (!index) {
+      return null;
+    }
+    const row: Row = {};
+
+    for (const [key, value] of this.#textAreas.entries()) {
+      row[key as RowKey] = value[index];
+    }
+    return row;
+  }
+
+  getIntensiveMorbidity(
+    k1: number,
+    k2: number,
+    m?: Sex,
+    regionCodes?: string[] // if regionCodes are not passed, assume that we take whole Russia
+  ) {
+    let a: number;
+    const res = this.getRowWithSpecificStartEndAges(k1, k2);
+    if (!res) {
+      throw new EpidCalculatorIntensiveMorbidityException();
+    }
+    switch (m) {
+      case "male":
+        if (regionCodes) {
+          a = +res["Число заболевших (мужчины, выбран. регионы)"]!;
+        } else {
+          a = +res["Число заболевших (мужчины, Россия)"]!;
+        }
+        break;
+      case "female":
+        if (regionCodes) {
+          a = +res["Число заболевших (женщины, выбран. регионы)"]!;
+        } else {
+          a = +res["Число заболевших (женщины, Россия)"]!;
+        }
+        break;
+      default:
+        if (regionCodes) {
+          a = +res["Общее число заболевших (выбран. регионы)"]!;
+        } else {
+          a = +res["Общее число заболевших (Россия)"]!;
+        }
+    }
+    const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
+    return (10 ** 5 * a) / n;
   }
 
   getStandardizedIntensiveMorbidity() {}

@@ -1,4 +1,4 @@
-import { availableYears } from "./constants";
+import { availableYears, textAreaAvailableTitles } from "./constants";
 
 export interface DataType {
   key: React.Key;
@@ -77,9 +77,17 @@ export type LineColor = {
 
 export type Sex = "male" | "female";
 
+export type TextAreaTitle = (typeof textAreaAvailableTitles)[number];
+
 export type TextAreaContentMeta = {
   content: string;
   delimSymbol: string;
   allowOnlyIntegers: boolean;
   upperBound: number | null | undefined;
 };
+
+export type Row = {
+  [key in TextAreaTitle]?: string;
+};
+
+export type RowKey = keyof Row;

@@ -81,6 +81,9 @@ export class Regions {
   getRegionByCode(code: string) {
     return this.#regions?.find((region) => region.territory_code === code);
   }
+  getRegionCodes() {
+    return this.#regions?.map((region) => region.territory_code);
+  }
   async setRegions(year: availableYearsType) {
     const response = await fetch(`http://localhost:3002/regions?year=${year}`);
     this.#regions = await response.json();
@@ -534,7 +537,8 @@ export class PopulationSingleYear {
   }
 
   // get total number of people of chosen age group and sex in the chosen regions
-  n(regionCodes: string[], k1: number, k2?: number, m?: Sex) {
+  n(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
+    regionCodes ??= this.#regions!.getRegionCodes()!;
     let res = 0;
     if (!k2) {
       k2 = k1;
@@ -561,12 +565,13 @@ export class PopulationSingleYear {
   }
 
   // get fraction of people of chosen age group and sex in the chosen regions
-  h(regionCodes: string[], k1: number, k2?: number, m?: Sex) {
+  h(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
+    regionCodes ??= this.#regions!.getRegionCodes()!;
     const totalPopulation = regionCodes
       .map((regionCode) => this.getTotalRegionPopulation(regionCode))
       .reduce((curr, sum) => sum + curr);
 
-    return this.n(regionCodes, k1, k2, m) / totalPopulation;
+    return this.n(k1, k2, m, regionCodes) / totalPopulation;
   }
 
   getRegionPopulation(regionCode: string) {

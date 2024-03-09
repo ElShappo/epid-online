@@ -1,4 +1,4 @@
-import { DataType } from "./types";
+import { DataType, TextAreaTitle } from "./types";
 import type { ColumnsType } from "antd/es/table";
 
 const availableYears = [
@@ -154,7 +154,7 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-const textAreaAvailableTitles = [
+export const textAreaAvailableTitles = [
   "Начальный возраст",
   "Конечный возраст",
 
@@ -166,8 +166,6 @@ const textAreaAvailableTitles = [
   "Число заболевших (женщины, выбран. регионы)",
   "Общее число заболевших (выбран. регионы)",
 ] as const;
-
-export type TextAreaTitle = (typeof textAreaAvailableTitles)[number];
 
 export const textAreaTitlesAllChecked: TextAreaTitle[] = [
   "Начальный возраст",
