@@ -1,4 +1,7 @@
-import { availableYears, textAreaAvailableTitles } from "./constants";
+import {
+  availableYears,
+  calculatedSexRecognitionTableColumns,
+} from "./constants";
 
 export interface DataType {
   key: React.Key;
@@ -77,7 +80,107 @@ export type LineColor = {
 
 export type Sex = "male" | "female";
 
-export type TextAreaTitle = (typeof textAreaAvailableTitles)[number];
+export type CalculatedSexRecognitionTableColumnTitle =
+  (typeof calculatedSexRecognitionTableColumns)[number]["title"];
+export type CalculatedSexRecognitionTableColumnDataIndex =
+  (typeof calculatedSexRecognitionTableColumns)[number]["dataIndex"];
+
+export type CalculatedSexRecognitionTableRow = {
+  [index in CalculatedSexRecognitionTableColumnDataIndex]: number;
+};
+
+export type CalculatedNoSexRecognitionTableRow = Omit<
+  CalculatedSexRecognitionTableRow,
+  | "menPopulationRussia"
+  | "menMorbidityRussia"
+  | "menIntensiveMorbidityRussia"
+  | "menLowerIntensiveMorbidityRussia"
+  | "menUpperIntensiveMorbidityRussia"
+  | "womenPopulationRussia"
+  | "womenMorbidityRussia"
+  | "womenIntensiveMorbidityRussia"
+  | "womenLowerIntensiveMorbidityRussia"
+  | "womenUpperIntensiveMorbidityRussia"
+  | "menPopulationChosenRegions"
+  | "menMorbidityChosenRegions"
+  | "menIntensiveMorbidityChosenRegions"
+  | "menLowerIntensiveMorbidityChosenRegions"
+  | "menUpperIntensiveMorbidityChosenRegions"
+  | "womenPopulationChosenRegions"
+  | "womenMorbidityChosenRegions"
+  | "womenIntensiveMorbidityChosenRegions"
+  | "womenLowerIntensiveMorbidityChosenRegions"
+  | "womenUpperIntensiveMorbidityChosenRegions"
+>;
+
+export type CalculatedTableRow =
+  | CalculatedSexRecognitionTableRow
+  | CalculatedNoSexRecognitionTableRow;
+
+export function isCalculatedSexRecognitionTableRow(
+  row: CalculatedTableRow
+): row is CalculatedSexRecognitionTableRow {
+  return (
+    (row as CalculatedSexRecognitionTableRow).menMorbidityRussia !== undefined
+  );
+}
+
+export type TextAreaTitle = Exclude<
+  CalculatedSexRecognitionTableColumnTitle,
+  | "Население (Россия)"
+  | "Интенсивная заболеваемость на 100 тыс. (Россия)"
+  | "Нижний доверительный интервал (Россия)"
+  | "Верхний доверительный интервал (Россия)"
+  | "Мужское население (Россия)"
+  | "Интенсивная заболеваемость на 100 тыс. (мужчины, Россия)"
+  | "Нижний доверительный интервал (мужчины, Россия)"
+  | "Верхний доверительный интервал (мужчины, Россия)"
+  | "Женское население (Россия)"
+  | "Интенсивная заболеваемость на 100 тыс. (женщины, Россия)"
+  | "Нижний доверительный интервал (женщины, Россия)"
+  | "Верхний доверительный интервал (женщины, Россия)"
+  | "Население (выбран. регионы)"
+  | "Интенсивная заболеваемость на 100 тыс. (выбран. регионы)"
+  | "Нижний доверительный интервал (выбран. регионы)"
+  | "Верхний доверительный интервал (выбран. регионы)"
+  | "Мужское население (выбран. регионы)"
+  | "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)"
+  | "Нижний доверительный интервал (мужчины, выбран. регионы)"
+  | "Верхний доверительный интервал (мужчины, выбран. регионы)"
+  | "Женское население (выбран. регионы)"
+  | "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)"
+  | "Нижний доверительный интервал (женщины, выбран. регионы)"
+  | "Верхний доверительный интервал (женщины, выбран. регионы)"
+>;
+
+export type TextAreaTitleAllChecked = Exclude<
+  TextAreaTitle,
+  "Число заболевших (Россия)" | "Число заболевших (выбран. регионы)"
+>;
+
+export type TextAreaTitleAllUnchecked = Exclude<
+  TextAreaTitle,
+  | "Конечный возраст"
+  | "Число заболевших (мужчины, Россия)"
+  | "Число заболевших (женщины, Россия)"
+  | "Число заболевших (мужчины, выбран. регионы)"
+  | "Число заболевших (женщины, выбран. регионы)"
+>;
+
+export type TextAreaTitleAgeEndChecked = Exclude<
+  TextAreaTitle,
+  | "Число заболевших (мужчины, Россия)"
+  | "Число заболевших (женщины, Россия)"
+  | "Число заболевших (мужчины, выбран. регионы)"
+  | "Число заболевших (женщины, выбран. регионы)"
+>;
+
+export type TextAreaTitleSexRecognitionChecked = Exclude<
+  TextAreaTitle,
+  | "Конечный возраст"
+  | "Число заболевших (Россия)"
+  | "Число заболевших (выбран. регионы)"
+>;
 
 export type TextAreaContentMeta = {
   content: string;
@@ -86,8 +189,24 @@ export type TextAreaContentMeta = {
   upperBound: number | null | undefined;
 };
 
-export type Row = {
-  [key in TextAreaTitle]?: string;
+export type TableRowFromTextAreasAllChecked = {
+  [key in TextAreaTitleAllChecked]: string;
 };
 
-export type RowKey = keyof Row;
+export type TableRowFromTextAreasAgeEndChecked = {
+  [key in TextAreaTitleAgeEndChecked]: string;
+};
+
+export type TableRowFromTextAreas =
+  | TableRowFromTextAreasAllChecked
+  | TableRowFromTextAreasAgeEndChecked;
+
+export function isTableRowFromTextAreasAllChecked(
+  row: TableRowFromTextAreas
+): row is TableRowFromTextAreasAllChecked {
+  return (
+    (row as TableRowFromTextAreasAllChecked)[
+      "Число заболевших (мужчины, Россия)"
+    ] !== undefined
+  );
+}

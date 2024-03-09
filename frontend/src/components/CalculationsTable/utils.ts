@@ -2,13 +2,13 @@ import {
   textAreaTitlesAgeEndChecked,
   textAreaTitlesAllChecked,
   textAreaTitlesAllUnchecked,
-  textAreaTitlesGenderRecognitionChecked,
+  textAreaTitlesSexRecognitionChecked,
   upperYearBound,
 } from "../../constants";
 import {
-  Row,
-  RowKey,
+  CalculatedTableRow,
   Sex,
+  TableRowFromTextAreas,
   TextAreaContentMeta,
   TextAreaTitle,
 } from "../../types";
@@ -147,15 +147,15 @@ export class EpidCalculator {
     const titlesAllChecked = new Set(textAreaTitlesAllChecked);
     const titlesAllUnchecked = new Set(textAreaTitlesAllUnchecked);
     const titlesAgeEndChecked = new Set(textAreaTitlesAgeEndChecked);
-    const titlesGenderRecognitionChecked = new Set(
-      textAreaTitlesGenderRecognitionChecked
+    const titlesSexRecognitionChecked = new Set(
+      textAreaTitlesSexRecognitionChecked
     );
 
     if (
       !shallowCompareSets(currTitles, titlesAllChecked) &&
       !shallowCompareSets(currTitles, titlesAllUnchecked) &&
       !shallowCompareSets(currTitles, titlesAgeEndChecked) &&
-      !shallowCompareSets(currTitles, titlesGenderRecognitionChecked)
+      !shallowCompareSets(currTitles, titlesSexRecognitionChecked)
     ) {
       throw new EpidCalculatorTitlesException();
     }
@@ -236,18 +236,29 @@ export class EpidCalculator {
     return null;
   }
 
-  getRowWithSpecificStartEndAges(k1: number, k2: number): Row | null {
+  #getRowWithSpecificStartEndAges(
+    k1: number,
+    k2: number
+  ): TableRowFromTextAreas | null {
     const index = this.#getRowIndexWithSpecificStartEndAges(k1, k2);
 
     if (!index) {
       return null;
     }
-    const row: Row = {};
+    const row: TableRowFromTextAreas = {};
 
     for (const [key, value] of this.#textAreas.entries()) {
       row[key as RowKey] = value[index];
     }
     return row;
+  }
+
+  calculate() {
+    const row: CalculatedTableRow = {};
+
+    for (const [key, value] of this.#textAreas.entries()) {
+      row[key as RowKey] = value;
+    }
   }
 
   getIntensiveMorbidity(
@@ -257,7 +268,7 @@ export class EpidCalculator {
     regionCodes?: string[] // if regionCodes are not passed, assume that we take whole Russia
   ) {
     let a: number;
-    const res = this.getRowWithSpecificStartEndAges(k1, k2);
+    const res = this.#getRowWithSpecificStartEndAges(k1, k2);
     if (!res) {
       throw new EpidCalculatorIntensiveMorbidityException();
     }

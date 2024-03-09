@@ -1,4 +1,11 @@
-import { DataType, TextAreaTitle } from "./types";
+import {
+  DataType,
+  TextAreaTitle,
+  TextAreaTitleAgeEndChecked,
+  TextAreaTitleAllChecked,
+  TextAreaTitleAllUnchecked,
+  TextAreaTitleSexRecognitionChecked,
+} from "./types";
 import type { ColumnsType } from "antd/es/table";
 
 const availableYears = [
@@ -154,20 +161,20 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-export const textAreaAvailableTitles = [
+export const textAreaAvailableTitles: TextAreaTitle[] = [
   "Начальный возраст",
   "Конечный возраст",
 
+  "Число заболевших (Россия)",
   "Число заболевших (мужчины, Россия)",
   "Число заболевших (женщины, Россия)",
-  "Общее число заболевших (Россия)",
 
+  "Число заболевших (выбран. регионы)",
   "Число заболевших (мужчины, выбран. регионы)",
   "Число заболевших (женщины, выбран. регионы)",
-  "Общее число заболевших (выбран. регионы)",
-] as const;
+];
 
-export const textAreaTitlesAllChecked: TextAreaTitle[] = [
+export const textAreaTitlesAllChecked: TextAreaTitleAllChecked[] = [
   "Начальный возраст",
   "Конечный возраст",
 
@@ -178,27 +185,169 @@ export const textAreaTitlesAllChecked: TextAreaTitle[] = [
   "Число заболевших (женщины, выбран. регионы)",
 ];
 
-export const textAreaTitlesAllUnchecked: TextAreaTitle[] = [
+export const textAreaTitlesAllUnchecked: TextAreaTitleAllUnchecked[] = [
   "Начальный возраст",
-  "Общее число заболевших (Россия)",
-  "Общее число заболевших (выбран. регионы)",
+  "Число заболевших (Россия)",
+  "Число заболевших (выбран. регионы)",
 ];
 
-export const textAreaTitlesAgeEndChecked: TextAreaTitle[] = [
+export const textAreaTitlesAgeEndChecked: TextAreaTitleAgeEndChecked[] = [
   "Начальный возраст",
   "Конечный возраст",
-  "Общее число заболевших (Россия)",
-  "Общее число заболевших (выбран. регионы)",
+  "Число заболевших (Россия)",
+  "Число заболевших (выбран. регионы)",
 ];
 
-export const textAreaTitlesGenderRecognitionChecked: TextAreaTitle[] = [
-  "Начальный возраст",
+export const textAreaTitlesSexRecognitionChecked: TextAreaTitleSexRecognitionChecked[] =
+  [
+    "Начальный возраст",
 
-  "Число заболевших (мужчины, Россия)",
-  "Число заболевших (женщины, Россия)",
+    "Число заболевших (мужчины, Россия)",
+    "Число заболевших (женщины, Россия)",
 
-  "Число заболевших (мужчины, выбран. регионы)",
-  "Число заболевших (женщины, выбран. регионы)",
+    "Число заболевших (мужчины, выбран. регионы)",
+    "Число заболевших (женщины, выбран. регионы)",
+  ];
+
+export const calculatedSexRecognitionTableColumns = [
+  {
+    title: "Начальный возраст" as const,
+    dataIndex: "startAge" as const,
+    width: "10%",
+  },
+  {
+    title: "Конечный возраст" as const,
+    dataIndex: "endAge" as const,
+    width: "10%",
+  },
+
+  {
+    title: "Население (Россия)" as const,
+    dataIndex: "populationRussia" as const,
+  },
+  {
+    title: "Число заболевших (Россия)" as const,
+    dataIndex: "morbidityRussia" as const,
+  },
+  {
+    title: "Интенсивная заболеваемость на 100 тыс. (Россия)" as const,
+    dataIndex: "intensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (Россия)" as const,
+    dataIndex: "lowerIntensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (Россия)" as const,
+    dataIndex: "upperIntensiveMorbidityRussia" as const,
+  },
+
+  {
+    title: "Мужское население (Россия)" as const,
+    dataIndex: "menPopulationRussia" as const,
+  },
+  {
+    title: "Число заболевших (мужчины, Россия)" as const,
+    dataIndex: "menMorbidityRussia" as const,
+  },
+  {
+    title: "Интенсивная заболеваемость на 100 тыс. (мужчины, Россия)" as const,
+    dataIndex: "menIntensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (мужчины, Россия)" as const,
+    dataIndex: "menLowerIntensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (мужчины, Россия)" as const,
+    dataIndex: "menUpperIntensiveMorbidityRussia" as const,
+  },
+
+  {
+    title: "Женское население (Россия)" as const,
+    dataIndex: "womenPopulationRussia" as const,
+  },
+  {
+    title: "Число заболевших (женщины, Россия)" as const,
+    dataIndex: "womenMorbidityRussia" as const,
+  },
+  {
+    title: "Интенсивная заболеваемость на 100 тыс. (женщины, Россия)" as const,
+    dataIndex: "womenIntensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (женщины, Россия)" as const,
+    dataIndex: "womenLowerIntensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (женщины, Россия)" as const,
+    dataIndex: "womenUpperIntensiveMorbidityRussia" as const,
+  },
+
+  {
+    title: "Население (выбран. регионы)" as const,
+    dataIndex: "populationChosenRegions" as const,
+  },
+  {
+    title: "Число заболевших (выбран. регионы)" as const,
+    dataIndex: "morbidityChosenRegions" as const,
+  },
+  {
+    title: "Интенсивная заболеваемость на 100 тыс. (выбран. регионы)" as const,
+    dataIndex: "intensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (выбран. регионы)" as const,
+    dataIndex: "lowerIntensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (выбран. регионы)" as const,
+    dataIndex: "upperIntensiveMorbidityChosenRegions" as const,
+  },
+
+  {
+    title: "Мужское население (выбран. регионы)" as const,
+    dataIndex: "menPopulationChosenRegions" as const,
+  },
+  {
+    title: "Число заболевших (мужчины, выбран. регионы)" as const,
+    dataIndex: "menMorbidityChosenRegions" as const,
+  },
+  {
+    title:
+      "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)" as const,
+    dataIndex: "menIntensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (мужчины, выбран. регионы)" as const,
+    dataIndex: "menLowerIntensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (мужчины, выбран. регионы)" as const,
+    dataIndex: "menUpperIntensiveMorbidityChosenRegions" as const,
+  },
+
+  {
+    title: "Женское население (выбран. регионы)" as const,
+    dataIndex: "womenPopulationChosenRegions" as const,
+  },
+  {
+    title: "Число заболевших (женщины, выбран. регионы)" as const,
+    dataIndex: "womenMorbidityChosenRegions" as const,
+  },
+  {
+    title:
+      "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)" as const,
+    dataIndex: "womenIntensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (женщины, выбран. регионы)" as const,
+    dataIndex: "womenLowerIntensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (женщины, выбран. регионы)" as const,
+    dataIndex: "womenUpperIntensiveMorbidityChosenRegions" as const,
+  },
 ];
 
 export { availableYears, columns };

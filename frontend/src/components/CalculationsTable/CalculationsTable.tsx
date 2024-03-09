@@ -1,19 +1,15 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import {
   Button,
   Checkbox,
-  Form,
   GetProp,
-  GetRef,
-  Input,
-  Popconfirm,
+  Modal,
   Table,
+  TableProps,
   TreeSelect,
 } from "antd";
 import { PopulationSingleYear } from "../../utils";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import { observer } from "mobx-react-lite";
@@ -23,141 +19,37 @@ import {
   textAreaTitlesAgeEndChecked,
   textAreaTitlesAllChecked,
   textAreaTitlesAllUnchecked,
-  textAreaTitlesGenderRecognitionChecked,
+  textAreaTitlesSexRecognitionChecked,
+  upperYearBound,
 } from "../../constants";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
+import { EpidCalculator } from "./utils";
+import {
+  CalculatedSexRecognitionTableRow,
+  TextAreaContentMeta,
+  TextAreaTitle,
+} from "../../types";
 
 const { SHOW_PARENT } = TreeSelect;
-
-type InputRef = GetRef<typeof Input>;
-type FormInstance<T> = GetRef<typeof Form<T>>;
-
-const EditableContext = React.createContext<FormInstance<any> | null>(null);
-
-interface Item {
-  key: string;
-  ageStart: string;
-  ageEnd: string;
-
-  numberOfInfectedMenRussia: string;
-  numberOfInfectedWomenRussia: string;
-
-  numberOfInfectedMenChosenRegions: string;
-  numberOfInfectedWomenChosenRegions: string;
-}
-
-interface EditableRowProps {
-  index: number;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-
-interface EditableCellProps {
-  title: React.ReactNode;
-  editable: boolean;
-  children: React.ReactNode;
-  dataIndex: keyof Item;
-  record: Item;
-  handleSave: (record: Item) => void;
-}
-
-const EditableCell: React.FC<EditableCellProps> = ({
-  title,
-  editable,
-  children,
-  dataIndex,
-  record,
-  handleSave,
-  ...restProps
-}) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef<InputRef>(null);
-  const form = useContext(EditableContext)!;
-
-  useEffect(() => {
-    if (editing) {
-      inputRef.current!.focus();
-    }
-  }, [editing]);
-
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
-  };
-
-  const save = async () => {
-    try {
-      const values = await form.validateFields();
-
-      toggleEdit();
-      handleSave({ ...record, ...values });
-    } catch (errInfo) {
-      console.log("Save failed:", errInfo);
-    }
-  };
-
-  let childNode = children;
-
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{ margin: 0 }}
-        name={dataIndex}
-        rules={[
-          {
-            required: true,
-            message: `${title} is required.`,
-          },
-        ]}
-      >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{ paddingRight: 24 }}
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
-    );
-  }
-
-  return <td {...restProps}>{childNode}</td>;
-};
-
-type EditableTableProps = Parameters<typeof Table>[0];
-
-interface DataType {
-  key: React.Key;
-
-  ageStart: string;
-  ageEnd: string;
-
-  numberOfInfectedMenRussia: string;
-  numberOfInfectedWomenRussia: string;
-
-  numberOfInfectedMenChosenRegions: string;
-  numberOfInfectedWomenChosenRegions: string;
-}
-
-type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
 
 const checkboxOptions = ["Деление по полу", "Указывать оба диапазона лет"];
 
 const CalculationsTable = observer(() => {
   const headerHeight = useOutletContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   console.log(headerHeight);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   const onCheckboxChange: GetProp<typeof Checkbox.Group, "onChange"> = (
     checkedValues
@@ -173,12 +65,7 @@ const CalculationsTable = observer(() => {
   const [gotRegions, setGotRegions] = useState<boolean>(false);
   const [selectedRegions, setSelectedRegions] = useState<string[]>();
 
-  type TextAreaRefWithTitle = {
-    title: string;
-    ref: TextAreaRef;
-  };
-
-  const textAreaRefs = useRef<Map<string, TextAreaRef> | null>(null);
+  const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
   function getTextAreaMap() {
     if (!textAreaRefs.current) {
@@ -205,128 +92,33 @@ const CalculationsTable = observer(() => {
     };
   }, [populationPerRegions, selectedRegions]);
 
-  const [dataSource, setDataSource] = useState<DataType[]>([
-    {
-      key: "0",
-      ageStart: "5",
-      ageEnd: "7",
+  // const myData: CalculatedTableRow[] = [
+  //   {
+  //     startAge: 0,
+  //     endAge: 5,
+  //     totalPopulation: 5000,
 
-      numberOfInfectedMenRussia: "5000",
-      numberOfInfectedWomenRussia: "4000",
+  //     menMorbidityRussia: 1000,
+  //     menIntensiveMorbidityRussia: 1000,
+  //     menLowerIntensiveMorbidityRussia: 1000,
+  //     menUpperIntensiveMorbidityRussia: 1000,
 
-      numberOfInfectedMenChosenRegions: "5000",
-      numberOfInfectedWomenChosenRegions: "4000",
-    },
-  ]);
+  //     womenMorbidityRussia: 1000,
+  //     womenIntensiveMorbidityRussia: 1000,
+  //     womenLowerIntensiveMorbidityRussia: 1000,
+  //     womenUpperIntensiveMorbidityRussia: 1000,
 
-  const [count, setCount] = useState(2);
+  //     menMorbidityChosenRegions: 1000,
+  //     menIntensiveMorbidityChosenRegions: 1000,
+  //     menLowerIntensiveMorbidityChosenRegions: 1000,
+  //     menUpperIntensiveMorbidityChosenRegions: 1000,
 
-  const handleDelete = (key: React.Key) => {
-    const newData = dataSource.filter((item) => item.key !== key);
-    setDataSource(newData);
-  };
-
-  const defaultColumns: (ColumnTypes[number] & {
-    editable?: boolean;
-    dataIndex: string;
-  })[] = [
-    {
-      title: "Начальный возраст",
-      dataIndex: "ageStart",
-      width: "10%",
-      editable: true,
-    },
-    {
-      title: "Конечный возраст",
-      dataIndex: "ageEnd",
-      editable: true,
-    },
-    {
-      title: "Число заболевших (мужчины, Россия)",
-      dataIndex: "numberOfInfectedMenRussia",
-      editable: true,
-    },
-    {
-      title: "Число заболевших (женщины, Россия)",
-      dataIndex: "numberOfInfectedWomenRussia",
-      editable: true,
-    },
-    {
-      title: "Число заболевших (мужчины, выбран. регионы)",
-      dataIndex: "numberOfInfectedMenChosenRegions",
-      editable: true,
-    },
-    {
-      title: "Число заболевших (женщины, выбран. регионы)",
-      dataIndex: "numberOfInfectedWomenChosenRegions",
-      editable: true,
-    },
-    {
-      title: "Действие",
-      dataIndex: "operation",
-      render: (_, record: { key: React.Key }) =>
-        dataSource.length >= 1 ? (
-          <Popconfirm
-            title="Вы точно хотите удалить?"
-            onConfirm={() => handleDelete(record.key)}
-            okText="Да"
-            cancelText="Нет"
-          >
-            <a>Удалить</a>
-          </Popconfirm>
-        ) : null,
-    },
-  ];
-
-  const handleAdd = () => {
-    const newData: DataType = {
-      key: count,
-      ageStart: "0",
-      ageEnd: "0",
-
-      numberOfInfectedMenRussia: "0",
-      numberOfInfectedWomenRussia: "0",
-
-      numberOfInfectedMenChosenRegions: "0",
-      numberOfInfectedWomenChosenRegions: "0",
-    };
-    setDataSource([...dataSource, newData]);
-    setCount(count + 1);
-  };
-
-  const handleSave = (row: DataType) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setDataSource(newData);
-  };
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = defaultColumns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: DataType) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        handleSave,
-      }),
-    };
-  });
+  //     womenMorbidityChosenRegions: 1000,
+  //     womenIntensiveMorbidityChosenRegions: 1000,
+  //     womenLowerIntensiveMorbidityChosenRegions: 1000,
+  //     womenUpperIntensiveMorbidityChosenRegions: 1000,
+  //   },
+  // ];
 
   useEffect(() => {
     async function init() {
@@ -353,7 +145,7 @@ const CalculationsTable = observer(() => {
         return textAreaTitlesAllUnchecked;
       case 1:
         if (checkedOptions.includes("Деление по полу")) {
-          return textAreaTitlesGenderRecognitionChecked;
+          return textAreaTitlesSexRecognitionChecked;
         } else {
           return textAreaTitlesAgeEndChecked;
         }
@@ -404,18 +196,54 @@ const CalculationsTable = observer(() => {
           <Button
             type="primary"
             className="bg-gray-500 flex gap-1 justify-center p-5 items-center"
+            onClick={showModal}
           >
             Превью
             <PageviewIcon />
           </Button>
+          <Modal
+            title="Basic Modal"
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            centered
+          >
+            {/* <Table columns={columns} dataSource={data} /> */}
+          </Modal>
           <Button
             type="primary"
             className="flex gap-1 justify-center p-5 items-center"
+            onClick={() => {
+              const textAreaMap = getTextAreaMap();
+              const newTextAreaMap: Map<TextAreaTitle, TextAreaContentMeta> =
+                new Map();
+
+              for (const key of textAreaMap.keys()) {
+                newTextAreaMap.set(key, {
+                  content:
+                    textAreaMap.get(key)!.resizableTextArea!.textArea.value,
+                  allowOnlyIntegers: true,
+                  delimSymbol: "\n",
+                  upperBound:
+                    key === "Начальный возраст" || key === "Конечный возраст"
+                      ? upperYearBound
+                      : null,
+                });
+              }
+
+              const epidCalculator = new EpidCalculator(
+                newTextAreaMap,
+                populationPerRegions!
+              );
+
+              // epidCalculator.
+            }}
           >
             Расчёт
             <ArrowForwardIcon />
           </Button>
         </section>
+        <Table columns={myColumns} dataSource={myData} />
       </div>
     );
   } else {
