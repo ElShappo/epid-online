@@ -14,6 +14,8 @@ import {
 import { PopulationSingleYear } from "../../utils";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import PageviewIcon from "@mui/icons-material/Pageview";
 import { observer } from "mobx-react-lite";
 import year from "../../store/year";
 import TextArea, { TextAreaRef } from "antd/es/input/TextArea";
@@ -368,20 +370,18 @@ const CalculationsTable = observer(() => {
         <Checkbox.Group
           options={checkboxOptions}
           onChange={onCheckboxChange}
-          className="items-start w-full justify-center"
+          className="w-full justify-center"
         />
-        <section className="max-md:w-full basis-52 flex flex-wrap justify-center content-start gap-y-4">
-          <div className="max-h-36 overflow-y-auto">
-            <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
-          </div>
-        </section>
-        <section className="max-md:w-full grow flex flex-wrap justify-center gap-4">
+        <div className="max-h-36 overflow-y-auto">
+          <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
+        </div>
+        <section className="w-full grow flex flex-wrap justify-center gap-4 pt-4">
           {textAreaTitles?.map((title) => {
             return (
               <div key={title}>
                 <p className="text-center pb-2">{title}</p>
                 <TextArea
-                  rows={4}
+                  rows={10}
                   ref={(node) => {
                     const map = getTextAreaMap();
                     if (node) {
@@ -400,10 +400,22 @@ const CalculationsTable = observer(() => {
             );
           })}
         </section>
-        {/* <section className="flex">
-          <Button type="primary">Превью таблицы</Button>
-          <Button type="primary">Расчёт</Button>
-        </section> */}
+        <section className="flex w-full justify-center gap-4">
+          <Button
+            type="primary"
+            className="bg-gray-500 flex gap-1 justify-center p-5 items-center"
+          >
+            Превью
+            <PageviewIcon />
+          </Button>
+          <Button
+            type="primary"
+            className="flex gap-1 justify-center p-5 items-center"
+          >
+            Расчёт
+            <ArrowForwardIcon />
+          </Button>
+        </section>
       </div>
     );
   } else {
