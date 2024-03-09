@@ -1,5 +1,4 @@
 import {
-  TextAreaTitle,
   textAreaTitlesAgeEndChecked,
   textAreaTitlesAllChecked,
   textAreaTitlesAllUnchecked,
@@ -7,11 +6,11 @@ import {
   upperYearBound,
 } from "../../constants";
 import {
-  PopulationSingleRecord,
   Row,
   RowKey,
   Sex,
   TextAreaContentMeta,
+  TextAreaTitle,
 } from "../../types";
 import { PopulationSingleYear } from "../../utils";
 
@@ -120,12 +119,12 @@ class EpidCalculatorIntensiveMorbidityException extends EpidCalculatorException 
   }
 }
 
-class EpidCalculatorInternalLogicException extends EpidCalculatorException {
-  constructor() {
-    super("something really bad happened");
-    this.name = "EpidCalculatorInternalLogicException";
-  }
-}
+// class EpidCalculatorInternalLogicException extends EpidCalculatorException {
+//   constructor() {
+//     super("something really bad happened");
+//     this.name = "EpidCalculatorInternalLogicException";
+//   }
+// }
 
 export class EpidCalculator {
   #textAreas: Map<TextAreaTitle, string[]>;

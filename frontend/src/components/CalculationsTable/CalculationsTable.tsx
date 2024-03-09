@@ -362,83 +362,88 @@ const CalculationsTable = observer(() => {
     }
   }, [checkedOptions]);
 
-  return (
-    <div className="flex w-full flex-col">
-      {gotRegions ? (
-        <div className="flex w-full gap-2 justify-between flex-wrap">
-          <div className="max-h-32 overflow-y-auto">
+  if (gotRegions) {
+    return (
+      <div className="flex flex-wrap justify-center gap-y-4">
+        <Checkbox.Group
+          options={checkboxOptions}
+          onChange={onCheckboxChange}
+          className="items-start w-full justify-center"
+        />
+        <section className="max-md:w-full basis-52 flex flex-wrap justify-center content-start gap-y-4">
+          <div className="max-h-36 overflow-y-auto">
             <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
           </div>
-          <Checkbox.Group
-            options={checkboxOptions}
-            onChange={onCheckboxChange}
-            className="items-start flex-wrap"
-          />
+        </section>
+        <section className="max-md:w-full grow flex flex-wrap justify-center gap-4">
+          {textAreaTitles?.map((title) => {
+            return (
+              <div key={title}>
+                <p className="text-center pb-2">{title}</p>
+                <TextArea
+                  rows={4}
+                  ref={(node) => {
+                    const map = getTextAreaMap();
+                    if (node) {
+                      map.set(title, node);
+                    } else {
+                      map.delete(title);
+                    }
+                  }}
+                  name={title}
+                  onInput={() => {
+                    console.log(textAreaRefs.current);
+                  }}
+                  placeholder={`Введите ${title.toLowerCase()}:`}
+                />
+              </div>
+            );
+          })}
+        </section>
+        {/* <section className="flex">
+          <Button type="primary">Превью таблицы</Button>
+          <Button type="primary">Расчёт</Button>
+        </section> */}
+      </div>
+    );
+  } else {
+    return <div>Loading regions...</div>;
+  }
+
+  {
+    /* {selectedRegions && selectedRegions.length ? (
+    <>
+      <div className="flex flex-col md:flex-initial md:w-[80%] justify-end">
+        <div className="flex gap-3 justify-end pb-3">
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            className="flex"
+            icon={<AddIcon />}
+          >
+            Добавить запись
+          </Button>
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            className="flex"
+            danger
+            icon={<DeleteIcon />}
+          >
+            Удалить всё
+          </Button>
         </div>
-      ) : (
-        <div>Loading regions...</div>
-      )}
-
-      <section className="grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 gap-4 pt-5 justify-center">
-        {textAreaTitles?.map((title) => {
-          return (
-            <div key={title}>
-              <p className="text-center pb-2">{title}</p>
-              <TextArea
-                rows={4}
-                ref={(node) => {
-                  const map = getTextAreaMap();
-                  if (node) {
-                    map.set(title, node);
-                  } else {
-                    map.delete(title);
-                  }
-                }}
-                name={title}
-                onInput={() => {
-                  console.log(textAreaRefs.current);
-                }}
-                placeholder={`Введите ${title.toLowerCase()}:`}
-              />
-            </div>
-          );
-        })}
-      </section>
-
-      {/* {selectedRegions && selectedRegions.length ? (
-        <>
-          <div className="flex flex-col md:flex-initial md:w-[80%] justify-end">
-            <div className="flex gap-3 justify-end pb-3">
-              <Button
-                onClick={handleAdd}
-                type="primary"
-                className="flex"
-                icon={<AddIcon />}
-              >
-                Добавить запись
-              </Button>
-              <Button
-                onClick={handleAdd}
-                type="primary"
-                className="flex"
-                danger
-                icon={<DeleteIcon />}
-              >
-                Удалить всё
-              </Button>
-            </div>
-            <Table
-              components={components}
-              rowClassName={() => "editable-row"}
-              bordered
-              dataSource={dataSource}
-              columns={columns as ColumnTypes}
-            />
-          </div>
-        </>
-      ) : null} */}
-    </div>
-  );
+        <Table
+          components={components}
+          rowClassName={() => "editable-row"}
+          bordered
+          dataSource={dataSource}
+          columns={columns as ColumnTypes}
+        />
+      </div>
+    </>
+  ) : null} */
+  }
 });
 
 export default CalculationsTable;
