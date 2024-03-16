@@ -210,3 +210,17 @@ export function isTableRowFromTextAreasAllChecked(
     ] !== undefined
   );
 }
+
+export type PlotlyInputData = {
+  x: string[];
+  y: number[];
+  name: string;
+  error_y: {
+    type: "data" | "constant" | "percent";
+    array: number[];
+    arrayminus: number[];
+    visible: boolean;
+    color: string;
+  };
+  type: "bar";
+};

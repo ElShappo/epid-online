@@ -25,13 +25,19 @@ import {
   upperYearBound,
 } from "../../constants";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
-import { EpidCalculator, EpidCalculatorException } from "./utils";
+import {
+  EpidCalculator,
+  EpidCalculatorException,
+  extractDataForPlotting,
+} from "./utils";
 import {
   CalculatedTableRow,
   TextAreaContentMeta,
   TextAreaTitle,
 } from "../../types";
 import { Store } from "react-notifications-component";
+import Plot from "react-plotly.js";
+import { Data } from "plotly.js";
 
 const { SHOW_PARENT } = TreeSelect;
 
@@ -73,11 +79,7 @@ const CalculationsTable = observer(() => {
     CalculatedTableRow[]
   >([]);
 
-  const [calculatedTableCols, setCalculatedTableCols] = useState<
-    | typeof calculatedNoSexRecognitionTableColumns
-    | typeof calculatedSexRecognitionTableColumns
-  >(calculatedNoSexRecognitionTableColumns);
-
+  const [hasSexRecognition, setHasSexRecognition] = useState<boolean>(false);
   const [spinning, setSpinning] = useState<boolean>(false);
 
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
@@ -232,9 +234,9 @@ const CalculationsTable = observer(() => {
                   setCalculatedTableRows(result);
 
                   if (checkedOptions.includes("Деление по полу")) {
-                    setCalculatedTableCols(
-                      calculatedSexRecognitionTableColumns
-                    );
+                    setHasSexRecognition(true);
+                  } else {
+                    setHasSexRecognition(false);
                   }
                   console.log(result);
                 } catch (error) {
@@ -278,10 +280,39 @@ const CalculationsTable = observer(() => {
         </section>
         <div className="w-full">
           <Table
-            columns={calculatedTableCols as any}
+            columns={
+              hasSexRecognition
+                ? (calculatedSexRecognitionTableColumns as any)
+                : (calculatedNoSexRecognitionTableColumns as any)
+            }
             dataSource={calculatedTableRows}
             bordered
             scroll={{ y: 500 }}
+          />
+        </div>
+        <div className="w-full text-center">
+          <Plot
+            data={
+              extractDataForPlotting(
+                calculatedTableRows,
+                hasSexRecognition
+              ) as unknown as Data[]
+            }
+            layout={{
+              title: "График интенсивной заболеваемости",
+              xaxis: {
+                color: "white",
+              },
+              yaxis: {
+                color: "white",
+              },
+              autosize: true,
+              paper_bgcolor: "#375358",
+              plot_bgcolor: "#375358",
+              font: {
+                color: "white",
+              },
+            }}
           />
         </div>
       </div>
