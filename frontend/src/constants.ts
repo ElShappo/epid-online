@@ -214,54 +214,76 @@ export const calculatedNoSexRecognitionTableColumns = [
   {
     title: "Начальный возраст" as const,
     dataIndex: "startAge" as const,
-    width: "10%",
+    width: 120,
+    fixed: "left",
   },
   {
     title: "Конечный возраст" as const,
     dataIndex: "endAge" as const,
-    width: "10%",
+    width: 120,
+    fixed: "left",
   },
 
   {
     title: "Население (Россия)" as const,
     dataIndex: "populationRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (Россия)" as const,
     dataIndex: "morbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Интенсивная заболеваемость на 100 тыс. (Россия)" as const,
     dataIndex: "intensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (Россия)" as const,
     dataIndex: "lowerIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (Россия)" as const,
     dataIndex: "upperIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
 
   {
     title: "Население (выбран. регионы)" as const,
     dataIndex: "populationChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (выбран. регионы)" as const,
     dataIndex: "morbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Интенсивная заболеваемость на 100 тыс. (выбран. регионы)" as const,
     dataIndex: "intensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (выбран. регионы)" as const,
     dataIndex: "lowerIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (выбран. регионы)" as const,
     dataIndex: "upperIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
 ];
 
@@ -269,140 +291,204 @@ export const calculatedSexRecognitionTableColumns = [
   {
     title: "Начальный возраст" as const,
     dataIndex: "startAge" as const,
-    width: "10%",
+    fixed: "left",
+    width: 120,
+    align: "center",
   },
   {
     title: "Конечный возраст" as const,
     dataIndex: "endAge" as const,
-    width: "10%",
+    width: 120,
+    fixed: "left",
+    align: "center",
   },
 
   {
     title: "Население (Россия)" as const,
     dataIndex: "populationRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (Россия)" as const,
     dataIndex: "morbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Интенсивная заболеваемость на 100 тыс. (Россия)" as const,
     dataIndex: "intensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (Россия)" as const,
     dataIndex: "lowerIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (Россия)" as const,
     dataIndex: "upperIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
 
   {
     title: "Мужское население (Россия)" as const,
     dataIndex: "menPopulationRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (мужчины, Россия)" as const,
     dataIndex: "menMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Интенсивная заболеваемость на 100 тыс. (мужчины, Россия)" as const,
     dataIndex: "menIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (мужчины, Россия)" as const,
     dataIndex: "menLowerIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (мужчины, Россия)" as const,
     dataIndex: "menUpperIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
 
   {
     title: "Женское население (Россия)" as const,
     dataIndex: "womenPopulationRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (женщины, Россия)" as const,
     dataIndex: "womenMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Интенсивная заболеваемость на 100 тыс. (женщины, Россия)" as const,
     dataIndex: "womenIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (женщины, Россия)" as const,
     dataIndex: "womenLowerIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (женщины, Россия)" as const,
     dataIndex: "womenUpperIntensiveMorbidityRussia" as const,
+    width: 150,
+    align: "center",
   },
 
   {
     title: "Население (выбран. регионы)" as const,
     dataIndex: "populationChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (выбран. регионы)" as const,
     dataIndex: "morbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Интенсивная заболеваемость на 100 тыс. (выбран. регионы)" as const,
     dataIndex: "intensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (выбран. регионы)" as const,
     dataIndex: "lowerIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (выбран. регионы)" as const,
     dataIndex: "upperIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
 
   {
     title: "Мужское население (выбран. регионы)" as const,
     dataIndex: "menPopulationChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (мужчины, выбран. регионы)" as const,
     dataIndex: "menMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title:
       "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)" as const,
     dataIndex: "menIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (мужчины, выбран. регионы)" as const,
     dataIndex: "menLowerIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (мужчины, выбран. регионы)" as const,
     dataIndex: "menUpperIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
 
   {
     title: "Женское население (выбран. регионы)" as const,
     dataIndex: "womenPopulationChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Число заболевших (женщины, выбран. регионы)" as const,
     dataIndex: "womenMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title:
       "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)" as const,
     dataIndex: "womenIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Нижний доверительный интервал (женщины, выбран. регионы)" as const,
     dataIndex: "womenLowerIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
   {
     title: "Верхний доверительный интервал (женщины, выбран. регионы)" as const,
     dataIndex: "womenUpperIntensiveMorbidityChosenRegions" as const,
+    width: 150,
+    align: "center",
   },
 ];
 

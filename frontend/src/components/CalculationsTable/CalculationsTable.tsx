@@ -107,34 +107,6 @@ const CalculationsTable = observer(() => {
     };
   }, [populationPerRegions, selectedRegions]);
 
-  // const myData: CalculatedTableRow[] = [
-  //   {
-  //     startAge: 0,
-  //     endAge: 5,
-  //     totalPopulation: 5000,
-
-  //     menMorbidityRussia: 1000,
-  //     menIntensiveMorbidityRussia: 1000,
-  //     menLowerIntensiveMorbidityRussia: 1000,
-  //     menUpperIntensiveMorbidityRussia: 1000,
-
-  //     womenMorbidityRussia: 1000,
-  //     womenIntensiveMorbidityRussia: 1000,
-  //     womenLowerIntensiveMorbidityRussia: 1000,
-  //     womenUpperIntensiveMorbidityRussia: 1000,
-
-  //     menMorbidityChosenRegions: 1000,
-  //     menIntensiveMorbidityChosenRegions: 1000,
-  //     menLowerIntensiveMorbidityChosenRegions: 1000,
-  //     menUpperIntensiveMorbidityChosenRegions: 1000,
-
-  //     womenMorbidityChosenRegions: 1000,
-  //     womenIntensiveMorbidityChosenRegions: 1000,
-  //     womenLowerIntensiveMorbidityChosenRegions: 1000,
-  //     womenUpperIntensiveMorbidityChosenRegions: 1000,
-  //   },
-  // ];
-
   useEffect(() => {
     async function init() {
       console.log(`useEffect triggered with year = ${year.get()}`);
@@ -304,7 +276,14 @@ const CalculationsTable = observer(() => {
             <ArrowForwardIcon />
           </Button>
         </section>
-        <Table columns={calculatedTableCols} dataSource={calculatedTableRows} />
+        <div className="w-full">
+          <Table
+            columns={calculatedTableCols as any}
+            dataSource={calculatedTableRows}
+            bordered
+            scroll={{ y: 500 }}
+          />
+        </div>
       </div>
     );
   } else {

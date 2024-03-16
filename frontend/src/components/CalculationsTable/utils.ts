@@ -451,7 +451,7 @@ export class EpidCalculator {
   ) {
     const a = this.getMorbidity(k1, k2, m, regionCodes);
     const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
-    return (10 ** 5 * a) / n;
+    return +((10 ** 5 * a) / n).toFixed(2);
   }
 
   getLowerIntensiveMorbidity() {
