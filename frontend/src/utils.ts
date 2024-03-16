@@ -1,5 +1,5 @@
 import population from "./assets/population.json";
-import { upperYearBound } from "./constants";
+import { RussiaRegionCode, upperYearBound } from "./constants";
 import {
   AgeStartException,
   AllException,
@@ -407,15 +407,25 @@ export class PopulationSingleYear {
     const _85UpYearOlds = population.find(
       (record) => record.age_start === 85 && record.age_end === upperYearBound
     );
+    const _100UpYearOlds = population.find(
+      (record) => record.age_start === 100 && record.age_end === upperYearBound
+    );
+
+    // console.log(age, regionCode);
 
     if (this.#regions) {
       const regionName = this.#regions.getRegionByCode(regionCode)!.territory;
 
+      const res = this.getPopulation().find(
+        (record) =>
+          record.age_start === record.age_end && record.age_start === age
+      );
+      if (res) {
+        return res;
+      }
+
       if (age < 80) {
-        return this.getPopulation().find(
-          (record) =>
-            record.age_start === record.age_end && record.age_start === age
-        );
+        throw new Error("no info about people under 80 years old");
       } else if (age >= 80 && age < 85) {
         if (!_80UpYearOlds || !_85UpYearOlds) {
           throw new Error("could not discretize unexisting age groups");
@@ -471,8 +481,8 @@ export class PopulationSingleYear {
           rural_men: _80To85OldsPerYearRuralMen,
           rural_women: _80To85OldsPerYearRuralWomen,
         };
-      } else {
-        if (!_80UpYearOlds || !_85UpYearOlds) {
+      } else if (age >= 85 && age < 100) {
+        if (!_85UpYearOlds) {
           throw new Error("could not discretize unexisting age groups");
         }
         const numberOfDivisions = age - 85;
@@ -530,6 +540,68 @@ export class PopulationSingleYear {
           res.rural_all -= rural_delta;
         }
         return res;
+      } else {
+        if (!_85UpYearOlds && !_100UpYearOlds) {
+          throw new Error("could not discretize unexisting age groups");
+        }
+        const numberOfDivisions = _85UpYearOlds ? age - 85 : age - 100;
+        const _85Or100UpYearOlds = (
+          _85UpYearOlds ? _85UpYearOlds : _100UpYearOlds
+        )!;
+
+        const res = {
+          year: this.#year,
+          territory: regionName,
+          territory_code: regionCode,
+
+          age_start: age,
+          age_end: age,
+
+          all: _85Or100UpYearOlds.all,
+          all_men: _85Or100UpYearOlds.all_men,
+          all_women: _85Or100UpYearOlds.all_women,
+
+          urban_all: _85Or100UpYearOlds.urban_all,
+          urban_men: _85Or100UpYearOlds.urban_men,
+          urban_women: _85Or100UpYearOlds.urban_women,
+
+          rural_all: _85Or100UpYearOlds.rural_all,
+          rural_men: _85Or100UpYearOlds.rural_men,
+          rural_women: _85Or100UpYearOlds.rural_women,
+        };
+
+        for (let i = 0; i < numberOfDivisions; ++i) {
+          const all_delta =
+            res.all_men -
+            Math.floor(res.all_men / 2) +
+            res.all_women -
+            Math.floor(res.all_women / 2);
+
+          res.all_men = Math.floor(res.all_men / 2);
+          res.all_women = Math.floor(res.all_women / 2);
+          res.all -= all_delta;
+
+          const urban_delta =
+            res.urban_men -
+            Math.floor(res.urban_men / 2) +
+            res.urban_women -
+            Math.floor(res.urban_women / 2);
+
+          res.urban_men = Math.floor(res.urban_men / 2);
+          res.urban_women = Math.floor(res.urban_women / 2);
+          res.urban_all -= urban_delta;
+
+          const rural_delta =
+            res.rural_men -
+            Math.floor(res.rural_men / 2) +
+            res.rural_women -
+            Math.floor(res.rural_women / 2);
+
+          res.rural_men = Math.floor(res.rural_men / 2);
+          res.rural_women = Math.floor(res.rural_women / 2);
+          res.rural_all -= rural_delta;
+        }
+        return res;
       }
     } else {
       throw new PopulationEmptyRegionsException();
@@ -538,7 +610,7 @@ export class PopulationSingleYear {
 
   // get total number of people of chosen age group and sex in the chosen regions
   n(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
-    regionCodes ??= this.#regions!.getRegionCodes()!;
+    regionCodes ??= [RussiaRegionCode];
     let res = 0;
     if (!k2) {
       k2 = k1;
@@ -566,7 +638,7 @@ export class PopulationSingleYear {
 
   // get fraction of people of chosen age group and sex in the chosen regions
   h(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
-    regionCodes ??= this.#regions!.getRegionCodes()!;
+    regionCodes ??= [RussiaRegionCode];
     const totalPopulation = regionCodes
       .map((regionCode) => this.getTotalRegionPopulation(regionCode))
       .reduce((curr, sum) => sum + curr);

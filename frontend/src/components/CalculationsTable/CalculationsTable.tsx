@@ -5,8 +5,8 @@ import {
   Checkbox,
   GetProp,
   Modal,
+  Spin,
   Table,
-  TableProps,
   TreeSelect,
 } from "antd";
 import { PopulationSingleYear } from "../../utils";
@@ -16,6 +16,8 @@ import { observer } from "mobx-react-lite";
 import year from "../../store/year";
 import TextArea, { TextAreaRef } from "antd/es/input/TextArea";
 import {
+  calculatedNoSexRecognitionTableColumns,
+  calculatedSexRecognitionTableColumns,
   textAreaTitlesAgeEndChecked,
   textAreaTitlesAllChecked,
   textAreaTitlesAllUnchecked,
@@ -23,12 +25,13 @@ import {
   upperYearBound,
 } from "../../constants";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
-import { EpidCalculator } from "./utils";
+import { EpidCalculator, EpidCalculatorException } from "./utils";
 import {
-  CalculatedSexRecognitionTableRow,
+  CalculatedTableRow,
   TextAreaContentMeta,
   TextAreaTitle,
 } from "../../types";
+import { Store } from "react-notifications-component";
 
 const { SHOW_PARENT } = TreeSelect;
 
@@ -62,8 +65,20 @@ const CalculationsTable = observer(() => {
 
   const [populationPerRegions, setPopulationPerRegions] =
     useState<PopulationSingleYear>();
+
   const [gotRegions, setGotRegions] = useState<boolean>(false);
   const [selectedRegions, setSelectedRegions] = useState<string[]>();
+
+  const [calculatedTableRows, setCalculatedTableRows] = useState<
+    CalculatedTableRow[]
+  >([]);
+
+  const [calculatedTableCols, setCalculatedTableCols] = useState<
+    | typeof calculatedNoSexRecognitionTableColumns
+    | typeof calculatedSexRecognitionTableColumns
+  >(calculatedNoSexRecognitionTableColumns);
+
+  const [spinning, setSpinning] = useState<boolean>(false);
 
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
@@ -137,6 +152,7 @@ const CalculationsTable = observer(() => {
     return () => {
       setGotRegions(false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year.get()]);
 
   const textAreaTitles = useMemo(() => {
@@ -159,6 +175,7 @@ const CalculationsTable = observer(() => {
   if (gotRegions) {
     return (
       <div className="flex flex-wrap justify-center gap-y-4">
+        <Spin spinning={spinning} fullscreen />
         <Checkbox.Group
           options={checkboxOptions}
           onChange={onCheckboxChange}
@@ -214,6 +231,7 @@ const CalculationsTable = observer(() => {
             type="primary"
             className="flex gap-1 justify-center p-5 items-center"
             onClick={() => {
+              setSpinning(true);
               const textAreaMap = getTextAreaMap();
               const newTextAreaMap: Map<TextAreaTitle, TextAreaContentMeta> =
                 new Map();
@@ -231,19 +249,62 @@ const CalculationsTable = observer(() => {
                 });
               }
 
-              const epidCalculator = new EpidCalculator(
-                newTextAreaMap,
-                populationPerRegions!
-              );
+              if (selectedRegions) {
+                try {
+                  const epidCalculator = new EpidCalculator(
+                    newTextAreaMap,
+                    populationPerRegions!,
+                    selectedRegions
+                  );
+                  const result = epidCalculator.calculate();
+                  setCalculatedTableRows(result);
 
-              // epidCalculator.
+                  if (checkedOptions.includes("Деление по полу")) {
+                    setCalculatedTableCols(
+                      calculatedSexRecognitionTableColumns
+                    );
+                  }
+                  console.log(result);
+                } catch (error) {
+                  console.error(error);
+
+                  Store.addNotification({
+                    title: "Не удалось провести расчёт",
+                    message: (error as EpidCalculatorException).message,
+                    type: "danger",
+                    insert: "top",
+                    container: "top-right",
+                    animationIn: ["animate__animated", "animate__fadeIn"],
+                    animationOut: ["animate__animated", "animate__fadeOut"],
+                    dismiss: {
+                      duration: 5000,
+                      onScreen: true,
+                    },
+                  });
+                }
+              } else {
+                Store.addNotification({
+                  title: "Расчёт не был проведен",
+                  message: "Чтобы провести расчёт, необходимо выбрать регионы",
+                  type: "danger",
+                  insert: "top",
+                  container: "top-right",
+                  animationIn: ["animate__animated", "animate__fadeIn"],
+                  animationOut: ["animate__animated", "animate__fadeOut"],
+                  dismiss: {
+                    duration: 5000,
+                    onScreen: true,
+                  },
+                });
+              }
+              setSpinning(false);
             }}
           >
             Расчёт
             <ArrowForwardIcon />
           </Button>
         </section>
-        <Table columns={myColumns} dataSource={myData} />
+        <Table columns={calculatedTableCols} dataSource={calculatedTableRows} />
       </div>
     );
   } else {

@@ -15,6 +15,7 @@ const availableYears = [
 
 export const defaultYear = availableYears.at(-1);
 
+export const RussiaRegionCode = "1.0.0";
 export const upperYearBound = 199;
 
 const columns: ColumnsType<DataType> = [
@@ -208,6 +209,61 @@ export const textAreaTitlesSexRecognitionChecked: TextAreaTitleSexRecognitionChe
     "Число заболевших (мужчины, выбран. регионы)",
     "Число заболевших (женщины, выбран. регионы)",
   ];
+
+export const calculatedNoSexRecognitionTableColumns = [
+  {
+    title: "Начальный возраст" as const,
+    dataIndex: "startAge" as const,
+    width: "10%",
+  },
+  {
+    title: "Конечный возраст" as const,
+    dataIndex: "endAge" as const,
+    width: "10%",
+  },
+
+  {
+    title: "Население (Россия)" as const,
+    dataIndex: "populationRussia" as const,
+  },
+  {
+    title: "Число заболевших (Россия)" as const,
+    dataIndex: "morbidityRussia" as const,
+  },
+  {
+    title: "Интенсивная заболеваемость на 100 тыс. (Россия)" as const,
+    dataIndex: "intensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (Россия)" as const,
+    dataIndex: "lowerIntensiveMorbidityRussia" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (Россия)" as const,
+    dataIndex: "upperIntensiveMorbidityRussia" as const,
+  },
+
+  {
+    title: "Население (выбран. регионы)" as const,
+    dataIndex: "populationChosenRegions" as const,
+  },
+  {
+    title: "Число заболевших (выбран. регионы)" as const,
+    dataIndex: "morbidityChosenRegions" as const,
+  },
+  {
+    title: "Интенсивная заболеваемость на 100 тыс. (выбран. регионы)" as const,
+    dataIndex: "intensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Нижний доверительный интервал (выбран. регионы)" as const,
+    dataIndex: "lowerIntensiveMorbidityChosenRegions" as const,
+  },
+  {
+    title: "Верхний доверительный интервал (выбран. регионы)" as const,
+    dataIndex: "upperIntensiveMorbidityChosenRegions" as const,
+  },
+];
 
 export const calculatedSexRecognitionTableColumns = [
   {

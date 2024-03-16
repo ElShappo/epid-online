@@ -6,6 +6,8 @@ import { PageLayout } from "./components/PageLayout/PageLayout";
 import { ConfigProvider, theme } from "antd";
 import PopulationPage from "./pages/Population/PopulationPage";
 import CalculationsPage from "./pages/Calculations/CalculationsPage";
+import { ReactNotifications } from "react-notifications-component";
+import "react-notifications-component/dist/theme.css";
 
 function App() {
   const router = createBrowserRouter([
@@ -35,20 +37,23 @@ function App() {
   ]);
 
   return (
-    <ConfigProvider
-      theme={{
-        // 1. Use dark algorithm
-        algorithm: theme.darkAlgorithm,
+    <>
+      <ReactNotifications />
+      <ConfigProvider
+        theme={{
+          // 1. Use dark algorithm
+          algorithm: theme.darkAlgorithm,
 
-        // 2. Combine dark algorithm and compact algorithm
-        // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
-      }}
-    >
-      <RouterProvider
-        router={router}
-        fallbackElement={<div>Hey, I am loading!</div>}
-      />
-    </ConfigProvider>
+          // 2. Combine dark algorithm and compact algorithm
+          // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
+        }}
+      >
+        <RouterProvider
+          router={router}
+          fallbackElement={<div>Hey, I am loading!</div>}
+        />
+      </ConfigProvider>
+    </>
   );
 }
 
