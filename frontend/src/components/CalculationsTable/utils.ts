@@ -226,6 +226,65 @@ export class EpidCalculator {
     }
   }
 
+  // epidCalculator depends on the data received from the text areas
+  // however: "Конечный возраст", "Число заболевших (Россия)", "Число заболевших (выбран. регионы)" cols might not be present
+
+  // "Конечный возраст" is not present when ageEnd was not checked by user
+  // "Число заболевших (Россия)", "Число заболевших (выбран. регионы)" are absent when there is a sex recognition set by user
+
+  // Still, we might need these cols in the future (for example, to show them later in the table or to plot them)
+  // that's why we have to manually add these cols if they haven't existed previously
+  #addLackingColumns() {
+    if (!this.#textAreas.has("Конечный возраст")) {
+      const startAges = this.#textAreas.get("Начальный возраст")!; // #checkTitles should be called beforehand
+      const endAges: string[] = [];
+      for (let i = 1; i < startAges.length; ++i) {
+        endAges.push(String(+startAges[i] - 1));
+      }
+      endAges.push(String(upperYearBound));
+      this.#textAreas.set("Конечный возраст", endAges);
+    }
+
+    if (!this.#textAreas.has("Число заболевших (Россия)")) {
+      const menPopulationRussia = this.#textAreas.get(
+        "Число заболевших (мужчины, Россия)"
+      )!;
+      const womenPopulationRussia = this.#textAreas.get(
+        "Число заболевших (женщины, Россия)"
+      )!;
+
+      const populationRussia: string[] = [];
+      for (let i = 0; i < menPopulationRussia.length; ++i) {
+        populationRussia.push(
+          String(+menPopulationRussia[i] + +womenPopulationRussia[i])
+        );
+      }
+      this.#textAreas.set("Число заболевших (Россия)", populationRussia);
+    }
+
+    if (!this.#textAreas.has("Число заболевших (выбран. регионы)")) {
+      const menPopulationChosenRegions = this.#textAreas.get(
+        "Число заболевших (мужчины, выбран. регионы)"
+      )!;
+      const womenPopulationChosenRegions = this.#textAreas.get(
+        "Число заболевших (женщины, выбран. регионы)"
+      )!;
+
+      const populationChosenRegions: string[] = [];
+      for (let i = 0; i < menPopulationChosenRegions.length; ++i) {
+        populationChosenRegions.push(
+          String(
+            +menPopulationChosenRegions[i] + +womenPopulationChosenRegions[i]
+          )
+        );
+      }
+      this.#textAreas.set(
+        "Число заболевших (выбран. регионы)",
+        populationChosenRegions
+      );
+    }
+  }
+
   constructor(
     textAreas: Map<TextAreaTitle, TextAreaContentMeta>,
     population: PopulationSingleYear,
@@ -255,15 +314,7 @@ export class EpidCalculator {
     this.#checkSameLength();
     this.#checkAges();
 
-    if (!this.#textAreas.has("Конечный возраст")) {
-      const startAges = this.#textAreas.get("Начальный возраст")!; // #checkTitles should be called beforehand
-      const endAges: string[] = [];
-      for (let i = 1; i < startAges.length; ++i) {
-        endAges.push(String(+startAges[i] - 1));
-      }
-      endAges.push(String(upperYearBound));
-      this.#textAreas.set("Конечный возраст", endAges);
-    }
+    this.#addLackingColumns();
 
     if (this.#textAreas.has("Число заболевших (женщины, Россия)")) {
       this.#hasSexRecognition = true;
@@ -410,38 +461,44 @@ export class EpidCalculator {
     if (!res) {
       throw new EpidCalculatorMorbidityException();
     }
+    let a: number;
     switch (m) {
       case "male":
         if (regionCodes) {
-          return +(res as TableRowFromTextAreasAllChecked)[
+          a = +(res as TableRowFromTextAreasAllChecked)[
             "Число заболевших (мужчины, выбран. регионы)"
           ]!;
         } else {
-          return +(res as TableRowFromTextAreasAllChecked)[
+          a = +(res as TableRowFromTextAreasAllChecked)[
             "Число заболевших (мужчины, Россия)"
           ]!;
         }
+        break;
       case "female":
         if (regionCodes) {
-          return +(res as TableRowFromTextAreasAllChecked)[
+          a = +(res as TableRowFromTextAreasAllChecked)[
             "Число заболевших (женщины, выбран. регионы)"
           ]!;
         } else {
-          return +(res as TableRowFromTextAreasAllChecked)[
+          a = +(res as TableRowFromTextAreasAllChecked)[
             "Число заболевших (женщины, Россия)"
           ]!;
         }
+        break;
       default:
         if (regionCodes) {
-          return +(res as TableRowFromTextAreasAgeEndChecked)[
+          a = +(res as TableRowFromTextAreasAgeEndChecked)[
             "Число заболевших (выбран. регионы)"
           ]!;
         } else {
-          return +(res as TableRowFromTextAreasAgeEndChecked)[
+          a = +(res as TableRowFromTextAreasAgeEndChecked)[
             "Число заболевших (Россия)"
           ]!;
         }
+        console.log(res);
+        console.log(a);
     }
+    return a;
   }
 
   getIntensiveMorbidity(

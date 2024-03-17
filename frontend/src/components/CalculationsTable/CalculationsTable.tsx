@@ -290,7 +290,10 @@ const CalculationsTable = observer(() => {
             scroll={{ y: 500 }}
           />
         </div>
-        <div className="w-full text-center pt-1 pb-3">
+        <div
+          className="w-full text-center pt-1 pb-3"
+          style={{ width: "100vw" }}
+        >
           <Plot
             data={
               extractDataForPlotting(
@@ -313,6 +316,11 @@ const CalculationsTable = observer(() => {
                 color: "white",
               },
             }}
+            config={{
+              responsive: true,
+            }}
+            useResizeHandler={true}
+            style={{ width: "100%" }}
           />
         </div>
       </div>
