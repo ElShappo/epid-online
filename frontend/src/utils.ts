@@ -640,11 +640,12 @@ export class PopulationSingleYear {
   // get fraction of people of chosen age group and sex in the chosen regions
   h(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
     regionCodes ??= [RussiaRegionCode];
-    const totalPopulation = regionCodes
-      .map((regionCode) => this.getTotalRegionPopulation(regionCode))
-      .reduce((curr, sum) => sum + curr);
-
-    return this.n(k1, k2, m, regionCodes) / totalPopulation;
+    const totalPopulation = this.n(0, upperYearBound, undefined, regionCodes);
+    const res = this.n(k1, k2, m, regionCodes) / totalPopulation;
+    console.log(
+      `regionCodes = ${regionCodes}, totalPopulation = ${totalPopulation}, h = ${res}`
+    );
+    return res;
   }
 
   getRegionPopulation(regionCode: string) {
@@ -653,37 +654,6 @@ export class PopulationSingleYear {
         return row.year === this.#year && row.territory_code === regionCode;
       })
       .sort((a, b) => a.age_start - b.age_start);
-  }
-
-  getTotalRegionPopulation(regionCode: string) {
-    const regionPopulation = this.getRegionPopulation(regionCode);
-    const recordWithTotalPopulation = regionPopulation.find(
-      (record) => record.age_start === 0 && record.age_end === upperYearBound
-    );
-
-    if (recordWithTotalPopulation) {
-      return recordWithTotalPopulation.all;
-    } else {
-      let res = 0;
-      for (let age = 0; age <= 79; ++age) {
-        const curr = regionPopulation.find(
-          (record) =>
-            record.age_start === record.age_end && record.age_start === age
-        )?.all;
-        if (!curr) {
-          throw new Error(`could not get population info about age = ${age}`);
-        }
-        res += curr;
-      }
-      const _80UpYearOlds = regionPopulation.find(
-        (record) => record.age_start === 80 && record.age_end === upperYearBound
-      )?.all;
-      if (!_80UpYearOlds) {
-        throw new Error(`80-${upperYearBound} group does not exist`);
-      }
-      res += _80UpYearOlds;
-      return res;
-    }
   }
 
   getAgeRanges() {

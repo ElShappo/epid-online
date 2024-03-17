@@ -91,6 +91,15 @@ const CalculationsTable = observer(() => {
   const [chosenRegionsIntensiveMorbidity, setChosenRegionsIntensiveMorbidity] =
     useState<number>();
 
+  const [
+    chosenRegionsStandardizedMorbidity,
+    setChosenRegionsStandardizedMorbidity,
+  ] = useState<number>();
+  const [
+    chosenRegionsStandardizedIntensiveMorbidity,
+    setChosenRegionsStandardizedIntensiveMorbidity,
+  ] = useState<number>();
+
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
   function getTextAreaMap() {
@@ -251,11 +260,22 @@ const CalculationsTable = observer(() => {
                   const resChosenRegionsIntensiveMorbidity =
                     epidCalculator.getChosenRegionsIntensiveMorbidity();
 
+                  const resChosenRegionsStandardizedMorbidity =
+                    epidCalculator.getChosenRegionsStandardizedMorbidity();
+                  const resChosenRegionsStandardizedIntensiveMorbidity =
+                    epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
+
                   setRussiaMorbidity(resRussiaMorbidity);
                   setChosenRegionsMorbidity(resChosenRegionsMorbidity);
                   setRussiaIntensiveMorbidity(resRussiaIntensiveMorbidity);
                   setChosenRegionsIntensiveMorbidity(
                     resChosenRegionsIntensiveMorbidity
+                  );
+                  setChosenRegionsStandardizedMorbidity(
+                    resChosenRegionsStandardizedMorbidity
+                  );
+                  setChosenRegionsStandardizedIntensiveMorbidity(
+                    resChosenRegionsStandardizedIntensiveMorbidity
                   );
 
                   setCalculatedTableRows(tableRows);
@@ -326,6 +346,12 @@ const CalculationsTable = observer(() => {
               Выбран. регионы - заболеваемость совокупного населения, абсолютная
               и на 100 тысяч {chosenRegionsMorbidity};{" "}
               {chosenRegionsIntensiveMorbidity}
+            </div>
+            <div>
+              Выбран. регионы - стандартизованная по возрастному населению
+              заболеваемость совокупного населения, абсолютная и на 100 тысяч{" "}
+              {chosenRegionsStandardizedMorbidity};{" "}
+              {chosenRegionsStandardizedIntensiveMorbidity}
             </div>
           </section>
         </div>

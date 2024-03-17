@@ -6,6 +6,7 @@ import {
   upperYearBound,
 } from "../../constants";
 import {
+  CalculatedNoSexRecognitionTableRow,
   CalculatedSexRecognitionTableRow,
   CalculatedTableRow,
   PlotlyInputData,
@@ -163,6 +164,8 @@ export class EpidCalculator {
   #population: PopulationSingleYear;
   #tableRowsFromTextAreas: TableRowFromTextAreas[]; // another way of representing data from text areas
   #hasSexRecognition: boolean;
+
+  #calculatedTableRows: CalculatedTableRow[] = [];
 
   // check that titles are in the correct configuration
   // (i.e they are in one of 4 available states which are determined by the checked options in the checkbox)
@@ -344,6 +347,9 @@ export class EpidCalculator {
   }
 
   calculateTable() {
+    if (this.#calculatedTableRows.length) {
+      return this.#calculatedTableRows;
+    }
     const res = [] as CalculatedTableRow[];
 
     for (const row of this.#tableRowsFromTextAreas) {
@@ -445,6 +451,7 @@ export class EpidCalculator {
       }
       res.push(obj);
     }
+    this.#calculatedTableRows = res;
     return res;
   }
 
@@ -455,7 +462,7 @@ export class EpidCalculator {
 
   getRussiaIntensiveMorbidity() {
     const a = this.getRussiaMorbidity();
-    return (10 ** 5 * a) / this.#population.n(0, 100);
+    return (10 ** 5 * a) / this.#population.n(0, upperYearBound);
   }
 
   getChosenRegionsMorbidity() {
@@ -471,8 +478,65 @@ export class EpidCalculator {
   getChosenRegionsIntensiveMorbidity() {
     const a = this.getChosenRegionsMorbidity();
     return (
-      (10 ** 5 * a) / this.#population.n(0, 100, undefined, this.#regionCodes)
+      (10 ** 5 * a) /
+      this.#population.n(0, upperYearBound, undefined, this.#regionCodes)
     );
+  }
+
+  getChosenRegionsStandardizedMorbidity() {
+    let res = 0;
+    if (this.#hasSexRecognition) {
+      for (const row of this
+        .#calculatedTableRows as CalculatedSexRecognitionTableRow[]) {
+        const k1 = row["startAge"];
+        const k2 = row["endAge"];
+
+        res +=
+          row["menMorbidityChosenRegions"] * this.#population.h(k1, k2, "male");
+
+        res +=
+          row["womenMorbidityChosenRegions"] *
+          this.#population.h(k1, k2, "female");
+      }
+    } else {
+      for (const row of this
+        .#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
+        const k1 = row["startAge"];
+        const k2 = row["endAge"];
+
+        res += row["morbidityChosenRegions"] * this.#population.h(k1, k2);
+      }
+    }
+    return res;
+  }
+
+  getChosenRegionsStandardizedIntensiveMorbidity() {
+    let res = 0;
+    if (this.#hasSexRecognition) {
+      for (const row of this
+        .#calculatedTableRows as CalculatedSexRecognitionTableRow[]) {
+        const k1 = row["startAge"];
+        const k2 = row["endAge"];
+
+        res +=
+          row["menIntensiveMorbidityChosenRegions"] *
+          this.#population.h(k1, k2, "male");
+
+        res +=
+          row["womenIntensiveMorbidityChosenRegions"] *
+          this.#population.h(k1, k2, "female");
+      }
+    } else {
+      for (const row of this
+        .#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
+        const k1 = row["startAge"];
+        const k2 = row["endAge"];
+
+        res +=
+          row["intensiveMorbidityChosenRegions"] * this.#population.h(k1, k2);
+      }
+    }
+    return res;
   }
 
   getMorbidity(
