@@ -278,7 +278,7 @@ const CalculationsTable = observer(() => {
             <ArrowForwardIcon />
           </Button>
         </section>
-        <div className="w-full">
+        <div className="w-full pt-2">
           <Table
             columns={
               hasSexRecognition
@@ -290,7 +290,7 @@ const CalculationsTable = observer(() => {
             scroll={{ y: 500 }}
           />
         </div>
-        <div className="w-full text-center">
+        <div className="w-full text-center pt-1 pb-3">
           <Plot
             data={
               extractDataForPlotting(

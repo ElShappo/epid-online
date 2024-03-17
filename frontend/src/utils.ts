@@ -416,7 +416,7 @@ export class PopulationSingleYear {
     if (this.#regions) {
       const regionName = this.#regions.getRegionByCode(regionCode)!.territory;
 
-      const res = this.getPopulation().find(
+      const res = population.find(
         (record) =>
           record.age_start === record.age_end && record.age_start === age
       );
@@ -611,6 +611,7 @@ export class PopulationSingleYear {
   // get total number of people of chosen age group and sex in the chosen regions
   n(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
     regionCodes ??= [RussiaRegionCode];
+    console.log(regionCodes);
     let res = 0;
     if (!k2) {
       k2 = k1;
