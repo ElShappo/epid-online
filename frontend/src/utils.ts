@@ -485,7 +485,7 @@ export class PopulationSingleYear {
         if (!_85UpYearOlds) {
           throw new Error("could not discretize unexisting age groups");
         }
-        const numberOfDivisions = age - 85;
+        const numberOfDivisions = age - 84;
 
         const res = {
           year: this.#year,
@@ -544,7 +544,7 @@ export class PopulationSingleYear {
         if (!_85UpYearOlds && !_100UpYearOlds) {
           throw new Error("could not discretize unexisting age groups");
         }
-        const numberOfDivisions = _85UpYearOlds ? age - 85 : age - 100;
+        const numberOfDivisions = _85UpYearOlds ? age - 84 : age - 99;
         const _85Or100UpYearOlds = (
           _85UpYearOlds ? _85UpYearOlds : _100UpYearOlds
         )!;

@@ -343,7 +343,7 @@ export class EpidCalculator {
     console.log(this.#tableRowsFromTextAreas);
   }
 
-  calculate() {
+  calculateTable() {
     const res = [] as CalculatedTableRow[];
 
     for (const row of this.#tableRowsFromTextAreas) {
@@ -446,6 +446,33 @@ export class EpidCalculator {
       res.push(obj);
     }
     return res;
+  }
+
+  getRussiaMorbidity() {
+    const morbiditiesRussia = this.#textAreas.get("Число заболевших (Россия)")!;
+    return morbiditiesRussia.reduce((sum, curr) => sum + Number(curr), 0);
+  }
+
+  getRussiaIntensiveMorbidity() {
+    const a = this.getRussiaMorbidity();
+    return (10 ** 5 * a) / this.#population.n(0, 100);
+  }
+
+  getChosenRegionsMorbidity() {
+    const morbiditiesChosenRegions = this.#textAreas.get(
+      "Число заболевших (выбран. регионы)"
+    )!;
+    return morbiditiesChosenRegions.reduce(
+      (sum, curr) => sum + Number(curr),
+      0
+    );
+  }
+
+  getChosenRegionsIntensiveMorbidity() {
+    const a = this.getChosenRegionsMorbidity();
+    return (
+      (10 ** 5 * a) / this.#population.n(0, 100, undefined, this.#regionCodes)
+    );
   }
 
   getMorbidity(

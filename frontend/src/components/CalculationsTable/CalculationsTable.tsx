@@ -82,6 +82,15 @@ const CalculationsTable = observer(() => {
   const [hasSexRecognition, setHasSexRecognition] = useState<boolean>(false);
   const [spinning, setSpinning] = useState<boolean>(false);
 
+  const [RussiaMorbidity, setRussiaMorbidity] = useState<number>();
+  const [chosenRegionsMorbidity, setChosenRegionsMorbidity] =
+    useState<number>();
+
+  const [RussiaIntensiveMorbidity, setRussiaIntensiveMorbidity] =
+    useState<number>();
+  const [chosenRegionsIntensiveMorbidity, setChosenRegionsIntensiveMorbidity] =
+    useState<number>();
+
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
   function getTextAreaMap() {
@@ -230,15 +239,33 @@ const CalculationsTable = observer(() => {
                     populationPerRegions!,
                     selectedRegions
                   );
-                  const result = epidCalculator.calculate();
-                  setCalculatedTableRows(result);
+                  const tableRows = epidCalculator.calculateTable();
+
+                  const resRussiaMorbidity =
+                    epidCalculator.getRussiaMorbidity();
+                  const resChosenRegionsMorbidity =
+                    epidCalculator.getChosenRegionsMorbidity();
+
+                  const resRussiaIntensiveMorbidity =
+                    epidCalculator.getRussiaIntensiveMorbidity();
+                  const resChosenRegionsIntensiveMorbidity =
+                    epidCalculator.getChosenRegionsIntensiveMorbidity();
+
+                  setRussiaMorbidity(resRussiaMorbidity);
+                  setChosenRegionsMorbidity(resChosenRegionsMorbidity);
+                  setRussiaIntensiveMorbidity(resRussiaIntensiveMorbidity);
+                  setChosenRegionsIntensiveMorbidity(
+                    resChosenRegionsIntensiveMorbidity
+                  );
+
+                  setCalculatedTableRows(tableRows);
 
                   if (checkedOptions.includes("Деление по полу")) {
                     setHasSexRecognition(true);
                   } else {
                     setHasSexRecognition(false);
                   }
-                  console.log(result);
+                  console.log(tableRows);
                 } catch (error) {
                   console.error(error);
 
@@ -280,6 +307,7 @@ const CalculationsTable = observer(() => {
         </section>
         <div className="w-full pt-2">
           <Table
+            pagination={false}
             columns={
               hasSexRecognition
                 ? (calculatedSexRecognitionTableColumns as any)
@@ -289,6 +317,17 @@ const CalculationsTable = observer(() => {
             bordered
             scroll={{ y: 500 }}
           />
+          <section>
+            <div>
+              Россия - заболеваемость совокупного населения, абсолютная и на 100
+              тысяч {RussiaMorbidity}; {RussiaIntensiveMorbidity}
+            </div>
+            <div>
+              Выбран. регионы - заболеваемость совокупного населения, абсолютная
+              и на 100 тысяч {chosenRegionsMorbidity};{" "}
+              {chosenRegionsIntensiveMorbidity}
+            </div>
+          </section>
         </div>
         <div
           className="w-full text-center pt-1 pb-3"
@@ -327,41 +366,6 @@ const CalculationsTable = observer(() => {
     );
   } else {
     return <div>Loading regions...</div>;
-  }
-
-  {
-    /* {selectedRegions && selectedRegions.length ? (
-    <>
-      <div className="flex flex-col md:flex-initial md:w-[80%] justify-end">
-        <div className="flex gap-3 justify-end pb-3">
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            className="flex"
-            icon={<AddIcon />}
-          >
-            Добавить запись
-          </Button>
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            className="flex"
-            danger
-            icon={<DeleteIcon />}
-          >
-            Удалить всё
-          </Button>
-        </div>
-        <Table
-          components={components}
-          rowClassName={() => "editable-row"}
-          bordered
-          dataSource={dataSource}
-          columns={columns as ColumnTypes}
-        />
-      </div>
-    </>
-  ) : null} */
   }
 });
 
