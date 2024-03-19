@@ -17,6 +17,8 @@ export const defaultYear = availableYears.at(-1);
 
 export const RussiaRegionCode = "1.0.0";
 export const upperYearBound = 199;
+export const defaultP = 0.05; // default significance level
+export const calculationsPrecision = 2;
 
 const columns: ColumnsType<DataType> = [
   {

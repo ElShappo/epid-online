@@ -1,4 +1,6 @@
 import {
+  calculationsPrecision,
+  defaultP,
   textAreaTitlesAgeEndChecked,
   textAreaTitlesAllChecked,
   textAreaTitlesAllUnchecked,
@@ -20,6 +22,7 @@ import {
   TextAreaTitleAllChecked,
 } from "../../types";
 import { PopulationSingleYear } from "../../utils";
+import quantile from "@stdlib/stats/base/dists/chisquare/quantile";
 
 class TextAreaReaderException extends Error {
   constructor(message: string) {
@@ -363,8 +366,12 @@ export class EpidCalculator {
 
       obj["morbidityRussia"] = this.getMorbidity(k1, k2);
       obj["intensiveMorbidityRussia"] = this.getIntensiveMorbidity(k1, k2);
-      obj["lowerIntensiveMorbidityRussia"] = this.getLowerIntensiveMorbidity();
-      obj["upperIntensiveMorbidityRussia"] = this.getUpperIntensiveMorbidity();
+
+      const intensiveMorbidityRussiaCI =
+        this.getIntensiveMorbidityConfidenceInterval(k1, k2);
+
+      obj["lowerIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[0];
+      obj["upperIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[1];
 
       obj["populationChosenRegions"] = this.#population.n(
         k1,
@@ -384,10 +391,19 @@ export class EpidCalculator {
         undefined,
         this.#regionCodes
       );
+
+      const intensiveMorbidityChosenRegionsCI =
+        this.getIntensiveMorbidityConfidenceInterval(
+          k1,
+          k2,
+          undefined,
+          this.#regionCodes
+        );
+
       obj["lowerIntensiveMorbidityChosenRegions"] =
-        this.getLowerIntensiveMorbidity();
+        intensiveMorbidityChosenRegionsCI[0];
       obj["upperIntensiveMorbidityChosenRegions"] =
-        this.getUpperIntensiveMorbidity();
+        intensiveMorbidityChosenRegionsCI[1];
 
       if (this.#hasSexRecognition) {
         (obj as CalculatedSexRecognitionTableRow)["menPopulationRussia"] =
@@ -397,12 +413,16 @@ export class EpidCalculator {
         (obj as CalculatedSexRecognitionTableRow)[
           "menIntensiveMorbidityRussia"
         ] = this.getIntensiveMorbidity(k1, k2, "male");
+
+        const menIntensiveMorbidityRussiaCI =
+          this.getIntensiveMorbidityConfidenceInterval(k1, k2, "male");
+
         (obj as CalculatedSexRecognitionTableRow)[
           "menLowerIntensiveMorbidityRussia"
-        ] = this.getLowerIntensiveMorbidity();
+        ] = menIntensiveMorbidityRussiaCI[0];
         (obj as CalculatedSexRecognitionTableRow)[
           "menUpperIntensiveMorbidityRussia"
-        ] = this.getUpperIntensiveMorbidity();
+        ] = menIntensiveMorbidityRussiaCI[1];
 
         (obj as CalculatedSexRecognitionTableRow)["womenPopulationRussia"] =
           this.#population.n(k1, k2, "female");
@@ -411,12 +431,16 @@ export class EpidCalculator {
         (obj as CalculatedSexRecognitionTableRow)[
           "womenIntensiveMorbidityRussia"
         ] = this.getIntensiveMorbidity(k1, k2, "female");
+
+        const womenIntensiveMorbidityRussiaCI =
+          this.getIntensiveMorbidityConfidenceInterval(k1, k2, "female");
+
         (obj as CalculatedSexRecognitionTableRow)[
           "womenLowerIntensiveMorbidityRussia"
-        ] = this.getLowerIntensiveMorbidity();
+        ] = womenIntensiveMorbidityRussiaCI[0];
         (obj as CalculatedSexRecognitionTableRow)[
           "womenUpperIntensiveMorbidityRussia"
-        ] = this.getUpperIntensiveMorbidity();
+        ] = womenIntensiveMorbidityRussiaCI[1];
 
         (obj as CalculatedSexRecognitionTableRow)[
           "menPopulationChosenRegions"
@@ -426,12 +450,21 @@ export class EpidCalculator {
         (obj as CalculatedSexRecognitionTableRow)[
           "menIntensiveMorbidityChosenRegions"
         ] = this.getIntensiveMorbidity(k1, k2, "male", this.#regionCodes);
+
+        const menIntensiveMorbidityChosenRegionsCI =
+          this.getIntensiveMorbidityConfidenceInterval(
+            k1,
+            k2,
+            "male",
+            this.#regionCodes
+          );
+
         (obj as CalculatedSexRecognitionTableRow)[
           "menLowerIntensiveMorbidityChosenRegions"
-        ] = this.getLowerIntensiveMorbidity();
+        ] = menIntensiveMorbidityChosenRegionsCI[0];
         (obj as CalculatedSexRecognitionTableRow)[
           "menUpperIntensiveMorbidityChosenRegions"
-        ] = this.getUpperIntensiveMorbidity();
+        ] = menIntensiveMorbidityChosenRegionsCI[1];
 
         (obj as CalculatedSexRecognitionTableRow)[
           "womenPopulationChosenRegions"
@@ -442,12 +475,21 @@ export class EpidCalculator {
         (obj as CalculatedSexRecognitionTableRow)[
           "womenIntensiveMorbidityChosenRegions"
         ] = this.getIntensiveMorbidity(k1, k2, "female", this.#regionCodes);
+
+        const womenIntensiveMorbidityChosenRegionsCI =
+          this.getIntensiveMorbidityConfidenceInterval(
+            k1,
+            k2,
+            "female",
+            this.#regionCodes
+          );
+
         (obj as CalculatedSexRecognitionTableRow)[
           "womenLowerIntensiveMorbidityChosenRegions"
-        ] = this.getLowerIntensiveMorbidity();
+        ] = womenIntensiveMorbidityChosenRegionsCI[0];
         (obj as CalculatedSexRecognitionTableRow)[
           "womenUpperIntensiveMorbidityChosenRegions"
-        ] = this.getUpperIntensiveMorbidity();
+        ] = womenIntensiveMorbidityChosenRegionsCI[1];
       }
       res.push(obj);
     }
@@ -600,19 +642,31 @@ export class EpidCalculator {
   ) {
     const a = this.getMorbidity(k1, k2, m, regionCodes);
     const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
-    return +((10 ** 5 * a) / n).toFixed(2);
+    return +((10 ** 5 * a) / n).toFixed(calculationsPrecision);
   }
 
-  getLowerIntensiveMorbidity() {
-    return 0;
+  // assume morbidity has Poisson distribution
+  #getMorbidityConfidenceInterval(morbidity: number, p = defaultP) {
+    const lowerBound = 0.5 * quantile(p / 2, 2 * morbidity);
+    const upperBound = 0.5 * quantile(1 - p / 2, 2 * (morbidity + 1));
+    return [lowerBound, upperBound];
   }
 
-  getUpperIntensiveMorbidity() {
-    return 0;
-  }
-
-  getStandardizedIntensiveMorbidity() {
-    return 0;
+  getIntensiveMorbidityConfidenceInterval(
+    k1: number,
+    k2: number,
+    m?: Sex,
+    regionCodes?: string[], // if regionCodes are not passed, assume that we take whole Russia
+    p = defaultP
+  ) {
+    const a = this.getMorbidity(k1, k2, m, regionCodes);
+    const [lowerMorbidity, upperMorbidity] =
+      this.#getMorbidityConfidenceInterval(a, p);
+    const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
+    return [
+      +((10 ** 5 * lowerMorbidity) / n).toFixed(calculationsPrecision),
+      +((10 ** 5 * upperMorbidity) / n).toFixed(calculationsPrecision),
+    ];
   }
 }
 
