@@ -241,7 +241,7 @@ const CalculationsTable = observer(() => {
                 });
               }
 
-              if (selectedRegions) {
+              if (selectedRegions && selectedRegions.length) {
                 try {
                   const epidCalculator = new EpidCalculator(
                     newTextAreaMap,

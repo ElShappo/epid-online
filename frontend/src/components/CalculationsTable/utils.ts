@@ -758,3 +758,25 @@ export function extractDataForPlotting(
   }
   return res;
 }
+
+export function leastSquares1D(
+  x: number[],
+  y: number[],
+  foo: (x: number, param: number) => number,
+  step = 0.01
+): number {
+  if (x.length !== y.length) {
+    throw new Error("x and y should be of the same length");
+  }
+  let lowestDelta = Infinity;
+  for (let param = 0; param < 1; param += step) {
+    const yModel = x.map((curr) => foo(curr, param));
+    const delta = y
+      .map((curr, index) => (curr - yModel[index]) ** 2)
+      .reduce((sum, curr) => sum + curr, 0);
+    if (delta < lowestDelta) {
+      lowestDelta = delta;
+    }
+  }
+  return lowestDelta;
+}
