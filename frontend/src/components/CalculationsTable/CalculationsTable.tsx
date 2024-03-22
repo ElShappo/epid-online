@@ -4,10 +4,12 @@ import {
   Button,
   Checkbox,
   GetProp,
+  message,
   Modal,
   Spin,
   Table,
   TreeSelect,
+  Upload,
 } from "antd";
 import { PopulationSingleYear } from "../../utils";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -24,6 +26,8 @@ import {
   textAreaTitlesSexRecognitionChecked,
   upperYearBound,
 } from "../../constants";
+import { UploadOutlined } from "@ant-design/icons";
+import type { UploadProps } from "antd";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import {
   EpidCalculator,
@@ -38,7 +42,6 @@ import {
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
-
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = ["Деление по полу", "Указывать оба диапазона лет"];
@@ -65,6 +68,18 @@ const CalculationsTable = observer(() => {
   ) => {
     console.log("checked = ", checkedValues);
     setCheckedOptions(checkedValues);
+
+    if (checkedValues.includes("Деление по полу")) {
+      setHasSexRecognition(true);
+    } else {
+      setHasSexRecognition(false);
+    }
+
+    if (checkedValues.includes("Указывать оба диапазона лет")) {
+      setHasAgeEnd(true);
+    } else {
+      setHasAgeEnd(false);
+    }
   };
 
   const [checkedOptions, setCheckedOptions] = useState<CheckboxValueType[]>([]);
@@ -80,6 +95,7 @@ const CalculationsTable = observer(() => {
   >([]);
 
   const [hasSexRecognition, setHasSexRecognition] = useState<boolean>(false);
+  const [hasAgeEnd, setHasAgeEnd] = useState<boolean>(false);
   const [spinning, setSpinning] = useState<boolean>(false);
 
   const [RussiaMorbidity, setRussiaMorbidity] = useState<number>();
@@ -100,6 +116,10 @@ const CalculationsTable = observer(() => {
     setChosenRegionsStandardizedIntensiveMorbidity,
   ] = useState<number>();
 
+  const [lambdaEstimationRussia, setLambdaEstimationRussia] =
+    useState<number>();
+  const [cEstimationRussia, setCEstimationRussia] = useState<number>();
+
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
   function getTextAreaMap() {
@@ -108,6 +128,75 @@ const CalculationsTable = observer(() => {
     }
     return textAreaRefs.current;
   }
+
+  const uploadProps: UploadProps = {
+    accept: ".csv",
+    maxCount: 1,
+    showUploadList: false,
+    async beforeUpload(file) {
+      try {
+        console.log(file);
+        const text = await file.text();
+
+        const rows = text.split("\n");
+        let titles: TextAreaTitle[] = [];
+
+        if (hasSexRecognition && hasAgeEnd) {
+          titles = [
+            "Начальный возраст",
+            "Конечный возраст",
+            "Число заболевших (мужчины, Россия)",
+            "Число заболевших (женщины, Россия)",
+            "Число заболевших (мужчины, выбран. регионы)",
+            "Число заболевших (женщины, выбран. регионы)",
+          ];
+        } else if (hasSexRecognition && !hasAgeEnd) {
+          titles = [
+            "Начальный возраст",
+            "Число заболевших (мужчины, Россия)",
+            "Число заболевших (женщины, Россия)",
+            "Число заболевших (мужчины, выбран. регионы)",
+            "Число заболевших (женщины, выбран. регионы)",
+          ];
+        } else if (!hasSexRecognition && hasAgeEnd) {
+          titles = [
+            "Начальный возраст",
+            "Конечный возраст",
+            "Число заболевших (Россия)",
+            "Число заболевших (выбран. регионы)",
+          ];
+        } else {
+          titles = [
+            "Начальный возраст",
+            "Число заболевших (Россия)",
+            "Число заболевших (выбран. регионы)",
+          ];
+        }
+
+        const map = getTextAreaMap();
+
+        for (let i = 0; i < titles.length; ++i) {
+          const title = titles[i];
+          const dataForTextarea = [];
+
+          for (const row of rows) {
+            const splittedRow = row.split(";");
+            dataForTextarea.push(splittedRow[i]);
+          }
+          const textAreaRef = map.get(title);
+          textAreaRef!.resizableTextArea!.textArea!.value =
+            dataForTextarea.join("\n");
+        }
+
+        console.log(text);
+        message.success(`${file.name} был успешно загружен!`);
+        return false;
+      } catch (error) {
+        console.error(error);
+        message.error(`во время загрузки файла произошла ошибка...`);
+      }
+    },
+  };
 
   const treeData = useMemo(() => {
     const onChange = (newValue: string[]) => {
@@ -175,8 +264,16 @@ const CalculationsTable = observer(() => {
         />
         <div className="max-h-36 overflow-y-auto">
           <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
+          <Upload
+            {...uploadProps}
+            className="flex items-stretch justify-center pt-8"
+          >
+            <Button icon={<UploadOutlined />} type="primary">
+              Импорт CSV
+            </Button>
+          </Upload>
         </div>
-        <section className="w-full grow flex flex-wrap justify-center gap-4 pt-4">
+        <section className="w-full grow flex flex-wrap justify-center gap-4">
           {textAreaTitles?.map((title) => {
             return (
               <div key={title}>
@@ -280,11 +377,14 @@ const CalculationsTable = observer(() => {
 
                   setCalculatedTableRows(tableRows);
 
-                  if (checkedOptions.includes("Деление по полу")) {
-                    setHasSexRecognition(true);
-                  } else {
-                    setHasSexRecognition(false);
-                  }
+                  const resLambdaEstimationRussia =
+                    epidCalculator.getLambdaEstimationRussia();
+                  setLambdaEstimationRussia(resLambdaEstimationRussia);
+
+                  const resCEstimationRussia =
+                    epidCalculator.getCEstimationRussia();
+                  setCEstimationRussia(resCEstimationRussia);
+
                   console.log(tableRows);
                 } catch (error) {
                   console.error(error);
@@ -353,6 +453,8 @@ const CalculationsTable = observer(() => {
               {chosenRegionsStandardizedMorbidity};{" "}
               {chosenRegionsStandardizedIntensiveMorbidity}
             </div>
+            <div>Оценка параметра λ для России {lambdaEstimationRussia}</div>
+            <div>Оценка параметра c для России {cEstimationRussia}</div>
           </section>
         </div>
         <div
