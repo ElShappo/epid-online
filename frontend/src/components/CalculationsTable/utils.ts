@@ -171,6 +171,8 @@ export class EpidCalculator {
   #tableRowsFromTextAreas: TableRowFromTextAreas[]; // another way of representing data from text areas
   #hasSexRecognition: boolean;
   #calculatedTableRows: CalculatedTableRow[] = [];
+  #lambdaParam: number | null | undefined;
+  #cParam: number | null | undefined;
 
   // check that titles are in the correct configuration
   // (i.e they are in one of 4 available states which are determined by the checked options in the checkbox)
@@ -704,9 +706,15 @@ export class EpidCalculator {
     );
   }
 
+  #relativeMorbidityFunction(age: number, lambda: number) {
+    return lambda * Math.exp(-lambda * age);
+  }
+
   #morbidityFunction(age: number, lambda: number) {
     const population = this.#population.n(age);
-    return Math.round(lambda * Math.exp(-lambda * age) * population);
+    return Math.round(
+      this.#relativeMorbidityFunction(age, lambda) * population
+    );
   }
 
   static mapRegionCodes(regionCodes?: string[]) {
@@ -753,18 +761,22 @@ export class EpidCalculator {
   // idea: having age range [t1, t2] and intensive morbidity "i"
   // assume that "i_single_year(t)" equals to "i" for each "t" from [t1, t2]
   getLambdaEstimation(sex?: Sex, regionCodes?: string[]) {
+    if (this.#lambdaParam) {
+      return this.#lambdaParam;
+    }
     const x = []; // x-coords
     const y = []; // y-coords
 
     for (let i = 0; i <= upperYearBound; ++i) {
-      x.push(i);
       const row = this.#findRowWithAgeWithin(i);
-
-      // in theory (if everything I've previously written is correct) this thing can never throw an error
-      // but still it is better to check
+      // in theory (if everything I've previously written is correct) this thing can only throw error
+      // when a user has chosen to explicitly specify the end ages (thus some ages might be skipped)
       if (!row) {
-        throw new Error("smth bad happened...");
+        continue;
+        // throw new Error("smth bad happened...");
       }
+      x.push(i);
+
       const population = this.#population.n(i, i, sex, regionCodes);
       const key = EpidCalculator.getCalculatedTableRowKey(
         "intensiveMorbidity",
@@ -784,7 +796,12 @@ export class EpidCalculator {
     console.log(x);
     console.log(y);
 
-    return this.#leastSquares1D(x, y, this.#morbidityFunction.bind(this));
+    this.#lambdaParam = this.#leastSquares1D(
+      x,
+      y,
+      this.#morbidityFunction.bind(this)
+    );
+    return this.#lambdaParam;
   }
 
   getCEstimation(sex?: Sex, regionCodes?: string[]) {
@@ -795,10 +812,11 @@ export class EpidCalculator {
     for (let i = 0; i <= upperYearBound; ++i) {
       const row = this.#findRowWithAgeWithin(i);
 
-      // in theory (if everything I've previously written is correct) this thing can never throw an error
-      // but still it is better to check
+      // in theory (if everything I've previously written is correct) this thing can only throw error
+      // when a user has chosen to explicitly specify the end ages (thus some ages might be skipped)
       if (!row) {
-        throw new Error("smth bad happened...");
+        continue;
+        // throw new Error("smth bad happened...");
       }
       const population = this.#population.n(i, i, sex, regionCodes);
       const key = EpidCalculator.getCalculatedTableRowKey(
@@ -819,11 +837,27 @@ export class EpidCalculator {
     }
     console.log(cValues);
 
-    return (
+    this.#cParam =
       cValues
         .filter((cValue) => !isNaN(cValue) && isFinite(cValue))
-        .reduce((sum, curr) => sum + curr) / cValues.length
-    );
+        .reduce((sum, curr) => sum + curr) / cValues.length;
+    return this.#cParam;
+  }
+
+  getContactNumber(sex?: Sex, regionCodes?: string[]) {
+    const lambda = this.getLambdaEstimation(sex, regionCodes);
+    const step = 0.01;
+    let res = 0;
+    for (let i = 0; i < upperYearBound; i += step) {
+      const flooredI = Math.floor(i);
+      const row = this.#findRowWithAgeWithin(flooredI);
+      if (!row) {
+        continue;
+      }
+      const h = this.#population.h(flooredI, flooredI, sex, regionCodes);
+      res += this.#relativeMorbidityFunction(i, lambda) * h;
+    }
+    return res;
   }
 }
 
