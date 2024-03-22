@@ -36,6 +36,8 @@ import {
 } from "./utils";
 import {
   CalculatedTableRow,
+  CalculationCategoriesType,
+  Sex,
   TextAreaContentMeta,
   TextAreaTitle,
 } from "../../types";
@@ -116,9 +118,9 @@ const CalculationsTable = observer(() => {
     setChosenRegionsStandardizedIntensiveMorbidity,
   ] = useState<number>();
 
-  const [lambdaEstimationRussia, setLambdaEstimationRussia] =
-    useState<number>();
-  const [cEstimationRussia, setCEstimationRussia] = useState<number>();
+  const [lambdaEstimation, setLambdaEstimation] =
+    useState<CalculationCategoriesType>();
+  const [cEstimation, setCEstimation] = useState<CalculationCategoriesType>();
 
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
@@ -377,13 +379,27 @@ const CalculationsTable = observer(() => {
 
                   setCalculatedTableRows(tableRows);
 
-                  const resLambdaEstimationRussia =
-                    epidCalculator.getLambdaEstimationRussia();
-                  setLambdaEstimationRussia(resLambdaEstimationRussia);
+                  const sexes: (Sex | undefined)[] = hasSexRecognition
+                    ? ["male", "female", undefined]
+                    : [undefined];
+                  const regionCodesArray = [undefined, selectedRegions];
 
-                  const resCEstimationRussia =
-                    epidCalculator.getCEstimationRussia();
-                  setCEstimationRussia(resCEstimationRussia);
+                  const objLambda: Partial<CalculationCategoriesType> = {};
+                  const objC: Partial<CalculationCategoriesType> = {};
+                  for (const sex of sexes) {
+                    const mappedSex = EpidCalculator.mapSex(sex);
+                    for (const regionCodes of regionCodesArray) {
+                      const mappedRegionCodes =
+                        EpidCalculator.mapRegionCodes(regionCodes);
+                      const key = mappedSex + mappedRegionCodes;
+                      objLambda[key as keyof CalculationCategoriesType] =
+                        epidCalculator.getLambdaEstimation(sex, regionCodes);
+                      objC[key as keyof CalculationCategoriesType] =
+                        epidCalculator.getCEstimation(sex, regionCodes);
+                    }
+                  }
+                  setLambdaEstimation(objLambda as CalculationCategoriesType);
+                  setCEstimation(objC as CalculationCategoriesType);
 
                   console.log(tableRows);
                 } catch (error) {
@@ -453,8 +469,54 @@ const CalculationsTable = observer(() => {
               {chosenRegionsStandardizedMorbidity};{" "}
               {chosenRegionsStandardizedIntensiveMorbidity}
             </div>
-            <div>Оценка параметра λ для России {lambdaEstimationRussia}</div>
-            <div>Оценка параметра c для России {cEstimationRussia}</div>
+            <div>Оценка параметра λ (Россия) {lambdaEstimation?.Russia}</div>
+            <div>Оценка параметра c (Россия) {cEstimation?.Russia}</div>
+
+            <div>
+              Оценка параметра λ (выбран. регионы){" "}
+              {lambdaEstimation?.ChosenRegions}
+            </div>
+            <div>
+              Оценка параметра c (выбран. регионы) {cEstimation?.ChosenRegions}
+            </div>
+            {hasSexRecognition ? (
+              <>
+                <div>
+                  Оценка параметра λ (мужчины, Россия){" "}
+                  {lambdaEstimation?.menRussia}
+                </div>
+                <div>
+                  Оценка параметра c (мужчины, Россия) {cEstimation?.menRussia}
+                </div>
+
+                <div>
+                  Оценка параметра λ (женщины, Россия){" "}
+                  {lambdaEstimation?.womenRussia}
+                </div>
+                <div>
+                  Оценка параметра c (женщины, Россия){" "}
+                  {cEstimation?.womenRussia}
+                </div>
+
+                <div>
+                  Оценка параметра λ (мужчины, выбран. регионы){" "}
+                  {lambdaEstimation?.menChosenRegions}
+                </div>
+                <div>
+                  Оценка параметра c (мужчины, выбран. регионы){" "}
+                  {cEstimation?.menChosenRegions}
+                </div>
+
+                <div>
+                  Оценка параметра λ (женщины, выбран. регионы){" "}
+                  {lambdaEstimation?.womenChosenRegions}
+                </div>
+                <div>
+                  Оценка параметра c (женщины, выбран. регионы){" "}
+                  {cEstimation?.womenChosenRegions}
+                </div>
+              </>
+            ) : null}
           </section>
         </div>
         <div

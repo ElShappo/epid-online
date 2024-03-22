@@ -494,4 +494,12 @@ export const calculatedSexRecognitionTableColumns = [
   },
 ];
 
+export const calculatedTableColumnTypes = [
+  "population",
+  "morbidity",
+  "intensiveMorbidity",
+  "lowerIntensiveMorbidity",
+  "upperIntensiveMorbidity",
+] as const;
+
 export { availableYears, columns };

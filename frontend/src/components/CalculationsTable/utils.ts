@@ -1,6 +1,7 @@
 import {
   calculationsPrecision,
   defaultP,
+  RussiaRegionCode,
   textAreaTitlesAgeEndChecked,
   textAreaTitlesAllChecked,
   textAreaTitlesAllUnchecked,
@@ -9,7 +10,9 @@ import {
 } from "../../constants";
 import {
   CalculatedNoSexRecognitionTableRow,
+  CalculatedSexRecognitionTableColumnDataIndex,
   CalculatedSexRecognitionTableRow,
+  CalculatedTableColumnType,
   CalculatedTableRow,
   PlotlyInputData,
   Sex,
@@ -695,36 +698,87 @@ export class EpidCalculator {
     return res;
   }
 
+  #findRowWithAgeWithin(age: number) {
+    return this.#calculatedTableRows.find(
+      (row) => row.startAge <= age && row.endAge >= age
+    );
+  }
+
   #morbidityFunction(age: number, lambda: number) {
     const population = this.#population.n(age);
     return Math.round(lambda * Math.exp(-lambda * age) * population);
+  }
+
+  static mapRegionCodes(regionCodes?: string[]) {
+    if (
+      !regionCodes ||
+      !regionCodes.length ||
+      regionCodes[0] === RussiaRegionCode
+    ) {
+      return "Russia";
+    } else {
+      return "ChosenRegions";
+    }
+  }
+
+  static mapSex(sex?: Sex) {
+    if (sex === "male") {
+      return "men";
+    } else if (sex === "female") {
+      return "women";
+    } else {
+      return "";
+    }
+  }
+
+  // keyType = "population" sex = "male", regionCodes is not passed => returns "menPopulationRussia"
+  // keyType = "population" sex = "male", regionCodes is passed => returns "menPopulationChosenRegions"
+  // etc...
+  static getCalculatedTableRowKey(
+    keyType: CalculatedTableColumnType,
+    sex?: Sex,
+    regionCodes?: string[]
+  ) {
+    const mappedRegionCodes = this.mapRegionCodes(regionCodes);
+    const mappedSex = this.mapSex(sex);
+    let res = keyType + mappedRegionCodes;
+    if (sex === "male" || sex === "female") {
+      res = mappedSex + res[0].toUpperCase() + res.slice(1);
+    }
+    return res as CalculatedSexRecognitionTableColumnDataIndex;
   }
 
   // morbidity data (which is typed by user) may only be available for a range of ages (not for each single age)
   // however, there might be a necessity to get such data for each single year
   // idea: having age range [t1, t2] and intensive morbidity "i"
   // assume that "i_single_year(t)" equals to "i" for each "t" from [t1, t2]
-  getLambdaEstimationRussia() {
+  getLambdaEstimation(sex?: Sex, regionCodes?: string[]) {
     const x = []; // x-coords
     const y = []; // y-coords
 
-    const findRow = ((age: number) => {
-      return this.#calculatedTableRows.find(
-        (row) => row.startAge <= age && row.endAge >= age
-      );
-    }).bind(this);
-
     for (let i = 0; i <= upperYearBound; ++i) {
       x.push(i);
-      const row = findRow(i);
+      const row = this.#findRowWithAgeWithin(i);
 
       // in theory (if everything I've previously written is correct) this thing can never throw an error
       // but still it is better to check
       if (!row) {
         throw new Error("smth bad happened...");
       }
-      const population = this.#population.n(i);
-      y.push(Math.round((row.intensiveMorbidityRussia / 10 ** 5) * population));
+      const population = this.#population.n(i, i, sex, regionCodes);
+      const key = EpidCalculator.getCalculatedTableRowKey(
+        "intensiveMorbidity",
+        sex,
+        regionCodes
+      );
+      const intensiveMorbidity = (row as CalculatedSexRecognitionTableRow)[key];
+      console.warn(`key = ${key}, intensiveMorb = ${intensiveMorbidity}`);
+
+      if (intensiveMorbidity === null || intensiveMorbidity === undefined) {
+        throw new Error("wrong getLambdaEstimation usage");
+      }
+
+      y.push(Math.round(intensiveMorbidity / 10 ** 5) * population);
     }
 
     console.log(x);
@@ -733,29 +787,33 @@ export class EpidCalculator {
     return this.#leastSquares1D(x, y, this.#morbidityFunction.bind(this));
   }
 
-  getCEstimationRussia() {
-    const lambda = this.getLambdaEstimationRussia();
-
-    const findRow = ((age: number) => {
-      return this.#calculatedTableRows.find(
-        (row) => row.startAge <= age && row.endAge >= age
-      );
-    }).bind(this);
+  getCEstimation(sex?: Sex, regionCodes?: string[]) {
+    const lambda = this.getLambdaEstimation(sex, regionCodes);
 
     const cValues = [];
 
     for (let i = 0; i <= upperYearBound; ++i) {
-      const row = findRow(i);
+      const row = this.#findRowWithAgeWithin(i);
 
       // in theory (if everything I've previously written is correct) this thing can never throw an error
       // but still it is better to check
       if (!row) {
         throw new Error("smth bad happened...");
       }
-      const population = this.#population.n(i);
+      const population = this.#population.n(i, i, sex, regionCodes);
+      const key = EpidCalculator.getCalculatedTableRowKey(
+        "intensiveMorbidity",
+        sex,
+        regionCodes
+      );
+      const intensiveMorbidity = (row as CalculatedSexRecognitionTableRow)[key];
+
+      if (intensiveMorbidity === null || intensiveMorbidity === undefined) {
+        throw new Error("wrong getLambdaEstimation usage");
+      }
 
       const cValue =
-        ((row.intensiveMorbidityRussia / 10 ** 5) * population) /
+        ((intensiveMorbidity / 10 ** 5) * population) /
         this.#morbidityFunction(i, lambda);
       cValues.push(cValue);
     }

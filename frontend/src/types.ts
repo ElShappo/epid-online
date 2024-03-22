@@ -1,6 +1,7 @@
 import {
   availableYears,
   calculatedSexRecognitionTableColumns,
+  calculatedTableColumnTypes,
 } from "./constants";
 
 export interface DataType {
@@ -223,4 +224,17 @@ export type PlotlyInputData = {
     color: string;
   };
   type: "bar";
+};
+
+export type CalculatedTableColumnType =
+  (typeof calculatedTableColumnTypes)[number];
+
+export type CalculationCategoriesType = {
+  Russia: number;
+  menRussia: number;
+  womenRussia: number;
+
+  ChosenRegions: number;
+  menChosenRegions: number;
+  womenChosenRegions: number;
 };
