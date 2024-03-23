@@ -846,8 +846,8 @@ export class EpidCalculator {
 
   getContactNumber(sex?: Sex, regionCodes?: string[]) {
     const lambda = this.getLambdaEstimation(sex, regionCodes);
-    const step = 0.01;
-    let res = 0;
+    const step = 1;
+    let res = 0.1;
     for (let i = 0; i < upperYearBound; i += step) {
       const flooredI = Math.floor(i);
       const row = this.#findRowWithAgeWithin(flooredI);
@@ -855,9 +855,41 @@ export class EpidCalculator {
         continue;
       }
       const h = this.#population.h(flooredI, flooredI, sex, regionCodes);
-      res += this.#relativeMorbidityFunction(i, lambda) * h;
+      res += this.#relativeMorbidityFunction(i, lambda) * h * step;
     }
     return res;
+  }
+
+  getAbsoluteError(sex?: Sex, regionCodes?: string[]) {
+    const lambda = this.getLambdaEstimation(sex, regionCodes);
+    const c = this.getCEstimation(sex, regionCodes);
+    let error = 0;
+
+    for (let i = 0; i <= upperYearBound; ++i) {
+      const row = this.#findRowWithAgeWithin(i);
+      // in theory (if everything I've previously written is correct) this thing can only throw error
+      // when a user has chosen to explicitly specify the end ages (thus some ages might be skipped)
+      if (!row) {
+        continue;
+        // throw new Error("smth bad happened...");
+      }
+      const population = this.#population.n(i, i, sex, regionCodes);
+      const key = EpidCalculator.getCalculatedTableRowKey(
+        "intensiveMorbidity",
+        sex,
+        regionCodes
+      );
+      const intensiveMorbidity = (row as CalculatedSexRecognitionTableRow)[key];
+      if (intensiveMorbidity === null || intensiveMorbidity === undefined) {
+        throw new Error("wrong getLambdaEstimation usage");
+      }
+
+      error +=
+        (Math.round(intensiveMorbidity / 10 ** 5) * population -
+          this.#relativeMorbidityFunction(i, lambda) * population * c) **
+        2;
+    }
+    return error;
   }
 }
 

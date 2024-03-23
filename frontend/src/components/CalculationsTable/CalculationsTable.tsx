@@ -44,6 +44,7 @@ import {
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
+import ModelEstimationTable from "./ModelEstimationTable";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = ["Деление по полу", "Указывать оба диапазона лет"];
@@ -121,6 +122,10 @@ const CalculationsTable = observer(() => {
   const [lambdaEstimation, setLambdaEstimation] =
     useState<CalculationCategoriesType>();
   const [cEstimation, setCEstimation] = useState<CalculationCategoriesType>();
+  const [contactNumberEstimation, setContactNumberEstimation] =
+    useState<CalculationCategoriesType>();
+  const [absoluteErrorEstimation, setAbsoluteErrorEstimation] =
+    useState<CalculationCategoriesType>();
 
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
@@ -386,20 +391,38 @@ const CalculationsTable = observer(() => {
 
                   const objLambda: Partial<CalculationCategoriesType> = {};
                   const objC: Partial<CalculationCategoriesType> = {};
+                  const objContactNumber: Partial<CalculationCategoriesType> =
+                    {};
+                  const objAbsoluteError: Partial<CalculationCategoriesType> =
+                    {};
+
                   for (const sex of sexes) {
                     const mappedSex = EpidCalculator.mapSex(sex);
+
                     for (const regionCodes of regionCodesArray) {
                       const mappedRegionCodes =
                         EpidCalculator.mapRegionCodes(regionCodes);
+
                       const key = mappedSex + mappedRegionCodes;
+
                       objLambda[key as keyof CalculationCategoriesType] =
                         epidCalculator.getLambdaEstimation(sex, regionCodes);
                       objC[key as keyof CalculationCategoriesType] =
                         epidCalculator.getCEstimation(sex, regionCodes);
+                      objContactNumber[key as keyof CalculationCategoriesType] =
+                        epidCalculator.getContactNumber(sex, regionCodes);
+                      objAbsoluteError[key as keyof CalculationCategoriesType] =
+                        epidCalculator.getAbsoluteError(sex, regionCodes);
                     }
                   }
                   setLambdaEstimation(objLambda as CalculationCategoriesType);
                   setCEstimation(objC as CalculationCategoriesType);
+                  setContactNumberEstimation(
+                    objContactNumber as CalculationCategoriesType
+                  );
+                  setAbsoluteErrorEstimation(
+                    objAbsoluteError as CalculationCategoriesType
+                  );
 
                   console.log(tableRows);
                 } catch (error) {
@@ -517,6 +540,13 @@ const CalculationsTable = observer(() => {
                 </div>
               </>
             ) : null}
+            <ModelEstimationTable
+              hasSexRecognition={hasSexRecognition}
+              objLambda={lambdaEstimation}
+              objC={cEstimation}
+              objAbsoluteError={absoluteErrorEstimation}
+              objContactNumber={contactNumberEstimation}
+            />
           </section>
         </div>
         <div
