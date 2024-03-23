@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   GetProp,
+  List,
   message,
   Modal,
   Spin,
@@ -476,70 +477,17 @@ const CalculationsTable = observer(() => {
             bordered
             scroll={{ y: 500 }}
           />
-          <section>
-            <div>
-              Россия - заболеваемость совокупного населения, абсолютная и на 100
-              тысяч {RussiaMorbidity}; {RussiaIntensiveMorbidity}
-            </div>
-            <div>
-              Выбран. регионы - заболеваемость совокупного населения, абсолютная
-              и на 100 тысяч {chosenRegionsMorbidity};{" "}
-              {chosenRegionsIntensiveMorbidity}
-            </div>
-            <div>
-              Выбран. регионы - стандартизованная по возрастному населению
-              заболеваемость совокупного населения, абсолютная и на 100 тысяч{" "}
-              {chosenRegionsStandardizedMorbidity};{" "}
-              {chosenRegionsStandardizedIntensiveMorbidity}
-            </div>
-            <div>Оценка параметра λ (Россия) {lambdaEstimation?.Russia}</div>
-            <div>Оценка параметра c (Россия) {cEstimation?.Russia}</div>
-
-            <div>
-              Оценка параметра λ (выбран. регионы){" "}
-              {lambdaEstimation?.ChosenRegions}
-            </div>
-            <div>
-              Оценка параметра c (выбран. регионы) {cEstimation?.ChosenRegions}
-            </div>
-            {hasSexRecognition ? (
-              <>
-                <div>
-                  Оценка параметра λ (мужчины, Россия){" "}
-                  {lambdaEstimation?.menRussia}
-                </div>
-                <div>
-                  Оценка параметра c (мужчины, Россия) {cEstimation?.menRussia}
-                </div>
-
-                <div>
-                  Оценка параметра λ (женщины, Россия){" "}
-                  {lambdaEstimation?.womenRussia}
-                </div>
-                <div>
-                  Оценка параметра c (женщины, Россия){" "}
-                  {cEstimation?.womenRussia}
-                </div>
-
-                <div>
-                  Оценка параметра λ (мужчины, выбран. регионы){" "}
-                  {lambdaEstimation?.menChosenRegions}
-                </div>
-                <div>
-                  Оценка параметра c (мужчины, выбран. регионы){" "}
-                  {cEstimation?.menChosenRegions}
-                </div>
-
-                <div>
-                  Оценка параметра λ (женщины, выбран. регионы){" "}
-                  {lambdaEstimation?.womenChosenRegions}
-                </div>
-                <div>
-                  Оценка параметра c (женщины, выбран. регионы){" "}
-                  {cEstimation?.womenChosenRegions}
-                </div>
-              </>
-            ) : null}
+          <section className="pt-4 flex flex-col gap-4">
+            <List
+              size="large"
+              bordered
+              dataSource={[
+                `Россия - заболеваемость совокупного населения, абсолютная и на 100 тысяч ${RussiaMorbidity}; ${RussiaIntensiveMorbidity}`,
+                `Выбран. регионы - заболеваемость совокупного населения, абсолютная и на 100 тысяч ${chosenRegionsMorbidity}; ${chosenRegionsIntensiveMorbidity}`,
+                `Выбран. регионы - стандартизованная по возрастному населению заболеваемость совокупного населения, абсолютная и на 100 тысяч ${chosenRegionsStandardizedMorbidity}; ${chosenRegionsStandardizedIntensiveMorbidity}`,
+              ]}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
             <ModelEstimationTable
               hasSexRecognition={hasSexRecognition}
               objLambda={lambdaEstimation}

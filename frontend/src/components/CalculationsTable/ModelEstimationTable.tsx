@@ -78,7 +78,9 @@ const ModelEstimationTable = ({
     }
     setRows(res);
   }, [hasSexRecognition, objLambda, objC, objContactNumber, objAbsoluteError]);
-  return <Table dataSource={rows} columns={columns} />;
+  return (
+    <Table bordered pagination={false} dataSource={rows} columns={columns} />
+  );
 };
 
 export default ModelEstimationTable;
