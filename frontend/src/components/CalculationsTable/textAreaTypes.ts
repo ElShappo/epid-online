@@ -1,3 +1,4 @@
+import { TextAreaRef } from "antd/es/input/TextArea";
 import {
   delimSymbols,
   inputOptions,
@@ -6,7 +7,7 @@ import {
   textAreaSexRecognition,
   textAreaSexRecognitionAgeEnd,
   textAreaVariations,
-} from "./localConstants";
+} from "./textAreaConstants";
 
 export type EpidTextAreaContentRestrictions = {
   allowOnlyIntegers: boolean;
@@ -23,6 +24,14 @@ export type InputMode = {
 // all possible text area indices and titles
 export type TextAreaDataIndex = (typeof textAreaVariations)[number]["dataIndex"];
 export type TextAreaTitle = (typeof textAreaVariations)[number]["title"];
+
+export type RawEpidTextArea = {
+  dataIndex: TextAreaDataIndex;
+  title: TextAreaTitle;
+  restrictions: EpidTextAreaContentRestrictions;
+  ref: TextAreaRef;
+  delimSymbol: DelimSymbol;
+};
 
 export type EpidTextArea = {
   dataIndex: TextAreaDataIndex;

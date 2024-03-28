@@ -9,7 +9,13 @@ import {
 } from "../../../types";
 import { PopulationSingleYear } from "../../../utils";
 import quantile from "@stdlib/stats/base/dists/chisquare/quantile";
-import { EpidTextArea, EpidTextAreaSplitted, InputMode, TableRowFromTextAreas, TextAreaDataIndex } from "../localTypes";
+import {
+  EpidTextArea,
+  EpidTextAreaSplitted,
+  InputMode,
+  TableRowFromTextAreas,
+  TextAreaDataIndex,
+} from "../textAreaTypes";
 import { TextAreasReader } from "./textAreasReader";
 
 export class EpidCalculatorException extends Error {

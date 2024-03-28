@@ -1,4 +1,4 @@
-import { EpidTextArea, EpidTextAreaSplitted, InputMode, TextAreaDataIndex } from "../localTypes";
+import { EpidTextArea, EpidTextAreaSplitted, InputMode, TextAreaDataIndex } from "../textAreaTypes";
 import { TextAreaValidation } from "./textAreaValidation";
 
 export class TextAreasValidationException extends Error {

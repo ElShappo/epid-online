@@ -1,32 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useOutletContext } from "react-router-dom";
 import { Button, Checkbox, GetProp, List, message, Modal, Spin, Table, TreeSelect, Upload } from "antd";
 import { PopulationSingleYear } from "../../utils";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import { observer } from "mobx-react-lite";
 import year from "../../store/year";
-import TextArea, { TextAreaRef } from "antd/es/input/TextArea";
-import {
-  calculatedNoSexRecognitionTableColumns,
-  calculatedSexRecognitionTableColumns,
-  textAreaTitlesAgeEndChecked,
-  textAreaTitlesAllChecked,
-  textAreaTitlesAllUnchecked,
-  textAreaTitlesSexRecognitionChecked,
-  upperYearBound,
-} from "../../constants";
+import TextArea from "antd/es/input/TextArea";
+import { calculatedNoSexRecognitionTableColumns, calculatedSexRecognitionTableColumns } from "../../constants";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import { CheckboxValueType } from "antd/es/checkbox/Group";
-import { EpidCalculator, extractDataForPlotting } from "./classes/epidCalculator";
-import { CalculatedTableRow, CalculationCategoriesType, Sex, TextAreaContentMeta, TextAreaTitle } from "../../types";
+import { EpidCalculator, EpidCalculatorException } from "./classes/epidCalculator";
+import { CalculatedTableRow, CalculationCategoriesType, Sex } from "../../types";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
 import ModelEstimationTable from "./ModelEstimationTable";
-import { InputMode, InputOption } from "./localTypes";
-import { inputOptions } from "./localConstants";
+import { EpidTextArea, InputMode, InputOption, RawEpidTextArea, TextAreaDataIndex } from "./textAreaTypes";
+import {
+  inputOptions,
+  textAreaAgeEnd,
+  textAreaNone,
+  textAreaSexRecognition,
+  textAreaSexRecognitionAgeEnd,
+} from "./textAreaConstants";
+import { extractDataForPlotting } from "./utils";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [
@@ -38,11 +35,11 @@ const checkboxOptions = [
 }>;
 
 const CalculationsTable = observer(() => {
-  const headerHeight = useOutletContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log(headerHeight);
-
-  const [inputMode, setInputMode] = useState<InputMode>();
+  const [inputMode, setInputMode] = useState<InputMode>({
+    ageEnd: false,
+    sexRecognition: false,
+  });
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -66,11 +63,8 @@ const CalculationsTable = observer(() => {
     for (const key of checkedValues as InputOption[]) {
       newInputMode[key] = true;
     }
-    setCheckedOptions(checkedValues);
     setInputMode(newInputMode as InputMode);
   };
-
-  const [checkedOptions, setCheckedOptions] = useState<CheckboxValueType[]>([]);
 
   const [populationPerRegions, setPopulationPerRegions] = useState<PopulationSingleYear>();
 
@@ -95,7 +89,7 @@ const CalculationsTable = observer(() => {
   const [contactNumberEstimation, setContactNumberEstimation] = useState<CalculationCategoriesType>();
   const [absoluteErrorEstimation, setAbsoluteErrorEstimation] = useState<CalculationCategoriesType>();
 
-  const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
+  const textAreaRefs = useRef<Map<TextAreaDataIndex, RawEpidTextArea> | null>(null);
 
   function getTextAreaMap() {
     if (!textAreaRefs.current) {
@@ -114,48 +108,18 @@ const CalculationsTable = observer(() => {
         const text = await file.text();
 
         const rows = text.split("\n");
-        let titles: TextAreaTitle[] = [];
-
-        if (hasSexRecognition && hasAgeEnd) {
-          titles = [
-            "Начальный возраст",
-            "Конечный возраст",
-            "Число заболевших (мужчины, Россия)",
-            "Число заболевших (женщины, Россия)",
-            "Число заболевших (мужчины, выбран. регионы)",
-            "Число заболевших (женщины, выбран. регионы)",
-          ];
-        } else if (hasSexRecognition && !hasAgeEnd) {
-          titles = [
-            "Начальный возраст",
-            "Число заболевших (мужчины, Россия)",
-            "Число заболевших (женщины, Россия)",
-            "Число заболевших (мужчины, выбран. регионы)",
-            "Число заболевших (женщины, выбран. регионы)",
-          ];
-        } else if (!hasSexRecognition && hasAgeEnd) {
-          titles = [
-            "Начальный возраст",
-            "Конечный возраст",
-            "Число заболевших (Россия)",
-            "Число заболевших (выбран. регионы)",
-          ];
-        } else {
-          titles = ["Начальный возраст", "Число заболевших (Россия)", "Число заболевших (выбран. регионы)"];
-        }
-
         const map = getTextAreaMap();
 
-        for (let i = 0; i < titles.length; ++i) {
-          const title = titles[i];
+        for (let i = 0; i < epidTextAreas.length; ++i) {
+          const dataIndex = epidTextAreas[i].dataIndex;
           const dataForTextarea = [];
 
           for (const row of rows) {
             const splittedRow = row.split(";");
             dataForTextarea.push(splittedRow[i]);
           }
-          const textAreaRef = map.get(title);
-          textAreaRef!.resizableTextArea!.textArea!.value = dataForTextarea.join("\n");
+          const textAreaRef = map.get(dataIndex);
+          textAreaRef!.ref.resizableTextArea!.textArea!.value = dataForTextarea.join("\n");
         }
 
         console.log(text);
@@ -204,22 +168,17 @@ const CalculationsTable = observer(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year.get()]);
 
-  const textAreaTitles = useMemo(() => {
-    switch (checkedOptions.length) {
-      case 0:
-        return textAreaTitlesAllUnchecked;
-      case 1:
-        if (checkedOptions.includes("Деление по полу")) {
-          return textAreaTitlesSexRecognitionChecked;
-        } else {
-          return textAreaTitlesAgeEndChecked;
-        }
-      case 2:
-        return textAreaTitlesAllChecked;
-      default:
-        console.error("not implemented");
+  const epidTextAreas = useMemo(() => {
+    if (inputMode.sexRecognition && inputMode.ageEnd) {
+      return textAreaSexRecognitionAgeEnd;
+    } else if (inputMode.sexRecognition && !inputMode.ageEnd) {
+      return textAreaSexRecognition;
+    } else if (!inputMode.sexRecognition && inputMode.ageEnd) {
+      return textAreaAgeEnd;
+    } else {
+      return textAreaNone;
     }
-  }, [checkedOptions]);
+  }, [inputMode.ageEnd, inputMode.sexRecognition]);
 
   if (gotRegions) {
     return (
@@ -235,25 +194,31 @@ const CalculationsTable = observer(() => {
           </Upload>
         </div>
         <section className="w-full grow flex flex-wrap justify-center gap-4">
-          {textAreaTitles?.map((title) => {
+          {epidTextAreas.map((epidTextArea) => {
             return (
-              <div key={title}>
-                <p className="text-center pb-2">{title}</p>
+              <div key={epidTextArea.dataIndex}>
+                <p className="text-center pb-2">{epidTextArea.title}</p>
                 <TextArea
                   rows={10}
                   ref={(node) => {
                     const map = getTextAreaMap();
                     if (node) {
-                      map.set(title, node);
+                      map.set(epidTextArea.dataIndex, {
+                        dataIndex: epidTextArea.dataIndex,
+                        title: epidTextArea.title,
+                        restrictions: epidTextArea.restrictions,
+                        ref: node,
+                        delimSymbol: "\n",
+                      });
                     } else {
-                      map.delete(title);
+                      map.delete(epidTextArea.dataIndex);
                     }
                   }}
-                  name={title}
+                  name={epidTextArea.dataIndex}
                   onInput={() => {
                     console.log(textAreaRefs.current);
                   }}
-                  placeholder={`Введите ${title.toLowerCase()}:`}
+                  placeholder={`Введите ${epidTextArea.title.toLowerCase()}:`}
                 />
               </div>
             );
@@ -272,21 +237,27 @@ const CalculationsTable = observer(() => {
             className="flex gap-1 justify-center p-5 items-center"
             onClick={() => {
               setSpinning(true);
-              const textAreaMap = getTextAreaMap();
-              const newTextAreaMap: Map<TextAreaTitle, TextAreaContentMeta> = new Map();
+              const rawTextAreas = getTextAreaMap();
+              const textAreas = new Map<TextAreaDataIndex, EpidTextArea>();
 
-              for (const key of textAreaMap.keys()) {
-                newTextAreaMap.set(key, {
-                  content: textAreaMap.get(key)!.resizableTextArea!.textArea.value,
-                  allowOnlyIntegers: true,
-                  delimSymbol: "\n",
-                  upperBound: key === "Начальный возраст" || key === "Конечный возраст" ? upperYearBound : null,
+              for (const [key, value] of rawTextAreas.entries()) {
+                textAreas.set(key, {
+                  dataIndex: value.dataIndex,
+                  title: value.title,
+                  restrictions: value.restrictions,
+                  content: value.ref.resizableTextArea!.textArea.value,
+                  delimSymbol: value.delimSymbol,
                 });
               }
 
               if (selectedRegions && selectedRegions.length) {
                 try {
-                  const epidCalculator = new EpidCalculator(newTextAreaMap, populationPerRegions!, selectedRegions);
+                  const epidCalculator = new EpidCalculator(
+                    textAreas,
+                    inputMode,
+                    populationPerRegions!,
+                    selectedRegions
+                  );
                   const tableRows = epidCalculator.calculateTable();
 
                   const resRussiaMorbidity = epidCalculator.getRussiaMorbidity();
@@ -308,7 +279,9 @@ const CalculationsTable = observer(() => {
 
                   setCalculatedTableRows(tableRows);
 
-                  const sexes: (Sex | undefined)[] = hasSexRecognition ? ["male", "female", undefined] : [undefined];
+                  const sexes: (Sex | undefined)[] = inputMode.sexRecognition
+                    ? ["male", "female", undefined]
+                    : [undefined];
                   const regionCodesArray = [undefined, selectedRegions];
 
                   const objLambda: Partial<CalculationCategoriesType> = {};
@@ -388,7 +361,7 @@ const CalculationsTable = observer(() => {
           <Table
             pagination={false}
             columns={
-              hasSexRecognition
+              inputMode.sexRecognition
                 ? (calculatedSexRecognitionTableColumns as any)
                 : (calculatedNoSexRecognitionTableColumns as any)
             }
@@ -408,7 +381,7 @@ const CalculationsTable = observer(() => {
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
             <ModelEstimationTable
-              hasSexRecognition={hasSexRecognition}
+              hasSexRecognition={inputMode.sexRecognition}
               objLambda={lambdaEstimation}
               objC={cEstimation}
               objAbsoluteError={absoluteErrorEstimation}
@@ -418,7 +391,7 @@ const CalculationsTable = observer(() => {
         </div>
         <div className="w-full text-center pt-1 pb-3" style={{ width: "100vw" }}>
           <Plot
-            data={extractDataForPlotting(calculatedTableRows, hasSexRecognition) as unknown as Data[]}
+            data={extractDataForPlotting(calculatedTableRows, inputMode.sexRecognition) as unknown as Data[]}
             layout={{
               title: "График интенсивной заболеваемости",
               xaxis: {

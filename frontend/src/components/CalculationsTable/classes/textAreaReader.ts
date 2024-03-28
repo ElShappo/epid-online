@@ -1,4 +1,4 @@
-import { EpidTextAreaSplitted, EpidTextArea } from "../localTypes";
+import { EpidTextAreaSplitted, EpidTextArea } from "../textAreaTypes";
 import { TextAreaValidation } from "./textAreaValidation";
 
 export class TextAreaReader {
