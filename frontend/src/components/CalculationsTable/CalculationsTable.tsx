@@ -1,17 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import {
-  Button,
-  Checkbox,
-  GetProp,
-  List,
-  message,
-  Modal,
-  Spin,
-  Table,
-  TreeSelect,
-  Upload,
-} from "antd";
+import { Button, Checkbox, GetProp, List, message, Modal, Spin, Table, TreeSelect, Upload } from "antd";
 import { PopulationSingleYear } from "../../utils";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PageviewIcon from "@mui/icons-material/Pageview";
@@ -30,23 +19,14 @@ import {
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
-import {
-  EpidCalculator,
-  EpidCalculatorException,
-  extractDataForPlotting,
-} from "./utils";
-import {
-  CalculatedTableRow,
-  CalculationCategoriesType,
-  Sex,
-  TextAreaContentMeta,
-  TextAreaTitle,
-} from "../../types";
+import { EpidCalculator, extractDataForPlotting } from "./classes/epidCalculator";
+import { CalculatedTableRow, CalculationCategoriesType, Sex, TextAreaContentMeta, TextAreaTitle } from "../../types";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
 import ModelEstimationTable from "./ModelEstimationTable";
 import { InputMode, InputOption } from "./localTypes";
+import { inputOptions } from "./localConstants";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [
@@ -76,66 +56,44 @@ const CalculationsTable = observer(() => {
     setIsModalOpen(false);
   };
 
-  const onCheckboxChange: GetProp<typeof Checkbox.Group, "onChange"> = (
-    checkedValues
-  ) => {
+  const onCheckboxChange: GetProp<typeof Checkbox.Group, "onChange"> = (checkedValues) => {
     console.log("checked = ", checkedValues);
+    const newInputMode = {} as Partial<InputMode>;
+
+    for (const key of inputOptions) {
+      newInputMode[key] = false;
+    }
+    for (const key of checkedValues as InputOption[]) {
+      newInputMode[key] = true;
+    }
     setCheckedOptions(checkedValues);
-
-    if (checkedValues.includes("Деление по полу")) {
-      setHasSexRecognition(true);
-    } else {
-      setHasSexRecognition(false);
-    }
-
-    if (checkedValues.includes("Указывать оба диапазона лет")) {
-      setHasAgeEnd(true);
-    } else {
-      setHasAgeEnd(false);
-    }
+    setInputMode(newInputMode as InputMode);
   };
 
   const [checkedOptions, setCheckedOptions] = useState<CheckboxValueType[]>([]);
 
-  const [populationPerRegions, setPopulationPerRegions] =
-    useState<PopulationSingleYear>();
+  const [populationPerRegions, setPopulationPerRegions] = useState<PopulationSingleYear>();
 
   const [gotRegions, setGotRegions] = useState<boolean>(false);
   const [selectedRegions, setSelectedRegions] = useState<string[]>();
 
-  const [calculatedTableRows, setCalculatedTableRows] = useState<
-    CalculatedTableRow[]
-  >([]);
+  const [calculatedTableRows, setCalculatedTableRows] = useState<CalculatedTableRow[]>([]);
 
-  const [hasSexRecognition, setHasSexRecognition] = useState<boolean>(false);
-  const [hasAgeEnd, setHasAgeEnd] = useState<boolean>(false);
   const [spinning, setSpinning] = useState<boolean>(false);
-
   const [RussiaMorbidity, setRussiaMorbidity] = useState<number>();
-  const [chosenRegionsMorbidity, setChosenRegionsMorbidity] =
+  const [chosenRegionsMorbidity, setChosenRegionsMorbidity] = useState<number>();
+
+  const [RussiaIntensiveMorbidity, setRussiaIntensiveMorbidity] = useState<number>();
+  const [chosenRegionsIntensiveMorbidity, setChosenRegionsIntensiveMorbidity] = useState<number>();
+
+  const [chosenRegionsStandardizedMorbidity, setChosenRegionsStandardizedMorbidity] = useState<number>();
+  const [chosenRegionsStandardizedIntensiveMorbidity, setChosenRegionsStandardizedIntensiveMorbidity] =
     useState<number>();
 
-  const [RussiaIntensiveMorbidity, setRussiaIntensiveMorbidity] =
-    useState<number>();
-  const [chosenRegionsIntensiveMorbidity, setChosenRegionsIntensiveMorbidity] =
-    useState<number>();
-
-  const [
-    chosenRegionsStandardizedMorbidity,
-    setChosenRegionsStandardizedMorbidity,
-  ] = useState<number>();
-  const [
-    chosenRegionsStandardizedIntensiveMorbidity,
-    setChosenRegionsStandardizedIntensiveMorbidity,
-  ] = useState<number>();
-
-  const [lambdaEstimation, setLambdaEstimation] =
-    useState<CalculationCategoriesType>();
+  const [lambdaEstimation, setLambdaEstimation] = useState<CalculationCategoriesType>();
   const [cEstimation, setCEstimation] = useState<CalculationCategoriesType>();
-  const [contactNumberEstimation, setContactNumberEstimation] =
-    useState<CalculationCategoriesType>();
-  const [absoluteErrorEstimation, setAbsoluteErrorEstimation] =
-    useState<CalculationCategoriesType>();
+  const [contactNumberEstimation, setContactNumberEstimation] = useState<CalculationCategoriesType>();
+  const [absoluteErrorEstimation, setAbsoluteErrorEstimation] = useState<CalculationCategoriesType>();
 
   const textAreaRefs = useRef<Map<TextAreaTitle, TextAreaRef> | null>(null);
 
@@ -183,11 +141,7 @@ const CalculationsTable = observer(() => {
             "Число заболевших (выбран. регионы)",
           ];
         } else {
-          titles = [
-            "Начальный возраст",
-            "Число заболевших (Россия)",
-            "Число заболевших (выбран. регионы)",
-          ];
+          titles = ["Начальный возраст", "Число заболевших (Россия)", "Число заболевших (выбран. регионы)"];
         }
 
         const map = getTextAreaMap();
@@ -201,8 +155,7 @@ const CalculationsTable = observer(() => {
             dataForTextarea.push(splittedRow[i]);
           }
           const textAreaRef = map.get(title);
-          textAreaRef!.resizableTextArea!.textArea!.value =
-            dataForTextarea.join("\n");
+          textAreaRef!.resizableTextArea!.textArea!.value = dataForTextarea.join("\n");
         }
 
         console.log(text);
@@ -222,9 +175,7 @@ const CalculationsTable = observer(() => {
       setSelectedRegions(newValue);
     };
     return {
-      treeData: [
-        populationPerRegions?.getRegions()?.getAntDesignTreeSelectFormat(),
-      ],
+      treeData: [populationPerRegions?.getRegions()?.getAntDesignTreeSelectFormat()],
       value: selectedRegions,
       onChange,
       treeCheckable: true,
@@ -274,17 +225,10 @@ const CalculationsTable = observer(() => {
     return (
       <div className="flex flex-wrap justify-center gap-y-4">
         <Spin spinning={spinning} fullscreen />
-        <Checkbox.Group
-          options={checkboxOptions}
-          onChange={onCheckboxChange}
-          className="w-full justify-center"
-        />
+        <Checkbox.Group options={checkboxOptions} onChange={onCheckboxChange} className="w-full justify-center" />
         <div className="max-h-36 overflow-y-auto">
           <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
-          <Upload
-            {...uploadProps}
-            className="flex items-stretch justify-center pt-8"
-          >
+          <Upload {...uploadProps} className="flex items-stretch justify-center pt-8">
             <Button icon={<UploadOutlined />} type="primary">
               Импорт CSV
             </Button>
@@ -316,21 +260,11 @@ const CalculationsTable = observer(() => {
           })}
         </section>
         <section className="flex w-full justify-center gap-4">
-          <Button
-            type="primary"
-            className="bg-gray-500 flex gap-1 justify-center p-5 items-center"
-            onClick={showModal}
-          >
+          <Button type="primary" className="bg-gray-500 flex gap-1 justify-center p-5 items-center" onClick={showModal}>
             Превью
             <PageviewIcon />
           </Button>
-          <Modal
-            title="Basic Modal"
-            open={isModalOpen}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            centered
-          >
+          <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} centered>
             {/* <Table columns={columns} dataSource={data} /> */}
           </Modal>
           <Button
@@ -339,100 +273,76 @@ const CalculationsTable = observer(() => {
             onClick={() => {
               setSpinning(true);
               const textAreaMap = getTextAreaMap();
-              const newTextAreaMap: Map<TextAreaTitle, TextAreaContentMeta> =
-                new Map();
+              const newTextAreaMap: Map<TextAreaTitle, TextAreaContentMeta> = new Map();
 
               for (const key of textAreaMap.keys()) {
                 newTextAreaMap.set(key, {
-                  content:
-                    textAreaMap.get(key)!.resizableTextArea!.textArea.value,
+                  content: textAreaMap.get(key)!.resizableTextArea!.textArea.value,
                   allowOnlyIntegers: true,
                   delimSymbol: "\n",
-                  upperBound:
-                    key === "Начальный возраст" || key === "Конечный возраст"
-                      ? upperYearBound
-                      : null,
+                  upperBound: key === "Начальный возраст" || key === "Конечный возраст" ? upperYearBound : null,
                 });
               }
 
               if (selectedRegions && selectedRegions.length) {
                 try {
-                  const epidCalculator = new EpidCalculator(
-                    newTextAreaMap,
-                    populationPerRegions!,
-                    selectedRegions
-                  );
+                  const epidCalculator = new EpidCalculator(newTextAreaMap, populationPerRegions!, selectedRegions);
                   const tableRows = epidCalculator.calculateTable();
 
-                  const resRussiaMorbidity =
-                    epidCalculator.getRussiaMorbidity();
-                  const resChosenRegionsMorbidity =
-                    epidCalculator.getChosenRegionsMorbidity();
+                  const resRussiaMorbidity = epidCalculator.getRussiaMorbidity();
+                  const resChosenRegionsMorbidity = epidCalculator.getChosenRegionsMorbidity();
 
-                  const resRussiaIntensiveMorbidity =
-                    epidCalculator.getRussiaIntensiveMorbidity();
-                  const resChosenRegionsIntensiveMorbidity =
-                    epidCalculator.getChosenRegionsIntensiveMorbidity();
+                  const resRussiaIntensiveMorbidity = epidCalculator.getRussiaIntensiveMorbidity();
+                  const resChosenRegionsIntensiveMorbidity = epidCalculator.getChosenRegionsIntensiveMorbidity();
 
-                  const resChosenRegionsStandardizedMorbidity =
-                    epidCalculator.getChosenRegionsStandardizedMorbidity();
+                  const resChosenRegionsStandardizedMorbidity = epidCalculator.getChosenRegionsStandardizedMorbidity();
                   const resChosenRegionsStandardizedIntensiveMorbidity =
                     epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
 
                   setRussiaMorbidity(resRussiaMorbidity);
                   setChosenRegionsMorbidity(resChosenRegionsMorbidity);
                   setRussiaIntensiveMorbidity(resRussiaIntensiveMorbidity);
-                  setChosenRegionsIntensiveMorbidity(
-                    resChosenRegionsIntensiveMorbidity
-                  );
-                  setChosenRegionsStandardizedMorbidity(
-                    resChosenRegionsStandardizedMorbidity
-                  );
-                  setChosenRegionsStandardizedIntensiveMorbidity(
-                    resChosenRegionsStandardizedIntensiveMorbidity
-                  );
+                  setChosenRegionsIntensiveMorbidity(resChosenRegionsIntensiveMorbidity);
+                  setChosenRegionsStandardizedMorbidity(resChosenRegionsStandardizedMorbidity);
+                  setChosenRegionsStandardizedIntensiveMorbidity(resChosenRegionsStandardizedIntensiveMorbidity);
 
                   setCalculatedTableRows(tableRows);
 
-                  const sexes: (Sex | undefined)[] = hasSexRecognition
-                    ? ["male", "female", undefined]
-                    : [undefined];
+                  const sexes: (Sex | undefined)[] = hasSexRecognition ? ["male", "female", undefined] : [undefined];
                   const regionCodesArray = [undefined, selectedRegions];
 
                   const objLambda: Partial<CalculationCategoriesType> = {};
                   const objC: Partial<CalculationCategoriesType> = {};
-                  const objContactNumber: Partial<CalculationCategoriesType> =
-                    {};
-                  const objAbsoluteError: Partial<CalculationCategoriesType> =
-                    {};
+                  const objContactNumber: Partial<CalculationCategoriesType> = {};
+                  const objAbsoluteError: Partial<CalculationCategoriesType> = {};
 
                   for (const sex of sexes) {
                     const mappedSex = EpidCalculator.mapSex(sex);
 
                     for (const regionCodes of regionCodesArray) {
-                      const mappedRegionCodes =
-                        EpidCalculator.mapRegionCodes(regionCodes);
+                      const mappedRegionCodes = EpidCalculator.mapRegionCodes(regionCodes);
 
                       const key = mappedSex + mappedRegionCodes;
 
-                      objLambda[key as keyof CalculationCategoriesType] =
-                        epidCalculator.getLambdaEstimation(sex, regionCodes);
-                      objC[key as keyof CalculationCategoriesType] =
-                        epidCalculator.getCEstimation(sex, regionCodes);
-                      objContactNumber[key as keyof CalculationCategoriesType] =
-                        epidCalculator.getContactNumber(sex, regionCodes);
-                      objAbsoluteError[key as keyof CalculationCategoriesType] =
-                        epidCalculator.getAbsoluteError(sex, regionCodes);
+                      objLambda[key as keyof CalculationCategoriesType] = epidCalculator.getLambdaEstimation(
+                        sex,
+                        regionCodes
+                      );
+                      objC[key as keyof CalculationCategoriesType] = epidCalculator.getCEstimation(sex, regionCodes);
+                      objContactNumber[key as keyof CalculationCategoriesType] = epidCalculator.getContactNumber(
+                        sex,
+                        regionCodes
+                      );
+                      objAbsoluteError[key as keyof CalculationCategoriesType] = epidCalculator.getAbsoluteError(
+                        sex,
+                        regionCodes
+                      );
                     }
                   }
                   setLambdaEstimation(objLambda as CalculationCategoriesType);
                   setCEstimation(objC as CalculationCategoriesType);
-                  setContactNumberEstimation(
-                    objContactNumber as CalculationCategoriesType
-                  );
-                  setAbsoluteErrorEstimation(
-                    objAbsoluteError as CalculationCategoriesType
-                  );
+                  setContactNumberEstimation(objContactNumber as CalculationCategoriesType);
+                  setAbsoluteErrorEstimation(objAbsoluteError as CalculationCategoriesType);
 
                   console.log(tableRows);
                 } catch (error) {
@@ -506,17 +416,9 @@ const CalculationsTable = observer(() => {
             />
           </section>
         </div>
-        <div
-          className="w-full text-center pt-1 pb-3"
-          style={{ width: "100vw" }}
-        >
+        <div className="w-full text-center pt-1 pb-3" style={{ width: "100vw" }}>
           <Plot
-            data={
-              extractDataForPlotting(
-                calculatedTableRows,
-                hasSexRecognition
-              ) as unknown as Data[]
-            }
+            data={extractDataForPlotting(calculatedTableRows, hasSexRecognition) as unknown as Data[]}
             layout={{
               title: "График интенсивной заболеваемости",
               xaxis: {
