@@ -46,14 +46,23 @@ import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
 import ModelEstimationTable from "./ModelEstimationTable";
+import { InputMode, InputOption } from "./localTypes";
 const { SHOW_PARENT } = TreeSelect;
 
-const checkboxOptions = ["Деление по полу", "Указывать оба диапазона лет"];
+const checkboxOptions = [
+  { label: "Деление по полу", value: "sexRecognition" },
+  { label: "Указывать оба диапазона лет", value: "ageEnd" },
+] as Array<{
+  label: string;
+  value: InputOption;
+}>;
 
 const CalculationsTable = observer(() => {
   const headerHeight = useOutletContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   console.log(headerHeight);
+
+  const [inputMode, setInputMode] = useState<InputMode>();
 
   const showModal = () => {
     setIsModalOpen(true);

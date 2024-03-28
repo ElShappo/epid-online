@@ -26,141 +26,92 @@ import {
 } from "../../types";
 import { PopulationSingleYear } from "../../utils";
 import quantile from "@stdlib/stats/base/dists/chisquare/quantile";
-
-class TextAreaReaderException extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "TextAreaReaderException";
-  }
-}
-
-class TextAreaReaderBlankLineException extends TextAreaReaderException {
-  constructor() {
-    super("there should be no blank lines in a text area");
-    this.name = "TextAreaReaderBlankLineException";
-  }
-}
-
-class TextAreaReaderNaNException extends TextAreaReaderException {
-  constructor(elem: string) {
-    super(`${elem} is not a number`);
-    this.name = "TextAreaReaderNaNException";
-  }
-}
-
-class TextAreaReaderNegativeValueException extends TextAreaReaderException {
-  constructor(elem: string) {
-    super(`${elem} is not a non-negative number`);
-    this.name = "TextAreaReaderNegativeValueException";
-  }
-}
-
-class TextAreaReaderNonIntegerException extends TextAreaReaderException {
-  constructor(elem: string) {
-    super(`${elem} is not an integer`);
-    this.name = "TextAreaReaderNonIntegerException";
-  }
-}
-
-class TextAreaReaderEmptyException extends TextAreaReaderException {
-  constructor() {
-    super("text area is empty");
-    this.name = "TextAreaReaderEmptyException";
-  }
-}
-
-class TextAreaReaderOutOfBoundsException extends TextAreaReaderException {
-  constructor(elem: string) {
-    super(`${elem} is out of bounds`);
-    this.name = "TextAreaReaderOutOfBoundsException";
-  }
-}
+import { TextAreaValidation } from "./textAreaValidation";
+import { EpidTextArea, EpidTextAreaSplitted, InputMode } from "./localTypes";
+import { TextAreasValidation } from "./textAreasValidation";
+import { textAreaAgeEnd } from "./localConstants";
 
 class TextAreaReader {
-  #textAreaSplitted: string[];
+  #textAreaSplitted: EpidTextAreaSplitted;
 
-  #validate(allowOnlyIntegers: boolean, upperBound: number | null | undefined) {
-    console.warn(this.#textAreaSplitted);
-    if (!this.#textAreaSplitted.length) {
-      throw new TextAreaReaderEmptyException();
-    }
-    for (const elem of this.#textAreaSplitted) {
-      if (!elem.trim()) {
-        throw new TextAreaReaderBlankLineException();
-      }
-      if (isNaN(+elem)) {
-        throw new TextAreaReaderNaNException(elem);
-      }
-      if (+elem < 0) {
-        throw new TextAreaReaderNegativeValueException(elem);
-      }
-      if (allowOnlyIntegers && !Number.isInteger(+elem)) {
-        throw new TextAreaReaderNonIntegerException(elem);
-      }
-      if (upperBound && +elem > upperBound) {
-        throw new TextAreaReaderOutOfBoundsException(elem);
-      }
-    }
+  constructor(textArea: EpidTextArea) {
+    const trimmed = textArea.content.trimEnd();
+    const splitted = trimmed.split(textArea.delimSymbol);
+    const textAreaSplitted = { ...textArea, content: splitted } as EpidTextAreaSplitted;
+
+    const textAreaValidation = new TextAreaValidation();
+    textAreaValidation.validate(textAreaSplitted);
+    this.#textAreaSplitted = textAreaSplitted;
   }
-
-  constructor(
-    textAreaContent: string,
-    delimSymbol: string,
-    allowOnlyIntegers: boolean,
-    upperBound: number | null | undefined
-  ) {
-    this.#textAreaSplitted = [];
-    const trimmed = textAreaContent.trimEnd();
-    if (trimmed) {
-      this.#textAreaSplitted = trimmed.split(delimSymbol);
-    }
-    this.#validate(allowOnlyIntegers, upperBound);
-  }
-
   read() {
     return this.#textAreaSplitted;
   }
 }
 
-export class EpidCalculatorException extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "EpidCalculatorException";
+class TextAreasReader {
+  #textAreasSplitted: Map<unknown, EpidTextAreaSplitted>;
+
+  constructor(textAreas: Map<unknown, EpidTextArea>, inputMode: InputMode) {
+    const textAreasSplitted = new Map<unknown, EpidTextAreaSplitted>();
+
+    for (const [dataIndex, textArea] of textAreas.entries()) {
+      const textAreaReader = new TextAreaReader(textArea);
+      textAreasSplitted.set(dataIndex, textAreaReader.read());
+    }
+
+    const textAreasValidation = new TextAreasValidation();
+    textAreasValidation.validate(textAreasSplitted, inputMode, false);
+
+    this.#addAgeEnd(textAreasSplitted);
+    this.#textAreasSplitted = textAreasSplitted;
+  }
+
+  #addAgeEnd(textAreasSplitted: Map<unknown, EpidTextAreaSplitted>) {
+    if (!textAreasSplitted.has("ageEnd")) {
+      const newTextAreasSplitted = new Map(textAreasSplitted);
+      const startAges = textAreasSplitted.get("ageStart")!;
+      const endAges: string[] = [];
+
+      for (let i = 1; i < startAges.content.length; ++i) {
+        endAges.push(String(+startAges.content[i] - 1));
+      }
+      endAges.push(String(upperYearBound));
+
+      newTextAreasSplitted.set("ageEnd", {
+        ...textAreaAgeEnd.find((textArea) => textArea.dataIndex === "ageEnd")!,
+        delimSymbol: "\n", // delimSymbol can be any because this textArea doesn't actually exist
+        content: endAges,
+      });
+    }
+  }
+
+  #addMorbidityRussia() {}
+
+  #addMorbidityChosenRegions() {}
+
+  read() {
+    return this.#textAreasSplitted;
   }
 }
 
-class EpidCalculatorDimensionsException extends EpidCalculatorException {
-  constructor() {
-    super("number of elements in textAreas in not the same");
-    this.name = "EpidCalculatorDimensionsException";
-  }
-}
-
-class EpidCalculatorAgeException extends EpidCalculatorException {
-  constructor() {
-    super("something is wrong with the age");
-    this.name = "EpidCalculatorAgeException";
-  }
-}
-
-class EpidCalculatorTitlesException extends EpidCalculatorException {
+class TextAreasValidationTitlesException extends TextAreasValidationException {
   constructor() {
     super("unsupported set of titles has been passed");
-    this.name = "EpidCalculatorTitlesException";
+    this.name = "TextAreasValidationTitlesException";
   }
 }
 
-class EpidCalculatorMorbidityException extends EpidCalculatorException {
+class TextAreasValidationMorbidityException extends TextAreasValidationException {
   constructor() {
     super("could not get morbidity");
-    this.name = "EpidCalculatorMorbidityException";
+    this.name = "TextAreasValidationMorbidityException";
   }
 }
 
-class EpidCalculatorReaderException extends EpidCalculatorException {
+class TextAreasValidationReaderException extends TextAreasValidationException {
   constructor(message: string) {
     super(message);
-    this.name = "EpidCalculatorReaderException";
+    this.name = "TextAreasValidationReaderException";
   }
 }
 
@@ -173,68 +124,6 @@ export class EpidCalculator {
   #calculatedTableRows: CalculatedTableRow[] = [];
   #lambdaParam: number | null | undefined;
   #cParam: number | null | undefined;
-
-  // check that titles are in the correct configuration
-  // (i.e they are in one of 4 available states which are determined by the checked options in the checkbox)
-  #checkTitles() {
-    function shallowCompareSets(set1: Set<any>, set2: Set<any>) {
-      if (
-        set1.size !== set2.size ||
-        ![...set1].every((elem) => set2.has(elem))
-      ) {
-        return false;
-      }
-      return true;
-    }
-    const currTitles = new Set(this.#textAreas.keys());
-
-    const titlesAllChecked = new Set(textAreaTitlesAllChecked);
-    const titlesAllUnchecked = new Set(textAreaTitlesAllUnchecked);
-    const titlesAgeEndChecked = new Set(textAreaTitlesAgeEndChecked);
-    const titlesSexRecognitionChecked = new Set(
-      textAreaTitlesSexRecognitionChecked
-    );
-
-    if (
-      !shallowCompareSets(currTitles, titlesAllChecked) &&
-      !shallowCompareSets(currTitles, titlesAllUnchecked) &&
-      !shallowCompareSets(currTitles, titlesAgeEndChecked) &&
-      !shallowCompareSets(currTitles, titlesSexRecognitionChecked)
-    ) {
-      throw new EpidCalculatorTitlesException();
-    }
-  }
-
-  // check that each textArea has the same amount of numbers
-  #checkSameLength() {
-    const lengths = new Set(
-      Array.from(this.#textAreas.values()).map((content) => content.length)
-    );
-    if (lengths.size != 1) {
-      throw new EpidCalculatorDimensionsException();
-    }
-  }
-
-  // if only ageStart is present, make sure that these ages are listed in a strictly increasing order
-  // otherwise (i.e. when ageEnd is also present), make sure that every endAge >= startAge
-  #checkAges() {
-    const startAges = this.#textAreas.get("Начальный возраст")!; // #checkTitles should be called beforehand
-    const endAges = this.#textAreas.get("Конечный возраст");
-
-    if (!endAges) {
-      for (let i = 1; i < startAges.length; ++i) {
-        if (+startAges[i] <= +startAges[i - 1]) {
-          throw new EpidCalculatorAgeException();
-        }
-      }
-    } else {
-      for (let i = 0; i < startAges.length; ++i) {
-        if (+startAges[i] > +endAges[i]) {
-          throw new EpidCalculatorAgeException();
-        }
-      }
-    }
-  }
 
   // epidCalculator depends on the data received from the text areas
   // however: "Конечный возраст", "Число заболевших (Россия)", "Число заболевших (выбран. регионы)" cols might not be present
@@ -256,50 +145,29 @@ export class EpidCalculator {
     }
 
     if (!this.#textAreas.has("Число заболевших (Россия)")) {
-      const menPopulationRussia = this.#textAreas.get(
-        "Число заболевших (мужчины, Россия)"
-      )!;
-      const womenPopulationRussia = this.#textAreas.get(
-        "Число заболевших (женщины, Россия)"
-      )!;
+      const menPopulationRussia = this.#textAreas.get("Число заболевших (мужчины, Россия)")!;
+      const womenPopulationRussia = this.#textAreas.get("Число заболевших (женщины, Россия)")!;
 
       const populationRussia: string[] = [];
       for (let i = 0; i < menPopulationRussia.length; ++i) {
-        populationRussia.push(
-          String(+menPopulationRussia[i] + +womenPopulationRussia[i])
-        );
+        populationRussia.push(String(+menPopulationRussia[i] + +womenPopulationRussia[i]));
       }
       this.#textAreas.set("Число заболевших (Россия)", populationRussia);
     }
 
     if (!this.#textAreas.has("Число заболевших (выбран. регионы)")) {
-      const menPopulationChosenRegions = this.#textAreas.get(
-        "Число заболевших (мужчины, выбран. регионы)"
-      )!;
-      const womenPopulationChosenRegions = this.#textAreas.get(
-        "Число заболевших (женщины, выбран. регионы)"
-      )!;
+      const menPopulationChosenRegions = this.#textAreas.get("Число заболевших (мужчины, выбран. регионы)")!;
+      const womenPopulationChosenRegions = this.#textAreas.get("Число заболевших (женщины, выбран. регионы)")!;
 
       const populationChosenRegions: string[] = [];
       for (let i = 0; i < menPopulationChosenRegions.length; ++i) {
-        populationChosenRegions.push(
-          String(
-            +menPopulationChosenRegions[i] + +womenPopulationChosenRegions[i]
-          )
-        );
+        populationChosenRegions.push(String(+menPopulationChosenRegions[i] + +womenPopulationChosenRegions[i]));
       }
-      this.#textAreas.set(
-        "Число заболевших (выбран. регионы)",
-        populationChosenRegions
-      );
+      this.#textAreas.set("Число заболевших (выбран. регионы)", populationChosenRegions);
     }
   }
 
-  constructor(
-    textAreas: Map<TextAreaTitle, TextAreaContentMeta>,
-    population: PopulationSingleYear,
-    regionCodes: string[]
-  ) {
+  constructor(textAreas: EpidTextArea[], population: PopulationSingleYear, regionCodes: string[]) {
     this.#textAreas = new Map();
     this.#population = population;
     this.#regionCodes = regionCodes;
@@ -315,9 +183,7 @@ export class EpidCalculator {
         this.#textAreas.set(title, textAreaReader.read());
       }
     } catch (error) {
-      throw new EpidCalculatorReaderException(
-        (error as TextAreaReaderException).message
-      );
+      throw new EpidCalculatorReaderException((error as TextAreaReaderException).message);
     }
 
     this.#checkTitles();
@@ -339,13 +205,11 @@ export class EpidCalculator {
 
       if (this.#hasSexRecognition) {
         for (const key of this.#textAreas.keys() as IterableIterator<TextAreaTitleAllChecked>) {
-          (obj as TableRowFromTextAreasAllChecked)[key] =
-            this.#textAreas.get(key)![i];
+          (obj as TableRowFromTextAreasAllChecked)[key] = this.#textAreas.get(key)![i];
         }
       } else {
         for (const key of this.#textAreas.keys() as IterableIterator<TextAreaTitleAgeEndChecked>) {
-          (obj as TableRowFromTextAreasAgeEndChecked)[key] =
-            this.#textAreas.get(key)![i];
+          (obj as TableRowFromTextAreasAgeEndChecked)[key] = this.#textAreas.get(key)![i];
         }
       }
       this.#tableRowsFromTextAreas.push(obj);
@@ -371,129 +235,117 @@ export class EpidCalculator {
       obj["morbidityRussia"] = this.getMorbidity(k1, k2);
       obj["intensiveMorbidityRussia"] = this.getIntensiveMorbidity(k1, k2);
 
-      const intensiveMorbidityRussiaCI =
-        this.getIntensiveMorbidityConfidenceInterval(k1, k2);
+      const intensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2);
 
       obj["lowerIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[0];
       obj["upperIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[1];
 
-      obj["populationChosenRegions"] = this.#population.n(
-        k1,
-        k2,
-        undefined,
-        this.#regionCodes
-      );
-      obj["morbidityChosenRegions"] = this.getMorbidity(
-        k1,
-        k2,
-        undefined,
-        this.#regionCodes
-      );
-      obj["intensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(
+      obj["populationChosenRegions"] = this.#population.n(k1, k2, undefined, this.#regionCodes);
+      obj["morbidityChosenRegions"] = this.getMorbidity(k1, k2, undefined, this.#regionCodes);
+      obj["intensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(k1, k2, undefined, this.#regionCodes);
+
+      const intensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
         k1,
         k2,
         undefined,
         this.#regionCodes
       );
 
-      const intensiveMorbidityChosenRegionsCI =
-        this.getIntensiveMorbidityConfidenceInterval(
+      obj["lowerIntensiveMorbidityChosenRegions"] = intensiveMorbidityChosenRegionsCI[0];
+      obj["upperIntensiveMorbidityChosenRegions"] = intensiveMorbidityChosenRegionsCI[1];
+
+      if (this.#hasSexRecognition) {
+        (obj as CalculatedSexRecognitionTableRow)["menPopulationRussia"] = this.#population.n(k1, k2, "male");
+        (obj as CalculatedSexRecognitionTableRow)["menMorbidityRussia"] = this.getMorbidity(k1, k2, "male");
+        (obj as CalculatedSexRecognitionTableRow)["menIntensiveMorbidityRussia"] = this.getIntensiveMorbidity(
           k1,
           k2,
-          undefined,
+          "male"
+        );
+
+        const menIntensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2, "male");
+
+        (obj as CalculatedSexRecognitionTableRow)["menLowerIntensiveMorbidityRussia"] =
+          menIntensiveMorbidityRussiaCI[0];
+        (obj as CalculatedSexRecognitionTableRow)["menUpperIntensiveMorbidityRussia"] =
+          menIntensiveMorbidityRussiaCI[1];
+
+        (obj as CalculatedSexRecognitionTableRow)["womenPopulationRussia"] = this.#population.n(k1, k2, "female");
+        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityRussia"] = this.getMorbidity(k1, k2, "female");
+        (obj as CalculatedSexRecognitionTableRow)["womenIntensiveMorbidityRussia"] = this.getIntensiveMorbidity(
+          k1,
+          k2,
+          "female"
+        );
+
+        const womenIntensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2, "female");
+
+        (obj as CalculatedSexRecognitionTableRow)["womenLowerIntensiveMorbidityRussia"] =
+          womenIntensiveMorbidityRussiaCI[0];
+        (obj as CalculatedSexRecognitionTableRow)["womenUpperIntensiveMorbidityRussia"] =
+          womenIntensiveMorbidityRussiaCI[1];
+
+        (obj as CalculatedSexRecognitionTableRow)["menPopulationChosenRegions"] = this.#population.n(
+          k1,
+          k2,
+          "male",
+          this.#regionCodes
+        );
+        (obj as CalculatedSexRecognitionTableRow)["menMorbidityChosenRegions"] = this.getMorbidity(
+          k1,
+          k2,
+          "male",
+          this.#regionCodes
+        );
+        (obj as CalculatedSexRecognitionTableRow)["menIntensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(
+          k1,
+          k2,
+          "male",
           this.#regionCodes
         );
 
-      obj["lowerIntensiveMorbidityChosenRegions"] =
-        intensiveMorbidityChosenRegionsCI[0];
-      obj["upperIntensiveMorbidityChosenRegions"] =
-        intensiveMorbidityChosenRegionsCI[1];
+        const menIntensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
+          k1,
+          k2,
+          "male",
+          this.#regionCodes
+        );
 
-      if (this.#hasSexRecognition) {
-        (obj as CalculatedSexRecognitionTableRow)["menPopulationRussia"] =
-          this.#population.n(k1, k2, "male");
-        (obj as CalculatedSexRecognitionTableRow)["menMorbidityRussia"] =
-          this.getMorbidity(k1, k2, "male");
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menIntensiveMorbidityRussia"
-        ] = this.getIntensiveMorbidity(k1, k2, "male");
+        (obj as CalculatedSexRecognitionTableRow)["menLowerIntensiveMorbidityChosenRegions"] =
+          menIntensiveMorbidityChosenRegionsCI[0];
+        (obj as CalculatedSexRecognitionTableRow)["menUpperIntensiveMorbidityChosenRegions"] =
+          menIntensiveMorbidityChosenRegionsCI[1];
 
-        const menIntensiveMorbidityRussiaCI =
-          this.getIntensiveMorbidityConfidenceInterval(k1, k2, "male");
+        (obj as CalculatedSexRecognitionTableRow)["womenPopulationChosenRegions"] = this.#population.n(
+          k1,
+          k2,
+          "female",
+          this.#regionCodes
+        );
+        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityChosenRegions"] = this.getMorbidity(
+          k1,
+          k2,
+          "female",
+          this.#regionCodes
+        );
+        (obj as CalculatedSexRecognitionTableRow)["womenIntensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(
+          k1,
+          k2,
+          "female",
+          this.#regionCodes
+        );
 
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menLowerIntensiveMorbidityRussia"
-        ] = menIntensiveMorbidityRussiaCI[0];
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menUpperIntensiveMorbidityRussia"
-        ] = menIntensiveMorbidityRussiaCI[1];
+        const womenIntensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
+          k1,
+          k2,
+          "female",
+          this.#regionCodes
+        );
 
-        (obj as CalculatedSexRecognitionTableRow)["womenPopulationRussia"] =
-          this.#population.n(k1, k2, "female");
-        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityRussia"] =
-          this.getMorbidity(k1, k2, "female");
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenIntensiveMorbidityRussia"
-        ] = this.getIntensiveMorbidity(k1, k2, "female");
-
-        const womenIntensiveMorbidityRussiaCI =
-          this.getIntensiveMorbidityConfidenceInterval(k1, k2, "female");
-
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenLowerIntensiveMorbidityRussia"
-        ] = womenIntensiveMorbidityRussiaCI[0];
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenUpperIntensiveMorbidityRussia"
-        ] = womenIntensiveMorbidityRussiaCI[1];
-
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menPopulationChosenRegions"
-        ] = this.#population.n(k1, k2, "male", this.#regionCodes);
-        (obj as CalculatedSexRecognitionTableRow)["menMorbidityChosenRegions"] =
-          this.getMorbidity(k1, k2, "male", this.#regionCodes);
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menIntensiveMorbidityChosenRegions"
-        ] = this.getIntensiveMorbidity(k1, k2, "male", this.#regionCodes);
-
-        const menIntensiveMorbidityChosenRegionsCI =
-          this.getIntensiveMorbidityConfidenceInterval(
-            k1,
-            k2,
-            "male",
-            this.#regionCodes
-          );
-
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menLowerIntensiveMorbidityChosenRegions"
-        ] = menIntensiveMorbidityChosenRegionsCI[0];
-        (obj as CalculatedSexRecognitionTableRow)[
-          "menUpperIntensiveMorbidityChosenRegions"
-        ] = menIntensiveMorbidityChosenRegionsCI[1];
-
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenPopulationChosenRegions"
-        ] = this.#population.n(k1, k2, "female", this.#regionCodes);
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenMorbidityChosenRegions"
-        ] = this.getMorbidity(k1, k2, "female", this.#regionCodes);
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenIntensiveMorbidityChosenRegions"
-        ] = this.getIntensiveMorbidity(k1, k2, "female", this.#regionCodes);
-
-        const womenIntensiveMorbidityChosenRegionsCI =
-          this.getIntensiveMorbidityConfidenceInterval(
-            k1,
-            k2,
-            "female",
-            this.#regionCodes
-          );
-
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenLowerIntensiveMorbidityChosenRegions"
-        ] = womenIntensiveMorbidityChosenRegionsCI[0];
-        (obj as CalculatedSexRecognitionTableRow)[
-          "womenUpperIntensiveMorbidityChosenRegions"
-        ] = womenIntensiveMorbidityChosenRegionsCI[1];
+        (obj as CalculatedSexRecognitionTableRow)["womenLowerIntensiveMorbidityChosenRegions"] =
+          womenIntensiveMorbidityChosenRegionsCI[0];
+        (obj as CalculatedSexRecognitionTableRow)["womenUpperIntensiveMorbidityChosenRegions"] =
+          womenIntensiveMorbidityChosenRegionsCI[1];
       }
       res.push(obj);
     }
@@ -512,41 +364,28 @@ export class EpidCalculator {
   }
 
   getChosenRegionsMorbidity() {
-    const morbiditiesChosenRegions = this.#textAreas.get(
-      "Число заболевших (выбран. регионы)"
-    )!;
-    return morbiditiesChosenRegions.reduce(
-      (sum, curr) => sum + Number(curr),
-      0
-    );
+    const morbiditiesChosenRegions = this.#textAreas.get("Число заболевших (выбран. регионы)")!;
+    return morbiditiesChosenRegions.reduce((sum, curr) => sum + Number(curr), 0);
   }
 
   getChosenRegionsIntensiveMorbidity() {
     const a = this.getChosenRegionsMorbidity();
-    return (
-      (10 ** 5 * a) /
-      this.#population.n(0, upperYearBound, undefined, this.#regionCodes)
-    );
+    return (10 ** 5 * a) / this.#population.n(0, upperYearBound, undefined, this.#regionCodes);
   }
 
   getChosenRegionsStandardizedMorbidity() {
     let res = 0;
     if (this.#hasSexRecognition) {
-      for (const row of this
-        .#calculatedTableRows as CalculatedSexRecognitionTableRow[]) {
+      for (const row of this.#calculatedTableRows as CalculatedSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
 
-        res +=
-          row["menMorbidityChosenRegions"] * this.#population.h(k1, k2, "male");
+        res += row["menMorbidityChosenRegions"] * this.#population.h(k1, k2, "male");
 
-        res +=
-          row["womenMorbidityChosenRegions"] *
-          this.#population.h(k1, k2, "female");
+        res += row["womenMorbidityChosenRegions"] * this.#population.h(k1, k2, "female");
       }
     } else {
-      for (const row of this
-        .#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
+      for (const row of this.#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
 
@@ -559,27 +398,20 @@ export class EpidCalculator {
   getChosenRegionsStandardizedIntensiveMorbidity() {
     let res = 0;
     if (this.#hasSexRecognition) {
-      for (const row of this
-        .#calculatedTableRows as CalculatedSexRecognitionTableRow[]) {
+      for (const row of this.#calculatedTableRows as CalculatedSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
 
-        res +=
-          row["menIntensiveMorbidityChosenRegions"] *
-          this.#population.h(k1, k2, "male");
+        res += row["menIntensiveMorbidityChosenRegions"] * this.#population.h(k1, k2, "male");
 
-        res +=
-          row["womenIntensiveMorbidityChosenRegions"] *
-          this.#population.h(k1, k2, "female");
+        res += row["womenIntensiveMorbidityChosenRegions"] * this.#population.h(k1, k2, "female");
       }
     } else {
-      for (const row of this
-        .#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
+      for (const row of this.#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
 
-        res +=
-          row["intensiveMorbidityChosenRegions"] * this.#population.h(k1, k2);
+        res += row["intensiveMorbidityChosenRegions"] * this.#population.h(k1, k2);
       }
     }
     return res;
@@ -592,8 +424,7 @@ export class EpidCalculator {
     regionCodes?: string[] // if regionCodes are not passed, assume that we take whole Russia
   ) {
     const res = this.#tableRowsFromTextAreas.find(
-      (row) =>
-        +row["Начальный возраст"] === k1 && +row["Конечный возраст"] === k2
+      (row) => +row["Начальный возраст"] === k1 && +row["Конечный возраст"] === k2
     );
     if (!res) {
       throw new EpidCalculatorMorbidityException();
@@ -602,35 +433,23 @@ export class EpidCalculator {
     switch (m) {
       case "male":
         if (regionCodes) {
-          a = +(res as TableRowFromTextAreasAllChecked)[
-            "Число заболевших (мужчины, выбран. регионы)"
-          ]!;
+          a = +(res as TableRowFromTextAreasAllChecked)["Число заболевших (мужчины, выбран. регионы)"]!;
         } else {
-          a = +(res as TableRowFromTextAreasAllChecked)[
-            "Число заболевших (мужчины, Россия)"
-          ]!;
+          a = +(res as TableRowFromTextAreasAllChecked)["Число заболевших (мужчины, Россия)"]!;
         }
         break;
       case "female":
         if (regionCodes) {
-          a = +(res as TableRowFromTextAreasAllChecked)[
-            "Число заболевших (женщины, выбран. регионы)"
-          ]!;
+          a = +(res as TableRowFromTextAreasAllChecked)["Число заболевших (женщины, выбран. регионы)"]!;
         } else {
-          a = +(res as TableRowFromTextAreasAllChecked)[
-            "Число заболевших (женщины, Россия)"
-          ]!;
+          a = +(res as TableRowFromTextAreasAllChecked)["Число заболевших (женщины, Россия)"]!;
         }
         break;
       default:
         if (regionCodes) {
-          a = +(res as TableRowFromTextAreasAgeEndChecked)[
-            "Число заболевших (выбран. регионы)"
-          ]!;
+          a = +(res as TableRowFromTextAreasAgeEndChecked)["Число заболевших (выбран. регионы)"]!;
         } else {
-          a = +(res as TableRowFromTextAreasAgeEndChecked)[
-            "Число заболевших (Россия)"
-          ]!;
+          a = +(res as TableRowFromTextAreasAgeEndChecked)["Число заболевших (Россия)"]!;
         }
       // console.log(res);
       // console.log(a);
@@ -664,8 +483,7 @@ export class EpidCalculator {
     p = defaultP
   ) {
     const a = this.getMorbidity(k1, k2, m, regionCodes);
-    const [lowerMorbidity, upperMorbidity] =
-      this.#getMorbidityConfidenceInterval(a, p);
+    const [lowerMorbidity, upperMorbidity] = this.#getMorbidityConfidenceInterval(a, p);
     const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
     return [
       +((10 ** 5 * lowerMorbidity) / n).toFixed(calculationsPrecision),
@@ -673,12 +491,7 @@ export class EpidCalculator {
     ];
   }
 
-  #leastSquares1D(
-    x: number[],
-    y: number[],
-    foo: (x: number, param: number) => number,
-    step = 0.01
-  ): number {
+  #leastSquares1D(x: number[], y: number[], foo: (x: number, param: number) => number, step = 0.01): number {
     if (x.length !== y.length) {
       throw new Error("x and y should be of the same length");
     }
@@ -686,9 +499,7 @@ export class EpidCalculator {
     let res = 0;
     for (let param = step; param < 1; param += step) {
       const yModel = x.map((curr) => foo(curr, param));
-      const delta = y
-        .map((curr, index) => (curr - yModel[index]) ** 2)
-        .reduce((sum, curr) => sum + curr, 0);
+      const delta = y.map((curr, index) => (curr - yModel[index]) ** 2).reduce((sum, curr) => sum + curr, 0);
       // console.log(`lambda = ${param}, delta = ${delta}`);
       if (delta < lowestDelta) {
         console.log("ymodel =");
@@ -701,9 +512,7 @@ export class EpidCalculator {
   }
 
   #findRowWithAgeWithin(age: number) {
-    return this.#calculatedTableRows.find(
-      (row) => row.startAge <= age && row.endAge >= age
-    );
+    return this.#calculatedTableRows.find((row) => row.startAge <= age && row.endAge >= age);
   }
 
   #relativeMorbidityFunction(age: number, lambda: number) {
@@ -712,17 +521,11 @@ export class EpidCalculator {
 
   #morbidityFunction(age: number, lambda: number) {
     const population = this.#population.n(age);
-    return Math.round(
-      this.#relativeMorbidityFunction(age, lambda) * population
-    );
+    return Math.round(this.#relativeMorbidityFunction(age, lambda) * population);
   }
 
   static mapRegionCodes(regionCodes?: string[]) {
-    if (
-      !regionCodes ||
-      !regionCodes.length ||
-      regionCodes[0] === RussiaRegionCode
-    ) {
+    if (!regionCodes || !regionCodes.length || regionCodes[0] === RussiaRegionCode) {
       return "Russia";
     } else {
       return "ChosenRegions";
@@ -742,11 +545,7 @@ export class EpidCalculator {
   // keyType = "population" sex = "male", regionCodes is not passed => returns "menPopulationRussia"
   // keyType = "population" sex = "male", regionCodes is passed => returns "menPopulationChosenRegions"
   // etc...
-  static getCalculatedTableRowKey(
-    keyType: CalculatedTableColumnType,
-    sex?: Sex,
-    regionCodes?: string[]
-  ) {
+  static getCalculatedTableRowKey(keyType: CalculatedTableColumnType, sex?: Sex, regionCodes?: string[]) {
     const mappedRegionCodes = this.mapRegionCodes(regionCodes);
     const mappedSex = this.mapSex(sex);
     let res = keyType + mappedRegionCodes;
@@ -778,11 +577,7 @@ export class EpidCalculator {
       x.push(i);
 
       const population = this.#population.n(i, i, sex, regionCodes);
-      const key = EpidCalculator.getCalculatedTableRowKey(
-        "intensiveMorbidity",
-        sex,
-        regionCodes
-      );
+      const key = EpidCalculator.getCalculatedTableRowKey("intensiveMorbidity", sex, regionCodes);
       const intensiveMorbidity = (row as CalculatedSexRecognitionTableRow)[key];
       console.warn(`key = ${key}, intensiveMorb = ${intensiveMorbidity}`);
 
@@ -796,11 +591,7 @@ export class EpidCalculator {
     console.log(x);
     console.log(y);
 
-    this.#lambdaParam = this.#leastSquares1D(
-      x,
-      y,
-      this.#morbidityFunction.bind(this)
-    );
+    this.#lambdaParam = this.#leastSquares1D(x, y, this.#morbidityFunction.bind(this));
     return this.#lambdaParam;
   }
 
@@ -819,28 +610,20 @@ export class EpidCalculator {
         // throw new Error("smth bad happened...");
       }
       const population = this.#population.n(i, i, sex, regionCodes);
-      const key = EpidCalculator.getCalculatedTableRowKey(
-        "intensiveMorbidity",
-        sex,
-        regionCodes
-      );
+      const key = EpidCalculator.getCalculatedTableRowKey("intensiveMorbidity", sex, regionCodes);
       const intensiveMorbidity = (row as CalculatedSexRecognitionTableRow)[key];
 
       if (intensiveMorbidity === null || intensiveMorbidity === undefined) {
         throw new Error("wrong getLambdaEstimation usage");
       }
 
-      const cValue =
-        ((intensiveMorbidity / 10 ** 5) * population) /
-        this.#morbidityFunction(i, lambda);
+      const cValue = ((intensiveMorbidity / 10 ** 5) * population) / this.#morbidityFunction(i, lambda);
       cValues.push(cValue);
     }
     console.log(cValues);
 
     this.#cParam =
-      cValues
-        .filter((cValue) => !isNaN(cValue) && isFinite(cValue))
-        .reduce((sum, curr) => sum + curr) / cValues.length;
+      cValues.filter((cValue) => !isNaN(cValue) && isFinite(cValue)).reduce((sum, curr) => sum + curr) / cValues.length;
     return this.#cParam;
   }
 
@@ -874,11 +657,7 @@ export class EpidCalculator {
         // throw new Error("smth bad happened...");
       }
       const population = this.#population.n(i, i, sex, regionCodes);
-      const key = EpidCalculator.getCalculatedTableRowKey(
-        "intensiveMorbidity",
-        sex,
-        regionCodes
-      );
+      const key = EpidCalculator.getCalculatedTableRowKey("intensiveMorbidity", sex, regionCodes);
       const intensiveMorbidity = (row as CalculatedSexRecognitionTableRow)[key];
       if (intensiveMorbidity === null || intensiveMorbidity === undefined) {
         throw new Error("wrong getLambdaEstimation usage");
@@ -893,14 +672,9 @@ export class EpidCalculator {
   }
 }
 
-export function extractDataForPlotting(
-  calculatedTableRows: CalculatedTableRow[],
-  hasSexRecognition: boolean
-) {
+export function extractDataForPlotting(calculatedTableRows: CalculatedTableRow[], hasSexRecognition: boolean) {
   const res: PlotlyInputData[] = [];
-  const ages = calculatedTableRows.map(
-    (row) => `${row.startAge}-${row.endAge}`
-  );
+  const ages = calculatedTableRows.map((row) => `${row.startAge}-${row.endAge}`);
 
   let intensiveMorbidityKeys = [];
   let lowerIntensiveMorbidityKeys = [];
@@ -926,19 +700,10 @@ export function extractDataForPlotting(
       "womenUpperIntensiveMorbidityChosenRegions",
     ];
   } else {
-    intensiveMorbidityKeys = [
-      "intensiveMorbidityRussia",
-      "intensiveMorbidityChosenRegions",
-    ];
+    intensiveMorbidityKeys = ["intensiveMorbidityRussia", "intensiveMorbidityChosenRegions"];
 
-    lowerIntensiveMorbidityKeys = [
-      "lowerIntensiveMorbidityRussia",
-      "lowerIntensiveMorbidityChosenRegions",
-    ];
-    upperIntensiveMorbidityKeys = [
-      "upperIntensiveMorbidityRussia",
-      "upperIntensiveMorbidityChosenRegions",
-    ];
+    lowerIntensiveMorbidityKeys = ["lowerIntensiveMorbidityRussia", "lowerIntensiveMorbidityChosenRegions"];
+    upperIntensiveMorbidityKeys = ["upperIntensiveMorbidityRussia", "upperIntensiveMorbidityChosenRegions"];
   }
   // for (const key of intensiveMorbidityKeys) {
   for (let i = 0; i < intensiveMorbidityKeys.length; ++i) {
@@ -951,15 +716,9 @@ export function extractDataForPlotting(
     const upperIntensiveMorbidities: number[] = [];
 
     for (const row of calculatedTableRows) {
-      intensiveMorbidities.push(
-        row[intensiveMorbidityKey as keyof CalculatedTableRow]
-      );
-      lowerIntensiveMorbidities.push(
-        row[lowerIntensiveMorbidityKey as keyof CalculatedTableRow]
-      );
-      upperIntensiveMorbidities.push(
-        row[upperIntensiveMorbidityKey as keyof CalculatedTableRow]
-      );
+      intensiveMorbidities.push(row[intensiveMorbidityKey as keyof CalculatedTableRow]);
+      lowerIntensiveMorbidities.push(row[lowerIntensiveMorbidityKey as keyof CalculatedTableRow]);
+      upperIntensiveMorbidities.push(row[upperIntensiveMorbidityKey as keyof CalculatedTableRow]);
     }
     res.push({
       name: intensiveMorbidityKey,
@@ -967,12 +726,8 @@ export function extractDataForPlotting(
       y: intensiveMorbidities,
       error_y: {
         type: "data",
-        array: upperIntensiveMorbidities.map(
-          (upper, index) => upper - intensiveMorbidities[index]
-        ),
-        arrayminus: intensiveMorbidities.map(
-          (curr, index) => curr - lowerIntensiveMorbidities[index]
-        ),
+        array: upperIntensiveMorbidities.map((upper, index) => upper - intensiveMorbidities[index]),
+        arrayminus: intensiveMorbidities.map((curr, index) => curr - lowerIntensiveMorbidities[index]),
         visible: true,
         color: "black",
       },
