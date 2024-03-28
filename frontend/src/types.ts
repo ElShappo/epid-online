@@ -1,8 +1,4 @@
-import {
-  availableYears,
-  calculatedSexRecognitionTableColumns,
-  calculatedTableColumnTypes,
-} from "./constants";
+import { availableYears, calculatedSexRecognitionTableColumns, calculatedTableColumnTypes } from "./constants";
 
 export interface DataType {
   key: React.Key;
@@ -81,8 +77,7 @@ export type LineColor = {
 
 export type Sex = "male" | "female";
 
-export type CalculatedSexRecognitionTableColumnTitle =
-  (typeof calculatedSexRecognitionTableColumns)[number]["title"];
+export type CalculatedSexRecognitionTableColumnTitle = (typeof calculatedSexRecognitionTableColumns)[number]["title"];
 export type CalculatedSexRecognitionTableColumnDataIndex =
   (typeof calculatedSexRecognitionTableColumns)[number]["dataIndex"];
 
@@ -114,102 +109,10 @@ export type CalculatedNoSexRecognitionTableRow = Omit<
   | "womenUpperIntensiveMorbidityChosenRegions"
 >;
 
-export type CalculatedTableRow =
-  | CalculatedSexRecognitionTableRow
-  | CalculatedNoSexRecognitionTableRow;
+export type CalculatedTableRow = CalculatedSexRecognitionTableRow | CalculatedNoSexRecognitionTableRow;
 
-export function isCalculatedSexRecognitionTableRow(
-  row: CalculatedTableRow
-): row is CalculatedSexRecognitionTableRow {
-  return (
-    (row as CalculatedSexRecognitionTableRow).menMorbidityRussia !== undefined
-  );
-}
-
-export type TextAreaTitle = Exclude<
-  CalculatedSexRecognitionTableColumnTitle,
-  | "Население (Россия)"
-  | "Интенсивная заболеваемость на 100 тыс. (Россия)"
-  | "Нижний доверительный интервал (Россия)"
-  | "Верхний доверительный интервал (Россия)"
-  | "Мужское население (Россия)"
-  | "Интенсивная заболеваемость на 100 тыс. (мужчины, Россия)"
-  | "Нижний доверительный интервал (мужчины, Россия)"
-  | "Верхний доверительный интервал (мужчины, Россия)"
-  | "Женское население (Россия)"
-  | "Интенсивная заболеваемость на 100 тыс. (женщины, Россия)"
-  | "Нижний доверительный интервал (женщины, Россия)"
-  | "Верхний доверительный интервал (женщины, Россия)"
-  | "Население (выбран. регионы)"
-  | "Интенсивная заболеваемость на 100 тыс. (выбран. регионы)"
-  | "Нижний доверительный интервал (выбран. регионы)"
-  | "Верхний доверительный интервал (выбран. регионы)"
-  | "Мужское население (выбран. регионы)"
-  | "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)"
-  | "Нижний доверительный интервал (мужчины, выбран. регионы)"
-  | "Верхний доверительный интервал (мужчины, выбран. регионы)"
-  | "Женское население (выбран. регионы)"
-  | "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)"
-  | "Нижний доверительный интервал (женщины, выбран. регионы)"
-  | "Верхний доверительный интервал (женщины, выбран. регионы)"
->;
-
-export type TextAreaTitleAllChecked = Exclude<
-  TextAreaTitle,
-  "Число заболевших (Россия)" | "Число заболевших (выбран. регионы)"
->;
-
-export type TextAreaTitleAllUnchecked = Exclude<
-  TextAreaTitle,
-  | "Конечный возраст"
-  | "Число заболевших (мужчины, Россия)"
-  | "Число заболевших (женщины, Россия)"
-  | "Число заболевших (мужчины, выбран. регионы)"
-  | "Число заболевших (женщины, выбран. регионы)"
->;
-
-export type TextAreaTitleAgeEndChecked = Exclude<
-  TextAreaTitle,
-  | "Число заболевших (мужчины, Россия)"
-  | "Число заболевших (женщины, Россия)"
-  | "Число заболевших (мужчины, выбран. регионы)"
-  | "Число заболевших (женщины, выбран. регионы)"
->;
-
-export type TextAreaTitleSexRecognitionChecked = Exclude<
-  TextAreaTitle,
-  | "Конечный возраст"
-  | "Число заболевших (Россия)"
-  | "Число заболевших (выбран. регионы)"
->;
-
-export type TextAreaContentMeta = {
-  content: string;
-  delimSymbol: string;
-  allowOnlyIntegers: boolean;
-  upperBound: number | null | undefined;
-};
-
-export type TableRowFromTextAreasAllChecked = {
-  [key in TextAreaTitleAllChecked]: string;
-};
-
-export type TableRowFromTextAreasAgeEndChecked = {
-  [key in TextAreaTitleAgeEndChecked]: string;
-};
-
-export type TableRowFromTextAreas =
-  | TableRowFromTextAreasAllChecked
-  | TableRowFromTextAreasAgeEndChecked;
-
-export function isTableRowFromTextAreasAllChecked(
-  row: TableRowFromTextAreas
-): row is TableRowFromTextAreasAllChecked {
-  return (
-    (row as TableRowFromTextAreasAllChecked)[
-      "Число заболевших (мужчины, Россия)"
-    ] !== undefined
-  );
+export function isCalculatedSexRecognitionTableRow(row: CalculatedTableRow): row is CalculatedSexRecognitionTableRow {
+  return (row as CalculatedSexRecognitionTableRow).menMorbidityRussia !== undefined;
 }
 
 export type PlotlyInputData = {
@@ -226,8 +129,7 @@ export type PlotlyInputData = {
   type: "bar";
 };
 
-export type CalculatedTableColumnType =
-  (typeof calculatedTableColumnTypes)[number];
+export type CalculatedTableColumnType = (typeof calculatedTableColumnTypes)[number];
 
 export type CalculationCategoriesType = {
   Russia: number;

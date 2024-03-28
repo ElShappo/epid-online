@@ -1,17 +1,7 @@
-import {
-  DataType,
-  TextAreaTitle,
-  TextAreaTitleAgeEndChecked,
-  TextAreaTitleAllChecked,
-  TextAreaTitleAllUnchecked,
-  TextAreaTitleSexRecognitionChecked,
-} from "./types";
+import { DataType } from "./types";
 import type { ColumnsType } from "antd/es/table";
 
-const availableYears = [
-  2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022,
-  2023,
-] as const;
+const availableYears = [2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023] as const;
 
 export const defaultYear = availableYears.at(-1);
 
@@ -394,8 +384,7 @@ export const calculatedSexRecognitionTableColumns = [
     align: "center",
   },
   {
-    title:
-      "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)" as const,
+    title: "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)" as const,
     dataIndex: "menIntensiveMorbidityChosenRegions" as const,
     width: 150,
     align: "center",
@@ -426,8 +415,7 @@ export const calculatedSexRecognitionTableColumns = [
     align: "center",
   },
   {
-    title:
-      "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)" as const,
+    title: "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)" as const,
     dataIndex: "womenIntensiveMorbidityChosenRegions" as const,
     width: 150,
     align: "center",
@@ -445,54 +433,6 @@ export const calculatedSexRecognitionTableColumns = [
     align: "center",
   },
 ];
-
-export const textAreaAvailableTitles: TextAreaTitle[] = [
-  "Начальный возраст",
-  "Конечный возраст",
-
-  "Число заболевших (Россия)",
-  "Число заболевших (мужчины, Россия)",
-  "Число заболевших (женщины, Россия)",
-
-  "Число заболевших (выбран. регионы)",
-  "Число заболевших (мужчины, выбран. регионы)",
-  "Число заболевших (женщины, выбран. регионы)",
-];
-
-export const textAreaTitlesAllChecked: TextAreaTitleAllChecked[] = [
-  "Начальный возраст",
-  "Конечный возраст",
-
-  "Число заболевших (мужчины, Россия)",
-  "Число заболевших (женщины, Россия)",
-
-  "Число заболевших (мужчины, выбран. регионы)",
-  "Число заболевших (женщины, выбран. регионы)",
-];
-
-export const textAreaTitlesAllUnchecked: TextAreaTitleAllUnchecked[] = [
-  "Начальный возраст",
-  "Число заболевших (Россия)",
-  "Число заболевших (выбран. регионы)",
-];
-
-export const textAreaTitlesAgeEndChecked: TextAreaTitleAgeEndChecked[] = [
-  "Начальный возраст",
-  "Конечный возраст",
-  "Число заболевших (Россия)",
-  "Число заболевших (выбран. регионы)",
-];
-
-export const textAreaTitlesSexRecognitionChecked: TextAreaTitleSexRecognitionChecked[] =
-  [
-    "Начальный возраст",
-
-    "Число заболевших (мужчины, Россия)",
-    "Число заболевших (женщины, Россия)",
-
-    "Число заболевших (мужчины, выбран. регионы)",
-    "Число заболевших (женщины, выбран. регионы)",
-  ];
 
 export const calculatedTableColumnTypes = [
   "population",
