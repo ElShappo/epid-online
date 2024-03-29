@@ -14,7 +14,15 @@ import { Sex } from "../../types";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
-import { EpidTextArea, InputMode, InputOption, RawEpidTextArea, TextAreaDataIndex } from "./types/textAreaTypes";
+import {
+  EpidTextArea,
+  InputMode,
+  InputOption,
+  RawEpidTextArea,
+  TextAreaDataIndex,
+  WorkerInput,
+  WorkerOutput,
+} from "./types/textAreaTypes";
 import {
   inputOptions,
   textAreaAgeEnd,
@@ -240,85 +248,133 @@ const CalculationsTable = observer(() => {
               type="primary"
               className="flex gap-1 justify-center p-5 items-center"
               onClick={() => {
-                setSpinning(true);
-                const rawTextAreas = getTextAreaMap();
-                const textAreas = new Map<TextAreaDataIndex, EpidTextArea>();
-
-                for (const [key, value] of rawTextAreas.entries()) {
-                  textAreas.set(key, {
-                    dataIndex: value.dataIndex,
-                    title: value.title,
-                    restrictions: value.restrictions,
-                    content: value.ref.resizableTextArea!.textArea.value,
-                    delimSymbol: value.delimSymbol,
-                  });
-                }
-
                 if (selectedRegions && selectedRegions.length) {
-                  try {
-                    const epidCalculator = new EpidCalculator(
+                  setSpinning(true);
+
+                  const rawTextAreas = getTextAreaMap();
+                  const textAreas = new Map<TextAreaDataIndex, EpidTextArea>();
+
+                  for (const [key, value] of rawTextAreas.entries()) {
+                    textAreas.set(key, {
+                      dataIndex: value.dataIndex,
+                      title: value.title,
+                      restrictions: value.restrictions,
+                      content: value.ref.resizableTextArea!.textArea.value,
+                      delimSymbol: value.delimSymbol,
+                    });
+                  }
+
+                  if (window.Worker) {
+                    console.log("workers are available");
+                    const worker = new Worker(new URL("./workers/worker.ts", import.meta.url), { type: "module" });
+
+                    // structuredClone algorithm is unable to encode a class instance correctly
+                    // thus we can't pass populationPerRegions
+                    // we can, however, pass a year so that
+                    // the object of that class will be created inside a worker
+                    const workerParams: WorkerInput = {
                       textAreas,
                       inputMode,
-                      populationPerRegions!,
-                      selectedRegions
-                    );
+                      sexes,
+                      year: year.get(),
+                      selectedRegions,
+                    };
 
-                    const tableRows = epidCalculator.calculateTable();
-                    const resChosenRegionsStandardizedMorbidity =
-                      epidCalculator.getChosenRegionsStandardizedMorbidity();
-                    const resChosenRegionsStandardizedIntensiveMorbidity =
-                      epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
+                    worker.postMessage(workerParams);
 
-                    setCalculatedTableRows(tableRows);
-                    setChosenRegionsStandardizedMorbidity(resChosenRegionsStandardizedMorbidity);
-                    setChosenRegionsStandardizedIntensiveMorbidity(resChosenRegionsStandardizedIntensiveMorbidity);
+                    worker.onmessage = (e: MessageEvent<WorkerOutput>) => {
+                      setCalculatedTableRows(e.data.calculatedTableRows);
+                      setChosenRegionsStandardizedMorbidity(e.data.resChosenRegionsStandardizedMorbidity);
+                      setChosenRegionsStandardizedIntensiveMorbidity(
+                        e.data.resChosenRegionsStandardizedIntensiveMorbidity
+                      );
+                      setModelEstimationTableRows(e.data.modelEstimationTableRows);
+                      setSpinning(false);
+                    };
 
-                    const rows: ModelEstimationTableColumns[] = [];
+                    worker.onerror = (error) => {
+                      Store.addNotification({
+                        title: "Не удалось провести расчёт",
+                        message: error.message,
+                        type: "danger",
+                        insert: "top",
+                        container: "top-right",
+                        animationIn: ["animate__animated", "animate__fadeIn"],
+                        animationOut: ["animate__animated", "animate__fadeOut"],
+                        dismiss: {
+                          duration: 5000,
+                          onScreen: true,
+                        },
+                      });
+                      setSpinning(false);
+                    };
+                  } else {
+                    try {
+                      const epidCalculator = new EpidCalculator(
+                        textAreas,
+                        inputMode,
+                        populationPerRegions!,
+                        selectedRegions
+                      );
 
-                    let i = 0;
-                    for (const sex of sexes) {
-                      for (const regionCodes of [selectedRegions, undefined]) {
-                        const type = "data" + capitalize(mapSex(sex)) + capitalize(mapRegionCodes(regionCodes));
+                      const tableRows = epidCalculator.calculateTable();
+                      const resChosenRegionsStandardizedMorbidity =
+                        epidCalculator.getChosenRegionsStandardizedMorbidity();
+                      const resChosenRegionsStandardizedIntensiveMorbidity =
+                        epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
 
-                        const totalMorbidity = epidCalculator.getTotalMorbidity(sex, regionCodes);
-                        const totalIntensiveMorbidity = epidCalculator.getTotalIntensiveMorbidity(sex, regionCodes);
+                      setCalculatedTableRows(tableRows);
+                      setChosenRegionsStandardizedMorbidity(resChosenRegionsStandardizedMorbidity);
+                      setChosenRegionsStandardizedIntensiveMorbidity(resChosenRegionsStandardizedIntensiveMorbidity);
 
-                        const lambdaEstimation = epidCalculator.getLambdaEstimation(sex, regionCodes);
-                        const cEstimation = epidCalculator.getCEstimation(sex, regionCodes);
-                        const contactNumberEstimation = epidCalculator.getContactNumberEstimation(sex, regionCodes);
-                        const absoluteErrorEstimation = epidCalculator.getAbsoluteErrorEstimation(sex, regionCodes);
+                      const rows: ModelEstimationTableColumns[] = [];
 
-                        const obj: ModelEstimationTableColumns = {
-                          key: String(i),
-                          type,
-                          totalMorbidity,
-                          totalIntensiveMorbidity,
-                          lambda: lambdaEstimation,
-                          c: cEstimation,
-                          contactNumber: contactNumberEstimation,
-                          absoluteError: absoluteErrorEstimation,
-                        };
-                        rows.push(obj);
-                        ++i;
+                      let i = 0;
+                      for (const sex of sexes) {
+                        for (const regionCodes of [selectedRegions, undefined]) {
+                          const type = "data" + capitalize(mapSex(sex)) + capitalize(mapRegionCodes(regionCodes));
+
+                          const totalMorbidity = epidCalculator.getTotalMorbidity(sex, regionCodes);
+                          const totalIntensiveMorbidity = epidCalculator.getTotalIntensiveMorbidity(sex, regionCodes);
+
+                          const lambdaEstimation = epidCalculator.getLambdaEstimation(sex, regionCodes);
+                          const cEstimation = epidCalculator.getCEstimation(sex, regionCodes);
+                          const contactNumberEstimation = epidCalculator.getContactNumberEstimation(sex, regionCodes);
+                          const absoluteErrorEstimation = epidCalculator.getAbsoluteErrorEstimation(sex, regionCodes);
+
+                          const obj: ModelEstimationTableColumns = {
+                            key: String(i),
+                            type,
+                            totalMorbidity,
+                            totalIntensiveMorbidity,
+                            lambda: lambdaEstimation,
+                            c: cEstimation,
+                            contactNumber: contactNumberEstimation,
+                            absoluteError: absoluteErrorEstimation,
+                          };
+                          rows.push(obj);
+                          ++i;
+                        }
                       }
-                    }
-                    setModelEstimationTableRows(rows);
-                  } catch (error) {
-                    console.error(error);
+                      setModelEstimationTableRows(rows);
+                    } catch (error) {
+                      console.error(error);
 
-                    Store.addNotification({
-                      title: "Не удалось провести расчёт",
-                      message: (error as EpidCalculatorException).message,
-                      type: "danger",
-                      insert: "top",
-                      container: "top-right",
-                      animationIn: ["animate__animated", "animate__fadeIn"],
-                      animationOut: ["animate__animated", "animate__fadeOut"],
-                      dismiss: {
-                        duration: 5000,
-                        onScreen: true,
-                      },
-                    });
+                      Store.addNotification({
+                        title: "Не удалось провести расчёт",
+                        message: (error as EpidCalculatorException).message,
+                        type: "danger",
+                        insert: "top",
+                        container: "top-right",
+                        animationIn: ["animate__animated", "animate__fadeIn"],
+                        animationOut: ["animate__animated", "animate__fadeOut"],
+                        dismiss: {
+                          duration: 5000,
+                          onScreen: true,
+                        },
+                      });
+                    }
+                    setSpinning(false);
                   }
                 } else {
                   Store.addNotification({
@@ -335,7 +391,6 @@ const CalculationsTable = observer(() => {
                     },
                   });
                 }
-                setSpinning(false);
               }}
             >
               Расчёт

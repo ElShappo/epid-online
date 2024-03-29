@@ -8,6 +8,9 @@ import {
   textAreaSexRecognitionAgeEnd,
   textAreaVariations,
 } from "../constants/textAreaConstants";
+import { CalculatedTableRow } from "./calculatedTableTypes";
+import { ModelEstimationTableColumns } from "../ModelEstimationTable";
+import { availableYearsType, Sex } from "../../../types";
 
 export type EpidTextAreaContentRestrictions = {
   allowOnlyIntegers: boolean;
@@ -99,4 +102,19 @@ export type EpidTextAreaNone = {
   restrictions: EpidTextAreaContentRestrictions;
   content: string;
   delimSymbol: DelimSymbol;
+};
+
+export type WorkerInput = {
+  textAreas: Map<TextAreaDataIndex, EpidTextArea>;
+  inputMode: InputMode;
+  sexes: Sex[] | undefined[];
+  year: availableYearsType;
+  selectedRegions: string[];
+};
+
+export type WorkerOutput = {
+  calculatedTableRows: CalculatedTableRow[];
+  resChosenRegionsStandardizedMorbidity: number;
+  resChosenRegionsStandardizedIntensiveMorbidity: number;
+  modelEstimationTableRows: ModelEstimationTableColumns[];
 };
