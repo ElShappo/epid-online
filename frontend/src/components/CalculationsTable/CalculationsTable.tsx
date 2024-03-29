@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, Checkbox, GetProp, List, message, Modal, Spin, Table, TreeSelect, Upload } from "antd";
+import { Button, Checkbox, Divider, GetProp, message, Modal, Spin, Table, TreeSelect, Upload } from "antd";
 import { PopulationSingleYear } from "../../utils";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PageviewIcon from "@mui/icons-material/Pageview";
@@ -181,128 +181,149 @@ const CalculationsTable = observer(() => {
 
   if (gotRegions) {
     return (
-      <div className="flex flex-wrap justify-center gap-y-4">
-        <Spin spinning={spinning} fullscreen />
-        <Checkbox.Group options={checkboxOptions} onChange={onCheckboxChange} className="w-full justify-center" />
-        <div className="max-h-36 overflow-y-auto">
-          <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
-          <Upload {...uploadProps} className="flex items-stretch justify-center pt-8">
-            <Button icon={<UploadOutlined />} type="primary">
-              Импорт CSV
+      <div className="flex flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-y-4">
+          <Spin spinning={spinning} fullscreen />
+          <Checkbox.Group options={checkboxOptions} onChange={onCheckboxChange} className="w-full justify-center" />
+          <div className="max-h-36 overflow-y-auto">
+            <TreeSelect {...(treeData as any)} className="min-w-72 max-w-96" />
+            <Upload {...uploadProps} className="flex items-stretch justify-center pt-8">
+              <Button icon={<UploadOutlined />} type="primary">
+                Импорт CSV
+              </Button>
+            </Upload>
+          </div>
+          <section className="w-full grow flex flex-wrap justify-center gap-4">
+            {epidTextAreas.map((epidTextArea) => {
+              return (
+                <div key={epidTextArea.dataIndex}>
+                  <p className="text-center pb-2">{epidTextArea.title}</p>
+                  <TextArea
+                    rows={10}
+                    ref={(node) => {
+                      const map = getTextAreaMap();
+                      if (node) {
+                        map.set(epidTextArea.dataIndex, {
+                          dataIndex: epidTextArea.dataIndex,
+                          title: epidTextArea.title,
+                          restrictions: epidTextArea.restrictions,
+                          ref: node,
+                          delimSymbol: "\n",
+                        });
+                      } else {
+                        map.delete(epidTextArea.dataIndex);
+                      }
+                    }}
+                    name={epidTextArea.dataIndex}
+                    onInput={() => {
+                      console.log(textAreaRefs.current);
+                    }}
+                    placeholder={`Введите ${epidTextArea.title.toLowerCase()}:`}
+                  />
+                </div>
+              );
+            })}
+          </section>
+          <section className="flex w-full justify-center gap-4">
+            <Button
+              type="primary"
+              className="bg-gray-500 flex gap-1 justify-center p-5 items-center"
+              onClick={showModal}
+            >
+              Превью
+              <PageviewIcon />
             </Button>
-          </Upload>
-        </div>
-        <section className="w-full grow flex flex-wrap justify-center gap-4">
-          {epidTextAreas.map((epidTextArea) => {
-            return (
-              <div key={epidTextArea.dataIndex}>
-                <p className="text-center pb-2">{epidTextArea.title}</p>
-                <TextArea
-                  rows={10}
-                  ref={(node) => {
-                    const map = getTextAreaMap();
-                    if (node) {
-                      map.set(epidTextArea.dataIndex, {
-                        dataIndex: epidTextArea.dataIndex,
-                        title: epidTextArea.title,
-                        restrictions: epidTextArea.restrictions,
-                        ref: node,
-                        delimSymbol: "\n",
-                      });
-                    } else {
-                      map.delete(epidTextArea.dataIndex);
+            <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} centered>
+              {/* <Table columns={columns} dataSource={data} /> */}
+            </Modal>
+            <Button
+              type="primary"
+              className="flex gap-1 justify-center p-5 items-center"
+              onClick={() => {
+                setSpinning(true);
+                const rawTextAreas = getTextAreaMap();
+                const textAreas = new Map<TextAreaDataIndex, EpidTextArea>();
+
+                for (const [key, value] of rawTextAreas.entries()) {
+                  textAreas.set(key, {
+                    dataIndex: value.dataIndex,
+                    title: value.title,
+                    restrictions: value.restrictions,
+                    content: value.ref.resizableTextArea!.textArea.value,
+                    delimSymbol: value.delimSymbol,
+                  });
+                }
+
+                if (selectedRegions && selectedRegions.length) {
+                  try {
+                    const epidCalculator = new EpidCalculator(
+                      textAreas,
+                      inputMode,
+                      populationPerRegions!,
+                      selectedRegions
+                    );
+
+                    const tableRows = epidCalculator.calculateTable();
+                    const resChosenRegionsStandardizedMorbidity =
+                      epidCalculator.getChosenRegionsStandardizedMorbidity();
+                    const resChosenRegionsStandardizedIntensiveMorbidity =
+                      epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
+
+                    setCalculatedTableRows(tableRows);
+                    setChosenRegionsStandardizedMorbidity(resChosenRegionsStandardizedMorbidity);
+                    setChosenRegionsStandardizedIntensiveMorbidity(resChosenRegionsStandardizedIntensiveMorbidity);
+
+                    const rows: ModelEstimationTableColumns[] = [];
+
+                    let i = 0;
+                    for (const sex of sexes) {
+                      for (const regionCodes of [selectedRegions, undefined]) {
+                        const type = "data" + capitalize(mapSex(sex)) + capitalize(mapRegionCodes(regionCodes));
+
+                        const totalMorbidity = epidCalculator.getTotalMorbidity(sex, regionCodes);
+                        const totalIntensiveMorbidity = epidCalculator.getTotalIntensiveMorbidity(sex, regionCodes);
+
+                        const lambdaEstimation = epidCalculator.getLambdaEstimation(sex, regionCodes);
+                        const cEstimation = epidCalculator.getCEstimation(sex, regionCodes);
+                        const contactNumberEstimation = epidCalculator.getContactNumberEstimation(sex, regionCodes);
+                        const absoluteErrorEstimation = epidCalculator.getAbsoluteErrorEstimation(sex, regionCodes);
+
+                        const obj: ModelEstimationTableColumns = {
+                          key: String(i),
+                          type,
+                          totalMorbidity,
+                          totalIntensiveMorbidity,
+                          lambda: lambdaEstimation,
+                          c: cEstimation,
+                          contactNumber: contactNumberEstimation,
+                          absoluteError: absoluteErrorEstimation,
+                        };
+                        rows.push(obj);
+                        ++i;
+                      }
                     }
-                  }}
-                  name={epidTextArea.dataIndex}
-                  onInput={() => {
-                    console.log(textAreaRefs.current);
-                  }}
-                  placeholder={`Введите ${epidTextArea.title.toLowerCase()}:`}
-                />
-              </div>
-            );
-          })}
-        </section>
-        <section className="flex w-full justify-center gap-4">
-          <Button type="primary" className="bg-gray-500 flex gap-1 justify-center p-5 items-center" onClick={showModal}>
-            Превью
-            <PageviewIcon />
-          </Button>
-          <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} centered>
-            {/* <Table columns={columns} dataSource={data} /> */}
-          </Modal>
-          <Button
-            type="primary"
-            className="flex gap-1 justify-center p-5 items-center"
-            onClick={() => {
-              setSpinning(true);
-              const rawTextAreas = getTextAreaMap();
-              const textAreas = new Map<TextAreaDataIndex, EpidTextArea>();
+                    setModelEstimationTableRows(rows);
+                  } catch (error) {
+                    console.error(error);
 
-              for (const [key, value] of rawTextAreas.entries()) {
-                textAreas.set(key, {
-                  dataIndex: value.dataIndex,
-                  title: value.title,
-                  restrictions: value.restrictions,
-                  content: value.ref.resizableTextArea!.textArea.value,
-                  delimSymbol: value.delimSymbol,
-                });
-              }
-
-              if (selectedRegions && selectedRegions.length) {
-                try {
-                  const epidCalculator = new EpidCalculator(
-                    textAreas,
-                    inputMode,
-                    populationPerRegions!,
-                    selectedRegions
-                  );
-
-                  const tableRows = epidCalculator.calculateTable();
-                  const resChosenRegionsStandardizedMorbidity = epidCalculator.getChosenRegionsStandardizedMorbidity();
-                  const resChosenRegionsStandardizedIntensiveMorbidity =
-                    epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
-
-                  setCalculatedTableRows(tableRows);
-                  setChosenRegionsStandardizedMorbidity(resChosenRegionsStandardizedMorbidity);
-                  setChosenRegionsStandardizedIntensiveMorbidity(resChosenRegionsStandardizedIntensiveMorbidity);
-
-                  const rows: ModelEstimationTableColumns[] = [];
-
-                  let i = 0;
-                  for (const sex of sexes) {
-                    for (const regionCodes of [selectedRegions, undefined]) {
-                      const type = "data" + capitalize(mapSex(sex)) + capitalize(mapRegionCodes(regionCodes));
-
-                      const totalMorbidity = epidCalculator.getTotalMorbidity(sex, regionCodes);
-                      const totalIntensiveMorbidity = epidCalculator.getTotalIntensiveMorbidity(sex, regionCodes);
-
-                      const lambdaEstimation = epidCalculator.getLambdaEstimation(sex, regionCodes);
-                      const cEstimation = epidCalculator.getCEstimation(sex, regionCodes);
-                      const contactNumberEstimation = epidCalculator.getContactNumberEstimation(sex, regionCodes);
-                      const absoluteErrorEstimation = epidCalculator.getAbsoluteErrorEstimation(sex, regionCodes);
-
-                      const obj: ModelEstimationTableColumns = {
-                        key: String(i),
-                        type,
-                        totalMorbidity,
-                        totalIntensiveMorbidity,
-                        lambda: lambdaEstimation,
-                        c: cEstimation,
-                        contactNumber: contactNumberEstimation,
-                        absoluteError: absoluteErrorEstimation,
-                      };
-                      rows.push(obj);
-                      ++i;
-                    }
+                    Store.addNotification({
+                      title: "Не удалось провести расчёт",
+                      message: (error as EpidCalculatorException).message,
+                      type: "danger",
+                      insert: "top",
+                      container: "top-right",
+                      animationIn: ["animate__animated", "animate__fadeIn"],
+                      animationOut: ["animate__animated", "animate__fadeOut"],
+                      dismiss: {
+                        duration: 5000,
+                        onScreen: true,
+                      },
+                    });
                   }
-                  setModelEstimationTableRows(rows);
-                } catch (error) {
-                  console.error(error);
-
+                } else {
                   Store.addNotification({
-                    title: "Не удалось провести расчёт",
-                    message: (error as EpidCalculatorException).message,
+                    title: "Расчёт не был проведен",
+                    message: "Чтобы провести расчёт, необходимо выбрать регионы",
                     type: "danger",
                     insert: "top",
                     container: "top-right",
@@ -314,29 +335,16 @@ const CalculationsTable = observer(() => {
                     },
                   });
                 }
-              } else {
-                Store.addNotification({
-                  title: "Расчёт не был проведен",
-                  message: "Чтобы провести расчёт, необходимо выбрать регионы",
-                  type: "danger",
-                  insert: "top",
-                  container: "top-right",
-                  animationIn: ["animate__animated", "animate__fadeIn"],
-                  animationOut: ["animate__animated", "animate__fadeOut"],
-                  dismiss: {
-                    duration: 5000,
-                    onScreen: true,
-                  },
-                });
-              }
-              setSpinning(false);
-            }}
-          >
-            Расчёт
-            <ArrowForwardIcon />
-          </Button>
-        </section>
+                setSpinning(false);
+              }}
+            >
+              Расчёт
+              <ArrowForwardIcon />
+            </Button>
+          </section>
+        </div>
         <div className="w-full pt-2">
+          <Divider>Основная таблица</Divider>
           <Table
             pagination={false}
             columns={
@@ -348,19 +356,33 @@ const CalculationsTable = observer(() => {
             bordered
             scroll={{ y: 500 }}
           />
-          <section className="pt-4 flex flex-col gap-4">
-            <List
-              size="large"
-              bordered
-              dataSource={[
-                `Выбран. регионы - стандартизованная по возрастному населению заболеваемость совокупного населения, абсолютная и на 100 тысяч ${chosenRegionsStandardizedMorbidity}; ${chosenRegionsStandardizedIntensiveMorbidity}`,
-              ]}
-              renderItem={(item) => <List.Item>{item}</List.Item>}
-            />
+          <Divider className="pt-4">Таблица с доп. информацией</Divider>
+          <section className="flex flex-col gap-4">
             <ModelEstimationTable data={modelEstimationTableRows} />
+            <Divider>Стандартизованная по возрастному населению заболеваемость совокупного населения </Divider>
           </section>
         </div>
-        <div className="w-full text-center pt-1 pb-3" style={{ width: "100vw" }}>
+        <Table
+          pagination={false}
+          bordered
+          columns={[
+            {
+              title: "Абсолютная",
+              dataIndex: "absolute",
+            },
+            {
+              title: "Интенсивная",
+              dataIndex: "intensive",
+            },
+          ]}
+          dataSource={[
+            {
+              absolute: chosenRegionsStandardizedMorbidity,
+              intensive: chosenRegionsStandardizedIntensiveMorbidity,
+            },
+          ]}
+        />
+        <div className="w-full text-center pt-6 pb-3" style={{ width: "100vw" }}>
           <Plot
             data={extractDataForPlotting(calculatedTableRows, inputMode.sexRecognition) as unknown as Data[]}
             layout={{
