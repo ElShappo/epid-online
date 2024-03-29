@@ -1,3 +1,5 @@
+import { RussiaRegionCode } from "../../../constants";
+import { Sex } from "../../../types";
 import { CalculatedTableRow } from "../types/calculatedTableTypes";
 
 export type PlotlyInputData = {
@@ -77,4 +79,29 @@ export function extractDataForPlotting(calculatedTableRows: CalculatedTableRow[]
     });
   }
   return res;
+}
+
+export function mapRegionCodes(regionCodes?: string[]) {
+  if (!regionCodes || !regionCodes.length || regionCodes[0] === RussiaRegionCode) {
+    return "Russia";
+  } else {
+    return "chosenRegions";
+  }
+}
+
+export function mapSex(sex?: Sex) {
+  if (sex === "male") {
+    return "men";
+  } else if (sex === "female") {
+    return "women";
+  } else {
+    return "";
+  }
+}
+
+export function capitalize(str: string) {
+  if (!str) {
+    return str;
+  }
+  return str[0].toUpperCase() + str.slice(1);
 }

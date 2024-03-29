@@ -14,7 +14,6 @@ import { Sex } from "../../types";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
-import ModelEstimationTable from "./ModelEstimationTable";
 import { EpidTextArea, InputMode, InputOption, RawEpidTextArea, TextAreaDataIndex } from "./types/textAreaTypes";
 import {
   inputOptions,
@@ -23,8 +22,9 @@ import {
   textAreaSexRecognition,
   textAreaSexRecognitionAgeEnd,
 } from "./constants/textAreaConstants";
-import { extractDataForPlotting } from "./utils/utils";
-import { CalculatedTableRow, CalculationCategoriesType } from "./types/calculatedTableTypes";
+import { capitalize, extractDataForPlotting, mapRegionCodes, mapSex } from "./utils/utils";
+import { CalculatedTableRow } from "./types/calculatedTableTypes";
+import ModelEstimationTable, { ModelEstimationTableColumns } from "./ModelEstimationTable";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [
@@ -41,6 +41,21 @@ const CalculationsTable = observer(() => {
     ageEnd: false,
     sexRecognition: false,
   });
+
+  const [spinning, setSpinning] = useState<boolean>(false);
+
+  const [populationPerRegions, setPopulationPerRegions] = useState<PopulationSingleYear>();
+  const [gotRegions, setGotRegions] = useState<boolean>(false);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>();
+
+  const [calculatedTableRows, setCalculatedTableRows] = useState<CalculatedTableRow[]>([]);
+  const [modelEstimationTableRows, setModelEstimationTableRows] = useState<ModelEstimationTableColumns[]>([]);
+
+  const [chosenRegionsStandardizedMorbidity, setChosenRegionsStandardizedMorbidity] = useState<number>();
+  const [chosenRegionsStandardizedIntensiveMorbidity, setChosenRegionsStandardizedIntensiveMorbidity] =
+    useState<number>();
+
+  const textAreaRefs = useRef<Map<TextAreaDataIndex, RawEpidTextArea> | null>(null);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -66,31 +81,6 @@ const CalculationsTable = observer(() => {
     }
     setInputMode(newInputMode as InputMode);
   };
-
-  const [populationPerRegions, setPopulationPerRegions] = useState<PopulationSingleYear>();
-
-  const [gotRegions, setGotRegions] = useState<boolean>(false);
-  const [selectedRegions, setSelectedRegions] = useState<string[]>();
-
-  const [calculatedTableRows, setCalculatedTableRows] = useState<CalculatedTableRow[]>([]);
-
-  const [spinning, setSpinning] = useState<boolean>(false);
-  const [RussiaMorbidity, setRussiaMorbidity] = useState<number>();
-  const [chosenRegionsMorbidity, setChosenRegionsMorbidity] = useState<number>();
-
-  const [RussiaIntensiveMorbidity, setRussiaIntensiveMorbidity] = useState<number>();
-  const [chosenRegionsIntensiveMorbidity, setChosenRegionsIntensiveMorbidity] = useState<number>();
-
-  const [chosenRegionsStandardizedMorbidity, setChosenRegionsStandardizedMorbidity] = useState<number>();
-  const [chosenRegionsStandardizedIntensiveMorbidity, setChosenRegionsStandardizedIntensiveMorbidity] =
-    useState<number>();
-
-  const [lambdaEstimation, setLambdaEstimation] = useState<CalculationCategoriesType>();
-  const [cEstimation, setCEstimation] = useState<CalculationCategoriesType>();
-  const [contactNumberEstimation, setContactNumberEstimation] = useState<CalculationCategoriesType>();
-  const [absoluteErrorEstimation, setAbsoluteErrorEstimation] = useState<CalculationCategoriesType>();
-
-  const textAreaRefs = useRef<Map<TextAreaDataIndex, RawEpidTextArea> | null>(null);
 
   function getTextAreaMap() {
     if (!textAreaRefs.current) {
@@ -149,6 +139,26 @@ const CalculationsTable = observer(() => {
     };
   }, [populationPerRegions, selectedRegions]);
 
+  const epidTextAreas = useMemo(() => {
+    if (inputMode.sexRecognition && inputMode.ageEnd) {
+      return textAreaSexRecognitionAgeEnd;
+    } else if (inputMode.sexRecognition && !inputMode.ageEnd) {
+      return textAreaSexRecognition;
+    } else if (!inputMode.sexRecognition && inputMode.ageEnd) {
+      return textAreaAgeEnd;
+    } else {
+      return textAreaNone;
+    }
+  }, [inputMode.sexRecognition, inputMode.ageEnd]);
+
+  const sexes = useMemo(() => {
+    if (inputMode.sexRecognition) {
+      return ["male", "female", ""] as Sex[];
+    } else {
+      return [undefined];
+    }
+  }, [inputMode.sexRecognition]);
+
   useEffect(() => {
     async function init() {
       console.log(`useEffect triggered with year = ${year.get()}`);
@@ -168,18 +178,6 @@ const CalculationsTable = observer(() => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year.get()]);
-
-  const epidTextAreas = useMemo(() => {
-    if (inputMode.sexRecognition && inputMode.ageEnd) {
-      return textAreaSexRecognitionAgeEnd;
-    } else if (inputMode.sexRecognition && !inputMode.ageEnd) {
-      return textAreaSexRecognition;
-    } else if (!inputMode.sexRecognition && inputMode.ageEnd) {
-      return textAreaAgeEnd;
-    } else {
-      return textAreaNone;
-    }
-  }, [inputMode.ageEnd, inputMode.sexRecognition]);
 
   if (gotRegions) {
     return (
@@ -259,66 +257,46 @@ const CalculationsTable = observer(() => {
                     populationPerRegions!,
                     selectedRegions
                   );
+
                   const tableRows = epidCalculator.calculateTable();
-
-                  const resRussiaMorbidity = epidCalculator.getRussiaMorbidity();
-                  const resChosenRegionsMorbidity = epidCalculator.getChosenRegionsMorbidity();
-
-                  const resRussiaIntensiveMorbidity = epidCalculator.getRussiaIntensiveMorbidity();
-                  const resChosenRegionsIntensiveMorbidity = epidCalculator.getChosenRegionsIntensiveMorbidity();
-
                   const resChosenRegionsStandardizedMorbidity = epidCalculator.getChosenRegionsStandardizedMorbidity();
                   const resChosenRegionsStandardizedIntensiveMorbidity =
                     epidCalculator.getChosenRegionsStandardizedIntensiveMorbidity();
 
-                  setRussiaMorbidity(resRussiaMorbidity);
-                  setChosenRegionsMorbidity(resChosenRegionsMorbidity);
-                  setRussiaIntensiveMorbidity(resRussiaIntensiveMorbidity);
-                  setChosenRegionsIntensiveMorbidity(resChosenRegionsIntensiveMorbidity);
+                  setCalculatedTableRows(tableRows);
                   setChosenRegionsStandardizedMorbidity(resChosenRegionsStandardizedMorbidity);
                   setChosenRegionsStandardizedIntensiveMorbidity(resChosenRegionsStandardizedIntensiveMorbidity);
 
-                  setCalculatedTableRows(tableRows);
+                  const rows: ModelEstimationTableColumns[] = [];
 
-                  const sexes: (Sex | undefined)[] = inputMode.sexRecognition
-                    ? ["male", "female", undefined]
-                    : [undefined];
-                  const regionCodesArray = [undefined, selectedRegions];
-
-                  const objLambda: Partial<CalculationCategoriesType> = {};
-                  const objC: Partial<CalculationCategoriesType> = {};
-                  const objContactNumber: Partial<CalculationCategoriesType> = {};
-                  const objAbsoluteError: Partial<CalculationCategoriesType> = {};
-
+                  let i = 0;
                   for (const sex of sexes) {
-                    const mappedSex = EpidCalculator.mapSex(sex);
+                    for (const regionCodes of [selectedRegions, undefined]) {
+                      const type = "data" + capitalize(mapSex(sex)) + capitalize(mapRegionCodes(regionCodes));
 
-                    for (const regionCodes of regionCodesArray) {
-                      const mappedRegionCodes = EpidCalculator.mapRegionCodes(regionCodes);
+                      const totalMorbidity = epidCalculator.getTotalMorbidity(sex, regionCodes);
+                      const totalIntensiveMorbidity = epidCalculator.getTotalIntensiveMorbidity(sex, regionCodes);
 
-                      const key = mappedSex + mappedRegionCodes;
+                      const lambdaEstimation = epidCalculator.getLambdaEstimation(sex, regionCodes);
+                      const cEstimation = epidCalculator.getCEstimation(sex, regionCodes);
+                      const contactNumberEstimation = epidCalculator.getContactNumberEstimation(sex, regionCodes);
+                      const absoluteErrorEstimation = epidCalculator.getAbsoluteErrorEstimation(sex, regionCodes);
 
-                      objLambda[key as keyof CalculationCategoriesType] = epidCalculator.getLambdaEstimation(
-                        sex,
-                        regionCodes
-                      );
-                      objC[key as keyof CalculationCategoriesType] = epidCalculator.getCEstimation(sex, regionCodes);
-                      objContactNumber[key as keyof CalculationCategoriesType] = epidCalculator.getContactNumber(
-                        sex,
-                        regionCodes
-                      );
-                      objAbsoluteError[key as keyof CalculationCategoriesType] = epidCalculator.getAbsoluteError(
-                        sex,
-                        regionCodes
-                      );
+                      const obj: ModelEstimationTableColumns = {
+                        key: String(i),
+                        type,
+                        totalMorbidity,
+                        totalIntensiveMorbidity,
+                        lambda: lambdaEstimation,
+                        c: cEstimation,
+                        contactNumber: contactNumberEstimation,
+                        absoluteError: absoluteErrorEstimation,
+                      };
+                      rows.push(obj);
+                      ++i;
                     }
                   }
-                  setLambdaEstimation(objLambda as CalculationCategoriesType);
-                  setCEstimation(objC as CalculationCategoriesType);
-                  setContactNumberEstimation(objContactNumber as CalculationCategoriesType);
-                  setAbsoluteErrorEstimation(objAbsoluteError as CalculationCategoriesType);
-
-                  console.log(tableRows);
+                  setModelEstimationTableRows(rows);
                 } catch (error) {
                   console.error(error);
 
@@ -375,19 +353,11 @@ const CalculationsTable = observer(() => {
               size="large"
               bordered
               dataSource={[
-                `Россия - заболеваемость совокупного населения, абсолютная и на 100 тысяч ${RussiaMorbidity}; ${RussiaIntensiveMorbidity}`,
-                `Выбран. регионы - заболеваемость совокупного населения, абсолютная и на 100 тысяч ${chosenRegionsMorbidity}; ${chosenRegionsIntensiveMorbidity}`,
                 `Выбран. регионы - стандартизованная по возрастному населению заболеваемость совокупного населения, абсолютная и на 100 тысяч ${chosenRegionsStandardizedMorbidity}; ${chosenRegionsStandardizedIntensiveMorbidity}`,
               ]}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
-            <ModelEstimationTable
-              hasSexRecognition={inputMode.sexRecognition}
-              objLambda={lambdaEstimation}
-              objC={cEstimation}
-              objAbsoluteError={absoluteErrorEstimation}
-              objContactNumber={contactNumberEstimation}
-            />
+            <ModelEstimationTable data={modelEstimationTableRows} />
           </section>
         </div>
         <div className="w-full text-center pt-1 pb-3" style={{ width: "100vw" }}>

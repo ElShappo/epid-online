@@ -1,12 +1,5 @@
-import { calculationsPrecision, defaultP, RussiaRegionCode, upperYearBound } from "../../../constants";
-import {
-  CalculatedNoSexRecognitionTableRow,
-  CalculatedSexRecognitionTableColumnDataIndex,
-  CalculatedSexRecognitionTableRow,
-  CalculatedTableColumnType,
-  CalculatedTableRow,
-  Sex,
-} from "../../../types";
+import { calculationsPrecision, defaultP, upperYearBound } from "../../../constants";
+import { Sex } from "../../../types";
 import { PopulationSingleYear } from "../../../utils";
 import quantile from "@stdlib/stats/base/dists/chisquare/quantile";
 import {
@@ -17,6 +10,14 @@ import {
   TextAreaDataIndex,
 } from "../types/textAreaTypes";
 import { TextAreasReader } from "./textAreasReader";
+import {
+  CalculatedNoSexRecognitionTableRow,
+  CalculatedSexRecognitionTableColumnDataIndex,
+  CalculatedSexRecognitionTableRow,
+  CalculatedTableColumnType,
+  CalculatedTableRow,
+} from "../types/calculatedTableTypes";
+import { capitalize, mapRegionCodes, mapSex } from "../utils/utils";
 
 export class EpidCalculatorException extends Error {
   constructor(message: string) {
@@ -68,6 +69,19 @@ export class EpidCalculator {
     }
   }
 
+  // usage example:
+  // keyType = "population" sex = "male", regionCodes is not passed => returns "menPopulationRussia"
+  // keyType = "population" sex = "male", regionCodes is passed => returns "menPopulationChosenRegions"
+  static getCalculatedTableRowKey(keyType: CalculatedTableColumnType, sex?: Sex, regionCodes?: string[]) {
+    const mappedRegionCodes = mapRegionCodes(regionCodes);
+    const mappedSex = mapSex(sex);
+    let res = keyType + capitalize(mappedRegionCodes);
+    if (sex === "male" || sex === "female") {
+      res = mappedSex + capitalize(res);
+    }
+    return res as CalculatedSexRecognitionTableColumnDataIndex;
+  }
+
   calculateTable() {
     if (this.#calculatedTableRows.length) {
       return this.#calculatedTableRows;
@@ -81,8 +95,8 @@ export class EpidCalculator {
 
       obj["populationRussia"] = this.#population.n(k1, k2);
 
-      obj["morbidityRussia"] = this.getMorbidity(k1, k2);
-      obj["intensiveMorbidityRussia"] = this.getIntensiveMorbidity(k1, k2);
+      obj["morbidityRussia"] = this.#getMorbidity(k1, k2);
+      obj["intensiveMorbidityRussia"] = this.#getIntensiveMorbidity(k1, k2);
 
       const intensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2);
 
@@ -90,8 +104,8 @@ export class EpidCalculator {
       obj["upperIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[1];
 
       obj["populationChosenRegions"] = this.#population.n(k1, k2, undefined, this.#regionCodes);
-      obj["morbidityChosenRegions"] = this.getMorbidity(k1, k2, undefined, this.#regionCodes);
-      obj["intensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(k1, k2, undefined, this.#regionCodes);
+      obj["morbidityChosenRegions"] = this.#getMorbidity(k1, k2, undefined, this.#regionCodes);
+      obj["intensiveMorbidityChosenRegions"] = this.#getIntensiveMorbidity(k1, k2, undefined, this.#regionCodes);
 
       const intensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
         k1,
@@ -105,8 +119,8 @@ export class EpidCalculator {
 
       if (this.#inputMode.sexRecognition) {
         (obj as CalculatedSexRecognitionTableRow)["menPopulationRussia"] = this.#population.n(k1, k2, "male");
-        (obj as CalculatedSexRecognitionTableRow)["menMorbidityRussia"] = this.getMorbidity(k1, k2, "male");
-        (obj as CalculatedSexRecognitionTableRow)["menIntensiveMorbidityRussia"] = this.getIntensiveMorbidity(
+        (obj as CalculatedSexRecognitionTableRow)["menMorbidityRussia"] = this.#getMorbidity(k1, k2, "male");
+        (obj as CalculatedSexRecognitionTableRow)["menIntensiveMorbidityRussia"] = this.#getIntensiveMorbidity(
           k1,
           k2,
           "male"
@@ -120,8 +134,8 @@ export class EpidCalculator {
           menIntensiveMorbidityRussiaCI[1];
 
         (obj as CalculatedSexRecognitionTableRow)["womenPopulationRussia"] = this.#population.n(k1, k2, "female");
-        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityRussia"] = this.getMorbidity(k1, k2, "female");
-        (obj as CalculatedSexRecognitionTableRow)["womenIntensiveMorbidityRussia"] = this.getIntensiveMorbidity(
+        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityRussia"] = this.#getMorbidity(k1, k2, "female");
+        (obj as CalculatedSexRecognitionTableRow)["womenIntensiveMorbidityRussia"] = this.#getIntensiveMorbidity(
           k1,
           k2,
           "female"
@@ -140,13 +154,13 @@ export class EpidCalculator {
           "male",
           this.#regionCodes
         );
-        (obj as CalculatedSexRecognitionTableRow)["menMorbidityChosenRegions"] = this.getMorbidity(
+        (obj as CalculatedSexRecognitionTableRow)["menMorbidityChosenRegions"] = this.#getMorbidity(
           k1,
           k2,
           "male",
           this.#regionCodes
         );
-        (obj as CalculatedSexRecognitionTableRow)["menIntensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(
+        (obj as CalculatedSexRecognitionTableRow)["menIntensiveMorbidityChosenRegions"] = this.#getIntensiveMorbidity(
           k1,
           k2,
           "male",
@@ -171,13 +185,13 @@ export class EpidCalculator {
           "female",
           this.#regionCodes
         );
-        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityChosenRegions"] = this.getMorbidity(
+        (obj as CalculatedSexRecognitionTableRow)["womenMorbidityChosenRegions"] = this.#getMorbidity(
           k1,
           k2,
           "female",
           this.#regionCodes
         );
-        (obj as CalculatedSexRecognitionTableRow)["womenIntensiveMorbidityChosenRegions"] = this.getIntensiveMorbidity(
+        (obj as CalculatedSexRecognitionTableRow)["womenIntensiveMorbidityChosenRegions"] = this.#getIntensiveMorbidity(
           k1,
           k2,
           "female",
@@ -202,24 +216,16 @@ export class EpidCalculator {
     return res;
   }
 
-  getRussiaMorbidity() {
-    const morbiditiesRussia = this.#textAreas.get("morbidityRussia")!.content;
-    return morbiditiesRussia.reduce((sum, curr) => sum + Number(curr), 0);
+  getTotalMorbidity(sex?: Sex, regionCodes?: string[]) {
+    const key = EpidCalculator.getCalculatedTableRowKey("morbidity", sex, regionCodes) as TextAreaDataIndex;
+
+    const morbidities = this.#textAreas.get(key)!.content;
+    return morbidities.reduce((sum, curr) => sum + Number(curr), 0);
   }
 
-  getRussiaIntensiveMorbidity() {
-    const a = this.getRussiaMorbidity();
+  getTotalIntensiveMorbidity(sex?: Sex, regionCodes?: string[]) {
+    const a = this.getTotalMorbidity(sex, regionCodes);
     return (10 ** 5 * a) / this.#population.n(0, upperYearBound);
-  }
-
-  getChosenRegionsMorbidity() {
-    const morbiditiesChosenRegions = this.#textAreas.get("morbidityChosenRegions")!.content;
-    return morbiditiesChosenRegions.reduce((sum, curr) => sum + Number(curr), 0);
-  }
-
-  getChosenRegionsIntensiveMorbidity() {
-    const a = this.getChosenRegionsMorbidity();
-    return (10 ** 5 * a) / this.#population.n(0, upperYearBound, undefined, this.#regionCodes);
   }
 
   getChosenRegionsStandardizedMorbidity() {
@@ -230,14 +236,12 @@ export class EpidCalculator {
         const k2 = row["endAge"];
 
         res += row["menMorbidityChosenRegions"] * this.#population.h(k1, k2, "male");
-
         res += row["womenMorbidityChosenRegions"] * this.#population.h(k1, k2, "female");
       }
     } else {
       for (const row of this.#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
-
         res += row["morbidityChosenRegions"] * this.#population.h(k1, k2);
       }
     }
@@ -252,21 +256,19 @@ export class EpidCalculator {
         const k2 = row["endAge"];
 
         res += row["menIntensiveMorbidityChosenRegions"] * this.#population.h(k1, k2, "male");
-
         res += row["womenIntensiveMorbidityChosenRegions"] * this.#population.h(k1, k2, "female");
       }
     } else {
       for (const row of this.#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
-
         res += row["intensiveMorbidityChosenRegions"] * this.#population.h(k1, k2);
       }
     }
     return res;
   }
 
-  getMorbidity(
+  #getMorbidity(
     k1: number,
     k2: number,
     m?: Sex,
@@ -276,41 +278,17 @@ export class EpidCalculator {
     if (!res) {
       throw new EpidCalculatorMorbidityException();
     }
-    let a: number;
-    switch (m) {
-      case "male":
-        if (regionCodes) {
-          a = +res["menMorbidityChosenRegions"]!;
-        } else {
-          a = +res["menMorbidityRussia"]!;
-        }
-        break;
-      case "female":
-        if (regionCodes) {
-          a = +res["womenMorbidityChosenRegions"]!;
-        } else {
-          a = +res["womenMorbidityRussia"]!;
-        }
-        break;
-      default:
-        if (regionCodes) {
-          a = +res["morbidityChosenRegions"]!;
-        } else {
-          a = +res["morbidityRussia"]!;
-        }
-      // console.log(res);
-      // console.log(a);
-    }
-    return a;
+    const key = EpidCalculator.getCalculatedTableRowKey("morbidity", m, regionCodes) as TextAreaDataIndex;
+    return +res[key];
   }
 
-  getIntensiveMorbidity(
+  #getIntensiveMorbidity(
     k1: number,
     k2: number,
     m?: Sex,
     regionCodes?: string[] // if regionCodes are not passed, assume that we take whole Russia
   ) {
-    const a = this.getMorbidity(k1, k2, m, regionCodes);
+    const a = this.#getMorbidity(k1, k2, m, regionCodes);
     const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
     return +((10 ** 5 * a) / n).toFixed(calculationsPrecision);
   }
@@ -329,7 +307,7 @@ export class EpidCalculator {
     regionCodes?: string[], // if regionCodes are not passed, assume that we take whole Russia
     p = defaultP
   ) {
-    const a = this.getMorbidity(k1, k2, m, regionCodes);
+    const a = this.#getMorbidity(k1, k2, m, regionCodes);
     const [lowerMorbidity, upperMorbidity] = this.#getMorbidityConfidenceInterval(a, p);
     const n = this.#population.n(k1, k2, m, regionCodes); // total population in the chosen group
     return [
@@ -369,37 +347,6 @@ export class EpidCalculator {
   #morbidityFunction(age: number, lambda: number) {
     const population = this.#population.n(age);
     return Math.round(this.#relativeMorbidityFunction(age, lambda) * population);
-  }
-
-  static mapRegionCodes(regionCodes?: string[]) {
-    if (!regionCodes || !regionCodes.length || regionCodes[0] === RussiaRegionCode) {
-      return "Russia";
-    } else {
-      return "ChosenRegions";
-    }
-  }
-
-  static mapSex(sex?: Sex) {
-    if (sex === "male") {
-      return "men";
-    } else if (sex === "female") {
-      return "women";
-    } else {
-      return "";
-    }
-  }
-
-  // keyType = "population" sex = "male", regionCodes is not passed => returns "menPopulationRussia"
-  // keyType = "population" sex = "male", regionCodes is passed => returns "menPopulationChosenRegions"
-  // etc...
-  static getCalculatedTableRowKey(keyType: CalculatedTableColumnType, sex?: Sex, regionCodes?: string[]) {
-    const mappedRegionCodes = this.mapRegionCodes(regionCodes);
-    const mappedSex = this.mapSex(sex);
-    let res = keyType + mappedRegionCodes;
-    if (sex === "male" || sex === "female") {
-      res = mappedSex + res[0].toUpperCase() + res.slice(1);
-    }
-    return res as CalculatedSexRecognitionTableColumnDataIndex;
   }
 
   // morbidity data (which is typed by user) may only be available for a range of ages (not for each single age)
@@ -474,7 +421,7 @@ export class EpidCalculator {
     return this.#cParam;
   }
 
-  getContactNumber(sex?: Sex, regionCodes?: string[]) {
+  getContactNumberEstimation(sex?: Sex, regionCodes?: string[]) {
     const lambda = this.getLambdaEstimation(sex, regionCodes);
     const step = 1;
     let res = 0.1;
@@ -490,7 +437,7 @@ export class EpidCalculator {
     return res;
   }
 
-  getAbsoluteError(sex?: Sex, regionCodes?: string[]) {
+  getAbsoluteErrorEstimation(sex?: Sex, regionCodes?: string[]) {
     const lambda = this.getLambdaEstimation(sex, regionCodes);
     const c = this.getCEstimation(sex, regionCodes);
     let error = 0;

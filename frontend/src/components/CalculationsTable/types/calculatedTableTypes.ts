@@ -39,13 +39,3 @@ export function isCalculatedSexRecognitionTableRow(row: CalculatedTableRow): row
 }
 
 export type CalculatedTableColumnType = (typeof calculatedTableColumnTypes)[number];
-
-export type CalculationCategoriesType = {
-  Russia: number;
-  menRussia: number;
-  womenRussia: number;
-
-  ChosenRegions: number;
-  menChosenRegions: number;
-  womenChosenRegions: number;
-};

@@ -1,20 +1,28 @@
-import { Table } from "antd";
-import { useEffect, useState } from "react";
-import { CalculationCategoriesType } from "./types/calculatedTableTypes";
+import { Table, TableProps } from "antd";
 
-type DataType = {
+export type ModelEstimationTableColumns = {
   key: string;
-  type?: string;
-  lambda?: number;
-  c?: number;
-  contactNumber?: number;
-  absoluteError?: number;
+  type: string;
+  totalMorbidity: number;
+  totalIntensiveMorbidity: number;
+  lambda: number;
+  c: number;
+  contactNumber: number;
+  absoluteError: number;
 };
 
-const columns = [
+const columns: TableProps<ModelEstimationTableColumns>["columns"] = [
   {
     title: "Тип",
     dataIndex: "type",
+  },
+  {
+    title: "Совокупная абс. заболеваемость",
+    dataIndex: "totalMorbidity",
+  },
+  {
+    title: "Совокупная инт. заболеваемость",
+    dataIndex: "totalIntensiveMorbidity",
   },
   {
     title: "Параметр λ",
@@ -35,43 +43,11 @@ const columns = [
 ];
 
 type ModelEstimationTableProps = {
-  hasSexRecognition: boolean;
-  objLambda?: CalculationCategoriesType;
-  objC?: CalculationCategoriesType;
-  objContactNumber?: CalculationCategoriesType;
-  objAbsoluteError?: CalculationCategoriesType;
+  data: ModelEstimationTableColumns[];
 };
 
-const ModelEstimationTable = ({
-  hasSexRecognition,
-  objLambda,
-  objC,
-  objContactNumber,
-  objAbsoluteError,
-}: ModelEstimationTableProps) => {
-  const [rows, setRows] = useState<DataType[]>([]);
-
-  useEffect(() => {
-    const res = [];
-    const keys = hasSexRecognition
-      ? ["Russia", "menRussia", "womenRussia", "ChosenRegions", "menChosenRegions", "womenChosenRegions"]
-      : ["Russia", "ChosenRegions"];
-
-    let index = 1;
-    for (const key of keys as (keyof CalculationCategoriesType)[]) {
-      res.push({
-        key: String(index),
-        type: key,
-        lambda: objLambda?.[key],
-        c: objC?.[key],
-        contactNumber: objContactNumber?.[key],
-        absoluteError: objAbsoluteError?.[key],
-      });
-      ++index;
-    }
-    setRows(res);
-  }, [hasSexRecognition, objLambda, objC, objContactNumber, objAbsoluteError]);
-  return <Table bordered pagination={false} dataSource={rows} columns={columns} />;
+const ModelEstimationTable = ({ data }: ModelEstimationTableProps) => {
+  return <Table bordered pagination={false} dataSource={data} columns={columns} />;
 };
 
 export default ModelEstimationTable;
