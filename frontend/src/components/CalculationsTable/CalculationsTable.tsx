@@ -414,7 +414,9 @@ const CalculationsTable = observer(() => {
           <Divider className="pt-4">Таблица с доп. информацией</Divider>
           <section className="flex flex-col gap-4">
             <ModelEstimationTable data={modelEstimationTableRows} />
-            <Divider>Стандартизованная по возрастному населению заболеваемость совокупного населения </Divider>
+            <Divider className="overflow-x-auto">
+              Стандартизованная по возрастному населению заболеваемость совокупного населения{" "}
+            </Divider>
           </section>
         </div>
         <Table

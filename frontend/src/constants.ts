@@ -160,12 +160,14 @@ export const calculatedNoSexRecognitionTableColumns = [
     dataIndex: "startAge" as const,
     width: 120,
     fixed: "left",
+    align: "center",
   },
   {
     title: "Конечный возраст" as const,
     dataIndex: "endAge" as const,
     width: 120,
     fixed: "left",
+    align: "center",
   },
 
   {
