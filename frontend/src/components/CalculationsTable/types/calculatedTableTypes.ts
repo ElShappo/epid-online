@@ -1,4 +1,4 @@
-import { calculatedSexRecognitionTableColumns, calculatedTableColumnTypes } from "../../constants";
+import { calculatedSexRecognitionTableColumns, calculatedTableColumnTypes } from "../../../constants";
 
 export type CalculatedSexRecognitionTableColumnTitle = (typeof calculatedSexRecognitionTableColumns)[number]["title"];
 export type CalculatedSexRecognitionTableColumnDataIndex =
