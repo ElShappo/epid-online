@@ -225,7 +225,7 @@ export class EpidCalculator {
 
   getTotalIntensiveMorbidity(sex?: Sex, regionCodes?: string[]) {
     const a = this.getTotalMorbidity(sex, regionCodes);
-    return (10 ** 5 * a) / this.#population.n(0, upperYearBound);
+    return (10 ** 5 * a) / this.#population.n(0, upperYearBound, sex, regionCodes);
   }
 
   getChosenRegionsStandardizedMorbidity() {
