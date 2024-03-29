@@ -98,7 +98,7 @@ export class EpidCalculator {
       obj["morbidityRussia"] = this.#getMorbidity(k1, k2);
       obj["intensiveMorbidityRussia"] = this.#getIntensiveMorbidity(k1, k2);
 
-      const intensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2);
+      const intensiveMorbidityRussiaCI = this.#getIntensiveMorbidityConfidenceInterval(k1, k2);
 
       obj["lowerIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[0];
       obj["upperIntensiveMorbidityRussia"] = intensiveMorbidityRussiaCI[1];
@@ -107,7 +107,7 @@ export class EpidCalculator {
       obj["morbidityChosenRegions"] = this.#getMorbidity(k1, k2, undefined, this.#regionCodes);
       obj["intensiveMorbidityChosenRegions"] = this.#getIntensiveMorbidity(k1, k2, undefined, this.#regionCodes);
 
-      const intensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
+      const intensiveMorbidityChosenRegionsCI = this.#getIntensiveMorbidityConfidenceInterval(
         k1,
         k2,
         undefined,
@@ -126,7 +126,7 @@ export class EpidCalculator {
           "male"
         );
 
-        const menIntensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2, "male");
+        const menIntensiveMorbidityRussiaCI = this.#getIntensiveMorbidityConfidenceInterval(k1, k2, "male");
 
         (obj as CalculatedSexRecognitionTableRow)["menLowerIntensiveMorbidityRussia"] =
           menIntensiveMorbidityRussiaCI[0];
@@ -141,7 +141,7 @@ export class EpidCalculator {
           "female"
         );
 
-        const womenIntensiveMorbidityRussiaCI = this.getIntensiveMorbidityConfidenceInterval(k1, k2, "female");
+        const womenIntensiveMorbidityRussiaCI = this.#getIntensiveMorbidityConfidenceInterval(k1, k2, "female");
 
         (obj as CalculatedSexRecognitionTableRow)["womenLowerIntensiveMorbidityRussia"] =
           womenIntensiveMorbidityRussiaCI[0];
@@ -167,7 +167,7 @@ export class EpidCalculator {
           this.#regionCodes
         );
 
-        const menIntensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
+        const menIntensiveMorbidityChosenRegionsCI = this.#getIntensiveMorbidityConfidenceInterval(
           k1,
           k2,
           "male",
@@ -198,7 +198,7 @@ export class EpidCalculator {
           this.#regionCodes
         );
 
-        const womenIntensiveMorbidityChosenRegionsCI = this.getIntensiveMorbidityConfidenceInterval(
+        const womenIntensiveMorbidityChosenRegionsCI = this.#getIntensiveMorbidityConfidenceInterval(
           k1,
           k2,
           "female",
@@ -300,7 +300,7 @@ export class EpidCalculator {
     return [lowerBound, upperBound];
   }
 
-  getIntensiveMorbidityConfidenceInterval(
+  #getIntensiveMorbidityConfidenceInterval(
     k1: number,
     k2: number,
     m?: Sex,
