@@ -1,6 +1,6 @@
 import { Table } from "antd";
-import { CalculationCategoriesType } from "../../types";
 import { useEffect, useState } from "react";
+import { CalculationCategoriesType } from "./types/calculatedTableTypes";
 
 type DataType = {
   key: string;
@@ -54,14 +54,7 @@ const ModelEstimationTable = ({
   useEffect(() => {
     const res = [];
     const keys = hasSexRecognition
-      ? [
-          "Russia",
-          "menRussia",
-          "womenRussia",
-          "ChosenRegions",
-          "menChosenRegions",
-          "womenChosenRegions",
-        ]
+      ? ["Russia", "menRussia", "womenRussia", "ChosenRegions", "menChosenRegions", "womenChosenRegions"]
       : ["Russia", "ChosenRegions"];
 
     let index = 1;
@@ -78,9 +71,7 @@ const ModelEstimationTable = ({
     }
     setRows(res);
   }, [hasSexRecognition, objLambda, objC, objContactNumber, objAbsoluteError]);
-  return (
-    <Table bordered pagination={false} dataSource={rows} columns={columns} />
-  );
+  return <Table bordered pagination={false} dataSource={rows} columns={columns} />;
 };
 
 export default ModelEstimationTable;

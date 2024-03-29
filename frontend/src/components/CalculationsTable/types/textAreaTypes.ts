@@ -7,7 +7,7 @@ import {
   textAreaSexRecognition,
   textAreaSexRecognitionAgeEnd,
   textAreaVariations,
-} from "./textAreaConstants";
+} from "../constants/textAreaConstants";
 
 export type EpidTextAreaContentRestrictions = {
   allowOnlyIntegers: boolean;

@@ -10,20 +10,21 @@ import { calculatedNoSexRecognitionTableColumns, calculatedSexRecognitionTableCo
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { EpidCalculator, EpidCalculatorException } from "./classes/epidCalculator";
-import { CalculatedTableRow, CalculationCategoriesType, Sex } from "../../types";
+import { Sex } from "../../types";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
 import ModelEstimationTable from "./ModelEstimationTable";
-import { EpidTextArea, InputMode, InputOption, RawEpidTextArea, TextAreaDataIndex } from "./textAreaTypes";
+import { EpidTextArea, InputMode, InputOption, RawEpidTextArea, TextAreaDataIndex } from "./types/textAreaTypes";
 import {
   inputOptions,
   textAreaAgeEnd,
   textAreaNone,
   textAreaSexRecognition,
   textAreaSexRecognitionAgeEnd,
-} from "./textAreaConstants";
-import { extractDataForPlotting } from "./utils";
+} from "./constants/textAreaConstants";
+import { extractDataForPlotting } from "./utils/utils";
+import { CalculatedTableRow, CalculationCategoriesType } from "./types/calculatedTableTypes";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [

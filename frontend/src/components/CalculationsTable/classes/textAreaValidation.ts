@@ -1,4 +1,4 @@
-import { EpidTextArea, EpidTextAreaSplitted } from "../textAreaTypes";
+import { EpidTextArea, EpidTextAreaSplitted } from "../types/textAreaTypes";
 
 class TextAreaValidationException extends Error {
   constructor(message: string) {

@@ -1,4 +1,18 @@
-import { CalculatedTableRow, PlotlyInputData } from "../../types";
+import { CalculatedTableRow } from "../types/calculatedTableTypes";
+
+export type PlotlyInputData = {
+  x: string[];
+  y: number[];
+  name: string;
+  error_y: {
+    type: "data" | "constant" | "percent";
+    array: number[];
+    arrayminus: number[];
+    visible: boolean;
+    color: string;
+  };
+  type: "bar";
+};
 
 export function extractDataForPlotting(calculatedTableRows: CalculatedTableRow[], hasSexRecognition: boolean) {
   const res: PlotlyInputData[] = [];

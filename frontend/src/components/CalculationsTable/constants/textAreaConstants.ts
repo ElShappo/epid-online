@@ -1,4 +1,4 @@
-import { upperYearBound } from "../../constants";
+import { upperYearBound } from "../../../constants";
 
 export const delimSymbols = ["\n"] as const;
 export const inputOptions = ["sexRecognition", "ageEnd"] as const;

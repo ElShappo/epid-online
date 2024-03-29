@@ -1,6 +1,6 @@
 import { upperYearBound } from "../../../constants";
-import { textAreaVariations } from "../textAreaConstants";
-import { TextAreaDataIndex, EpidTextAreaSplitted, EpidTextArea, InputMode } from "../textAreaTypes";
+import { textAreaVariations } from "../constants/textAreaConstants";
+import { TextAreaDataIndex, EpidTextAreaSplitted, EpidTextArea, InputMode } from "../types/textAreaTypes";
 import { TextAreaReader } from "./textAreaReader";
 import { TextAreasValidation } from "./textAreasValidation";
 

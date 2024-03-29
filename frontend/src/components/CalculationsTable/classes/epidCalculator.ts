@@ -15,7 +15,7 @@ import {
   InputMode,
   TableRowFromTextAreas,
   TextAreaDataIndex,
-} from "../textAreaTypes";
+} from "../types/textAreaTypes";
 import { TextAreasReader } from "./textAreasReader";
 
 export class EpidCalculatorException extends Error {
