@@ -80,6 +80,7 @@ export type Sex = "male" | "female";
 export type RegionPlotly = {
   region: string;
   federal_district: string;
+  population?: number;
   x: number[];
   y: number[];
 };

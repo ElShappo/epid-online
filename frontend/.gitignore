@@ -15,6 +15,7 @@ dist-ssr
 *.geojson
 population.json
 filtered_regions.json
+filtered_regions_with_changed_names.json
 diseases.json
 
 # Editor directories and files
