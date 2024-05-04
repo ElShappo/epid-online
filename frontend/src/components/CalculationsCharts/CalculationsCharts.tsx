@@ -1,4 +1,5 @@
 import Plot from "react-plotly.js";
+import { PopulationSingleYear } from "../../utils";
 import regions from "../../assets/filtered_regions.json";
 import { RegionPlotly } from "../../types";
 import { Data, Layout } from "plotly.js";
@@ -27,11 +28,15 @@ const MyMultiPolygon = () => {
     return {
       x: item.x,
       y: item.y,
+      name: item.region,
+      text: `<b>${item.region}</b><br>${item.federal_district}<br>Население: some`,
+      hoverinfo: "text",
+      line_color: "grey",
       fill: "toself", // specify the fill mode
-      mode: "lines", // draw lines between vertices
-      line: { color: "black" }, // line color
+      line_width: 1,
       fillcolor: "rgba(255, 0, 0, 0.2)", // fill color with opacity
       type: "scatter", // trace type
+      showlegend: false,
     };
   });
 
@@ -43,6 +48,8 @@ const MyMultiPolygon = () => {
     },
     yaxis: {
       visible: false,
+      scaleanchor: "x",
+      scaleratio: 1,
     },
     margin: {
       l: 10,
@@ -50,6 +57,11 @@ const MyMultiPolygon = () => {
       b: 10,
       t: 50,
       pad: 10,
+    },
+    legend: {
+      font: {
+        size: 8,
+      },
     },
   } as Layout;
 
