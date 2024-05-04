@@ -76,3 +76,10 @@ export type LineColor = {
 };
 
 export type Sex = "male" | "female";
+
+export type RegionPlotly = {
+  region: string;
+  federal_district: string;
+  x: number[];
+  y: number[];
+};

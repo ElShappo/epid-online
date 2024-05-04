@@ -12,7 +12,9 @@ dist
 dist-ssr
 *.local
 
+*.geojson
 population.json
+filtered_regions.json
 diseases.json
 
 # Editor directories and files
