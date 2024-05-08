@@ -444,4 +444,14 @@ export const calculatedTableColumnTypes = [
   "upperIntensiveMorbidity",
 ] as const;
 
+export const plotlyMapModes = [
+  "Абсолютная заболеваемость",
+  "Интенсивная заболеваемость на 100 тысяч",
+  "Контактное число",
+  "Выявляемость",
+  "Стандартизованная заболеваемость совокупного населения",
+  "Заболеваемость совокупного населения",
+  "Заболеваемость в выбранной возрастной группе",
+];
+
 export { availableYears, columns };

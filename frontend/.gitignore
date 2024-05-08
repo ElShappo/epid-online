@@ -16,6 +16,8 @@ dist-ssr
 population.json
 filtered_regions.json
 filtered_regions_with_changed_names.json
+formattedMorbidity.json
+morbidityStructure.json
 diseases.json
 
 # Editor directories and files

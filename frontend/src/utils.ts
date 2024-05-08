@@ -96,10 +96,7 @@ export class Regions {
       for (const region of this.#regions) {
         const levels = region.territory_code.match(reg);
         if (!levels) {
-          throw new RegionCodeException(
-            region.territory,
-            region.territory_code
-          );
+          throw new RegionCodeException(region.territory, region.territory_code);
         }
       }
     } else {
@@ -110,10 +107,7 @@ export class Regions {
     if (this.#regions) {
       for (const region of this.#regions) {
         if (!region.territory) {
-          throw new RegionNameException(
-            region.territory,
-            region.territory_code
-          );
+          throw new RegionNameException(region.territory, region.territory_code);
         }
       }
     } else {
@@ -161,10 +155,7 @@ export class Regions {
     const result = [];
 
     for (const region of this.#regions as Region[]) {
-      if (
-        region.territory_code !== rootCode &&
-        region.territory_code.startsWith(commonStartStringified)
-      ) {
+      if (region.territory_code !== rootCode && region.territory_code.startsWith(commonStartStringified)) {
         result.push(region);
       }
     }
@@ -217,9 +208,7 @@ export class Regions {
       const children = this.getDirectChildren(rootCode) as Region[];
 
       for (const child of children) {
-        node.children.push(
-          this.getAntDesignTreeSelectFormat(child.territory_code)
-        );
+        node.children.push(this.getAntDesignTreeSelectFormat(child.territory_code));
       }
     } else {
       // console.log(`${rootCode} doesn't have children`)
@@ -346,9 +335,7 @@ export class PopulationSingleYear {
 
   constructor(year: availableYearsType) {
     this.#year = year;
-    this.#population = (population as PopulationSingleRecord[]).filter(
-      (row) => row.year === this.#year
-    );
+    this.#population = (population as PopulationSingleRecord[]).filter((row) => row.year === this.#year);
 
     this.#checkAgeStart();
     this.#checkAgeEnd();
@@ -393,33 +380,21 @@ export class PopulationSingleYear {
 
   // to get number of 85+ year olds year-by-year,
   // we assume that for each subsequent year the half of the population dies (geometric progression)
-  getByAge(
-    regionCode: string,
-    age: number
-  ): PopulationSingleRecord | undefined {
+  getByAge(regionCode: string, age: number): PopulationSingleRecord | undefined {
     const population = this.getRegionPopulation(regionCode);
     if (!population.length) {
       throw new RegionCodeNotFoundException("", regionCode);
     }
-    const _80UpYearOlds = population.find(
-      (record) => record.age_start === 80 && record.age_end === upperYearBound
-    );
-    const _85UpYearOlds = population.find(
-      (record) => record.age_start === 85 && record.age_end === upperYearBound
-    );
-    const _100UpYearOlds = population.find(
-      (record) => record.age_start === 100 && record.age_end === upperYearBound
-    );
+    const _80UpYearOlds = population.find((record) => record.age_start === 80 && record.age_end === upperYearBound);
+    const _85UpYearOlds = population.find((record) => record.age_start === 85 && record.age_end === upperYearBound);
+    const _100UpYearOlds = population.find((record) => record.age_start === 100 && record.age_end === upperYearBound);
 
     // console.log(age, regionCode);
 
     if (this.#regions) {
       const regionName = this.#regions.getRegionByCode(regionCode)!.territory;
 
-      const res = population.find(
-        (record) =>
-          record.age_start === record.age_end && record.age_start === age
-      );
+      const res = population.find((record) => record.age_start === record.age_end && record.age_start === age);
       if (res) {
         return res;
       }
@@ -431,35 +406,17 @@ export class PopulationSingleYear {
           throw new Error("could not discretize unexisting age groups");
         }
 
-        const _80To85OldsPerYearAll = Math.floor(
-          (_80UpYearOlds.all - _85UpYearOlds.all) / 5
-        );
-        const _80To85OldsPerYearAllMen = Math.floor(
-          (_80UpYearOlds.all_men - _85UpYearOlds.all_men) / 5
-        );
-        const _80To85OldsPerYearAllWomen = Math.floor(
-          (_80UpYearOlds.all_women - _85UpYearOlds.all_women) / 5
-        );
+        const _80To85OldsPerYearAll = Math.floor((_80UpYearOlds.all - _85UpYearOlds.all) / 5);
+        const _80To85OldsPerYearAllMen = Math.floor((_80UpYearOlds.all_men - _85UpYearOlds.all_men) / 5);
+        const _80To85OldsPerYearAllWomen = Math.floor((_80UpYearOlds.all_women - _85UpYearOlds.all_women) / 5);
 
-        const _80To85OldsPerYearUrbanAll = Math.floor(
-          (_80UpYearOlds.urban_all - _85UpYearOlds.urban_all) / 5
-        );
-        const _80To85OldsPerYearUrbanMen = Math.floor(
-          (_80UpYearOlds.urban_men - _85UpYearOlds.urban_men) / 5
-        );
-        const _80To85OldsPerYearUrbanWomen = Math.floor(
-          (_80UpYearOlds.urban_women - _85UpYearOlds.urban_women) / 5
-        );
+        const _80To85OldsPerYearUrbanAll = Math.floor((_80UpYearOlds.urban_all - _85UpYearOlds.urban_all) / 5);
+        const _80To85OldsPerYearUrbanMen = Math.floor((_80UpYearOlds.urban_men - _85UpYearOlds.urban_men) / 5);
+        const _80To85OldsPerYearUrbanWomen = Math.floor((_80UpYearOlds.urban_women - _85UpYearOlds.urban_women) / 5);
 
-        const _80To85OldsPerYearRuralAll = Math.floor(
-          (_80UpYearOlds.rural_all - _85UpYearOlds.rural_all) / 5
-        );
-        const _80To85OldsPerYearRuralMen = Math.floor(
-          (_80UpYearOlds.rural_men - _85UpYearOlds.rural_men) / 5
-        );
-        const _80To85OldsPerYearRuralWomen = Math.floor(
-          (_80UpYearOlds.rural_women - _85UpYearOlds.rural_women) / 5
-        );
+        const _80To85OldsPerYearRuralAll = Math.floor((_80UpYearOlds.rural_all - _85UpYearOlds.rural_all) / 5);
+        const _80To85OldsPerYearRuralMen = Math.floor((_80UpYearOlds.rural_men - _85UpYearOlds.rural_men) / 5);
+        const _80To85OldsPerYearRuralWomen = Math.floor((_80UpYearOlds.rural_women - _85UpYearOlds.rural_women) / 5);
 
         return {
           year: this.#year,
@@ -509,31 +466,21 @@ export class PopulationSingleYear {
         };
 
         for (let i = 0; i < numberOfDivisions; ++i) {
-          const all_delta =
-            res.all_men -
-            Math.floor(res.all_men / 2) +
-            res.all_women -
-            Math.floor(res.all_women / 2);
+          const all_delta = res.all_men - Math.floor(res.all_men / 2) + res.all_women - Math.floor(res.all_women / 2);
 
           res.all_men = Math.floor(res.all_men / 2);
           res.all_women = Math.floor(res.all_women / 2);
           res.all -= all_delta;
 
           const urban_delta =
-            res.urban_men -
-            Math.floor(res.urban_men / 2) +
-            res.urban_women -
-            Math.floor(res.urban_women / 2);
+            res.urban_men - Math.floor(res.urban_men / 2) + res.urban_women - Math.floor(res.urban_women / 2);
 
           res.urban_men = Math.floor(res.urban_men / 2);
           res.urban_women = Math.floor(res.urban_women / 2);
           res.urban_all -= urban_delta;
 
           const rural_delta =
-            res.rural_men -
-            Math.floor(res.rural_men / 2) +
-            res.rural_women -
-            Math.floor(res.rural_women / 2);
+            res.rural_men - Math.floor(res.rural_men / 2) + res.rural_women - Math.floor(res.rural_women / 2);
 
           res.rural_men = Math.floor(res.rural_men / 2);
           res.rural_women = Math.floor(res.rural_women / 2);
@@ -545,9 +492,7 @@ export class PopulationSingleYear {
           throw new Error("could not discretize unexisting age groups");
         }
         const numberOfDivisions = _85UpYearOlds ? age - 84 : age - 99;
-        const _85Or100UpYearOlds = (
-          _85UpYearOlds ? _85UpYearOlds : _100UpYearOlds
-        )!;
+        const _85Or100UpYearOlds = (_85UpYearOlds ? _85UpYearOlds : _100UpYearOlds)!;
 
         const res = {
           year: this.#year,
@@ -571,31 +516,21 @@ export class PopulationSingleYear {
         };
 
         for (let i = 0; i < numberOfDivisions; ++i) {
-          const all_delta =
-            res.all_men -
-            Math.floor(res.all_men / 2) +
-            res.all_women -
-            Math.floor(res.all_women / 2);
+          const all_delta = res.all_men - Math.floor(res.all_men / 2) + res.all_women - Math.floor(res.all_women / 2);
 
           res.all_men = Math.floor(res.all_men / 2);
           res.all_women = Math.floor(res.all_women / 2);
           res.all -= all_delta;
 
           const urban_delta =
-            res.urban_men -
-            Math.floor(res.urban_men / 2) +
-            res.urban_women -
-            Math.floor(res.urban_women / 2);
+            res.urban_men - Math.floor(res.urban_men / 2) + res.urban_women - Math.floor(res.urban_women / 2);
 
           res.urban_men = Math.floor(res.urban_men / 2);
           res.urban_women = Math.floor(res.urban_women / 2);
           res.urban_all -= urban_delta;
 
           const rural_delta =
-            res.rural_men -
-            Math.floor(res.rural_men / 2) +
-            res.rural_women -
-            Math.floor(res.rural_women / 2);
+            res.rural_men - Math.floor(res.rural_men / 2) + res.rural_women - Math.floor(res.rural_women / 2);
 
           res.rural_men = Math.floor(res.rural_men / 2);
           res.rural_women = Math.floor(res.rural_women / 2);
@@ -638,13 +573,16 @@ export class PopulationSingleYear {
   }
 
   // get fraction of people of chosen age group and sex in the chosen regions
-  h(k1: number, k2?: number, m?: Sex, regionCodes?: string[]) {
+  h(k1: number, k2?: number, m?: Sex, regionCodes?: string[], showPrint = false) {
     regionCodes ??= [RussiaRegionCode];
     const totalPopulation = this.n(0, upperYearBound, undefined, regionCodes);
-    const res = this.n(k1, k2, m, regionCodes) / totalPopulation;
-    console.log(
-      `regionCodes = ${regionCodes}, totalPopulation = ${totalPopulation}, h = ${res}`
-    );
+    const n = this.n(k1, k2, m, regionCodes);
+    const res = n / totalPopulation;
+    if (showPrint) {
+      console.log(
+        `regionCodes = ${regionCodes}, totalPopulation = ${totalPopulation}, k1 = ${k1}, k2 = ${k2}, m = ${m} n = ${n}, h = ${res}`
+      );
+    }
     return res;
   }
 
@@ -658,9 +596,7 @@ export class PopulationSingleYear {
 
   getAgeRanges() {
     if (this.#regions) {
-      const firstRegionPopulation = this.getRegionPopulation(
-        this.#regions.getRegions()![0].territory_code
-      );
+      const firstRegionPopulation = this.getRegionPopulation(this.#regions.getRegions()![0].territory_code);
       return firstRegionPopulation.map((row) => {
         return {
           age_start: row.age_start,
@@ -675,9 +611,7 @@ export class PopulationSingleYear {
   // get only those age ranges, where age_start equals age_end
   filterAgeRanges() {
     const rawAgeRanges = this.getAgeRanges();
-    return rawAgeRanges.filter(
-      (ageRange) => ageRange.age_start === ageRange.age_end
-    );
+    return rawAgeRanges.filter((ageRange) => ageRange.age_start === ageRange.age_end);
   }
 
   getDataForCharts(rootCodes: string[], chartsMode: chartsDataMode): ChartData {
@@ -712,9 +646,7 @@ export class PopulationSingleYear {
 
       let count = 0;
       for (const rootCode of rootCodes) {
-        const region = this.getRegionPopulation(rootCode).filter(
-          (row) => row.age_start === row.age_end
-        );
+        const region = this.getRegionPopulation(rootCode).filter((row) => row.age_start === row.age_end);
         result.labels = region.map((row) => row.age_start);
         const color = pickColor(count);
 
@@ -730,9 +662,7 @@ export class PopulationSingleYear {
             break;
           }
           case "ruralToUrban": {
-            const ruralToUrban = region.map(
-              (row) => row.rural_all / row.urban_all
-            );
+            const ruralToUrban = region.map((row) => row.rural_all / row.urban_all);
             result.datasets.push({
               data: ruralToUrban,
               label: this.#regions.getRegionByCode(rootCode)?.territory,
@@ -773,40 +703,27 @@ export class PopulationSingleYear {
         return this.getRegionPopulation(rootCodes[0]).map((row) => {
           return {
             ...row,
-            all_proportion:
-              (row.all_women / row.all_men).toFixed(2) || (0 as number),
-            urban_proportion:
-              (row.urban_women / row.urban_men).toFixed(2) || (0 as number),
-            rural_proportion:
-              (row.rural_women / row.rural_men).toFixed(2) || (0 as number),
+            all_proportion: (row.all_women / row.all_men).toFixed(2) || (0 as number),
+            urban_proportion: (row.urban_women / row.urban_men).toFixed(2) || (0 as number),
+            rural_proportion: (row.rural_women / row.rural_men).toFixed(2) || (0 as number),
           };
         });
       }
-      const rootNames = rootCodes.map(
-        (rootCode) => this.#regions!.getRegionByCode(rootCode)!.territory
-      );
+      const rootNames = rootCodes.map((rootCode) => this.#regions!.getRegionByCode(rootCode)!.territory);
 
       // for each root we get corresponding leaves (nodes without children)
       // the final array that holds every leaf might inlcude duplicates
       // which are removed using new Set()
       const leafCodes = Array.from(
         new Set(
-          rootCodes
-            .map((rootCode) =>
-              this.#regions!.getLeafNodes(rootCode).map(
-                (leaf) => leaf.territory_code
-              )
-            )
-            .flat()
+          rootCodes.map((rootCode) => this.#regions!.getLeafNodes(rootCode).map((leaf) => leaf.territory_code)).flat()
         )
       );
 
       // for each node we get the population
       // each node describes population for each age range
       // thus the final variable is [][] (array of arrays)
-      const populationPerLeafNode = leafCodes.map((leafCode) =>
-        this.getRegionPopulation(leafCode)
-      );
+      const populationPerLeafNode = leafCodes.map((leafCode) => this.getRegionPopulation(leafCode));
 
       return populationPerLeafNode.reduce((sum, curr) => {
         const res: PopulationSingleRecord[] = [];
@@ -821,10 +738,8 @@ export class PopulationSingleYear {
             all: sum[i].all + curr[i].all,
             all_men: sum[i].all_men + curr[i].all_men,
             all_women: sum[i].all_women + curr[i].all_women,
-            all_proportion: ((
-              (sum[i].all_women + curr[i].all_women) /
-              (sum[i].all_men + curr[i].all_men)
-            ).toFixed(2) || 0) as number,
+            all_proportion: (((sum[i].all_women + curr[i].all_women) / (sum[i].all_men + curr[i].all_men)).toFixed(2) ||
+              0) as number,
 
             urban_all: sum[i].urban_all + curr[i].urban_all,
             urban_men: sum[i].urban_men + curr[i].urban_men,
@@ -851,8 +766,4 @@ export class PopulationSingleYear {
   }
 }
 
-export {
-  RangeValidationException,
-  BoundsOrderException,
-  parsePositiveNumberRanges,
-};
+export { RangeValidationException, BoundsOrderException, parsePositiveNumberRanges };

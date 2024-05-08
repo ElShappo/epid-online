@@ -242,7 +242,7 @@ export class EpidCalculator {
       for (const row of this.#calculatedTableRows as CalculatedNoSexRecognitionTableRow[]) {
         const k1 = row["startAge"];
         const k2 = row["endAge"];
-        res += row["morbidityChosenRegions"] * this.#population.h(k1, k2);
+        res += row["morbidityChosenRegions"] * this.#population.h(k1, k2, undefined);
       }
     }
     return res;
@@ -316,6 +316,19 @@ export class EpidCalculator {
     ];
   }
 
+  #findRowWithAgeWithin(age: number) {
+    return this.#calculatedTableRows.find((row) => row.startAge <= age && row.endAge >= age);
+  }
+
+  #relativeMorbidityFunction(age: number, lambda: number) {
+    return lambda * Math.exp(-lambda * age);
+  }
+
+  #morbidityFunction(age: number, lambda: number) {
+    const population = this.#population.n(age);
+    return Math.round(this.#relativeMorbidityFunction(age, lambda) * population);
+  }
+
   #leastSquares1D(x: number[], y: number[], foo: (x: number, param: number) => number, step = 0.01): number {
     if (x.length !== y.length) {
       throw new Error("x and y should be of the same length");
@@ -334,19 +347,6 @@ export class EpidCalculator {
       }
     }
     return res;
-  }
-
-  #findRowWithAgeWithin(age: number) {
-    return this.#calculatedTableRows.find((row) => row.startAge <= age && row.endAge >= age);
-  }
-
-  #relativeMorbidityFunction(age: number, lambda: number) {
-    return lambda * Math.exp(-lambda * age);
-  }
-
-  #morbidityFunction(age: number, lambda: number) {
-    const population = this.#population.n(age);
-    return Math.round(this.#relativeMorbidityFunction(age, lambda) * population);
   }
 
   // morbidity data (which is typed by user) may only be available for a range of ages (not for each single age)
@@ -379,7 +379,8 @@ export class EpidCalculator {
         throw new Error("wrong getLambdaEstimation usage");
       }
 
-      y.push(Math.round(intensiveMorbidity / 10 ** 5) * population);
+      const absoluteMorbidity = Math.round(intensiveMorbidity / 10 ** 5) * population;
+      y.push(absoluteMorbidity);
     }
 
     console.log(x);
@@ -432,7 +433,8 @@ export class EpidCalculator {
         continue;
       }
       const h = this.#population.h(flooredI, flooredI, sex, regionCodes);
-      res += this.#relativeMorbidityFunction(i, lambda) * h * step;
+      // res += this.#relativeMorbidityFunction(i, lambda) * h * step;
+      res += Math.exp(-lambda * i) * h * step;
     }
     return res;
   }

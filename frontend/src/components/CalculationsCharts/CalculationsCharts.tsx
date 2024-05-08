@@ -3,17 +3,36 @@ import { PopulationSingleYear } from "../../utils";
 import regions from "../../assets/filtered_regions_with_changed_names.json";
 import { RegionPlotly } from "../../types";
 import { Data, Layout } from "plotly.js";
-import { useEffect, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import year from "../../store/year";
 import { upperYearBound } from "../../constants";
-import { Spin, notification } from "antd";
+import { Select, Spin, TreeSelect, notification } from "antd";
+import { plotlyMapModes } from "../../constants";
+import morbidityStructure from "../../assets/morbidityStructure.json";
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
+  const [disease, setDisease] = useState<string>();
   const [regionsWithPopulation, setRegionsWithPopulation] = useState<RegionPlotly[]>([]);
-
   const [api, contextHolder] = notification.useNotification();
+
+  const formattedPlotlyMapModes = useMemo(() => {
+    return plotlyMapModes.map((mode) => {
+      return {
+        value: mode,
+        title: mode,
+      };
+    });
+  }, []);
+
+  const onChange = (newValue: string) => {
+    setDisease(newValue);
+  };
+
+  const onPopupScroll = (e: SyntheticEvent) => {
+    console.log("onPopupScroll", e);
+  };
 
   useEffect(() => {
     async function getPopulation() {
@@ -108,6 +127,25 @@ const MyMultiPolygon = observer(() => {
   return (
     <>
       {contextHolder}
+      <section className="flex flex-col items-center gap-2">
+        <Select
+          className="min-w-72 max-w-96"
+          options={formattedPlotlyMapModes}
+          placeholder="Выберите режим построения карты"
+        />
+        <TreeSelect
+          className="min-w-72 max-w-96"
+          showSearch
+          value={disease}
+          dropdownStyle={{ overflow: "auto" }}
+          placeholder="Выберите заболевание"
+          allowClear
+          treeDefaultExpandAll
+          onChange={onChange}
+          treeData={morbidityStructure}
+          onPopupScroll={onPopupScroll}
+        />
+      </section>
       <div ref={containerRef} className="w-full text-center pt-6 pb-3">
         <Plot
           data={data}
@@ -120,7 +158,6 @@ const MyMultiPolygon = observer(() => {
           onHover={(data) => {
             console.log(data);
             console.log(data.points[0].data);
-            // popupRef.current.innerHTML = "Hello there";
           }}
         />
       </div>
