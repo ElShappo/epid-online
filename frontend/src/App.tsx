@@ -2,15 +2,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthorizationPage from "./pages/Authorization/AuthorizationPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
-import { PageLayout } from "./components/PageLayout/PageLayout";
 import { ConfigProvider, theme } from "antd";
-import PopulationPage from "./pages/Population/PopulationPage";
-import CalculationsPage from "./pages/Calculations/CalculationsPage";
 import { ReactNotifications } from "react-notifications-component";
 import "react-notifications-component/dist/theme.css";
 import ProgramsPage from "./pages/Programs/ProgramsPage";
-import CalculationsCharts from "./components/CalculationsCharts/CalculationsCharts";
-import CalculationsIntervals from "./components/CalculationsIntervals/CalculationsIntervals";
+import CalculationsCharts from "./pages/Programs/RussiaMap/RussiaMapPage";
+import CalculationsIntervals from "./pages/Programs/Poisson/Poisson";
+import PopulationPage from "./pages/Programs/Population/PopulationPage";
+import EpidCalculationsPage from "./pages/Programs/EpidCalculations/EpidCalculationsPage";
+import { PageLayout } from "./pages/PageLayout/PageLayout";
 
 function App() {
   const router = createBrowserRouter([
@@ -28,7 +28,7 @@ function App() {
         },
         {
           path: "programs/calculations",
-          element: <CalculationsPage />,
+          element: <EpidCalculationsPage />,
         },
         {
           path: "programs/map",

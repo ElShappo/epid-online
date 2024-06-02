@@ -1,15 +1,15 @@
 import Plot from "react-plotly.js";
-import { PopulationSingleYear } from "../../utils";
-import regions from "../../assets/filtered_regions_with_changed_names.json";
-import { RegionPlotly } from "../../types";
+import { PopulationSingleYear } from "../../../utils";
+import regions from "../../../assets/filtered_regions_with_changed_names.json";
+import { RegionPlotly } from "../../../types";
 import { Data, Layout } from "plotly.js";
 import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import year from "../../store/year";
-import { upperYearBound } from "../../constants";
+import year from "../../../store/year";
+import { upperYearBound } from "../../../constants";
 import { Select, Spin, TreeSelect, notification } from "antd";
-import { plotlyMapModes } from "../../constants";
-import morbidityStructure from "../../assets/morbidityStructure.json";
+import { plotlyMapModes } from "../../../constants";
+import morbidityStructure from "../../../assets/morbidityStructure.json";
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);

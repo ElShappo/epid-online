@@ -1,19 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Checkbox, Divider, GetProp, message, Modal, Spin, Table, TreeSelect, Upload } from "antd";
-import { PopulationSingleYear } from "../../utils";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import { observer } from "mobx-react-lite";
-import year from "../../store/year";
 import TextArea from "antd/es/input/TextArea";
-import { calculatedNoSexRecognitionTableColumns, calculatedSexRecognitionTableColumns } from "../../constants";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import { EpidCalculator, EpidCalculatorException } from "./classes/epidCalculator";
-import { Sex } from "../../types";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
+import { PopulationSingleYear } from "../../../utils";
 import {
   EpidTextArea,
   InputMode,
@@ -22,17 +18,24 @@ import {
   TextAreaDataIndex,
   WorkerInput,
   WorkerOutput,
-} from "./types/textAreaTypes";
+} from "../../../components/CalculationsTable/types/textAreaTypes";
+import { capitalize } from "@mui/material";
+import ModelEstimationTable, {
+  ModelEstimationTableColumns,
+} from "../../../components/CalculationsTable/ModelEstimationTable";
+import { EpidCalculator, EpidCalculatorException } from "../../../components/CalculationsTable/classes/epidCalculator";
 import {
   inputOptions,
+  textAreaSexRecognitionAgeEnd,
+  textAreaSexRecognition,
   textAreaAgeEnd,
   textAreaNone,
-  textAreaSexRecognition,
-  textAreaSexRecognitionAgeEnd,
-} from "./constants/textAreaConstants";
-import { capitalize, extractDataForPlotting, mapRegionCodes, mapSex } from "./utils/utils";
-import { CalculatedTableRow } from "./types/calculatedTableTypes";
-import ModelEstimationTable, { ModelEstimationTableColumns } from "./ModelEstimationTable";
+} from "../../../components/CalculationsTable/constants/textAreaConstants";
+import { CalculatedTableRow } from "../../../components/CalculationsTable/types/calculatedTableTypes";
+import { mapSex, mapRegionCodes, extractDataForPlotting } from "../../../components/CalculationsTable/utils/utils";
+import { calculatedSexRecognitionTableColumns, calculatedNoSexRecognitionTableColumns } from "../../../constants";
+import year from "../../../store/year";
+import { Sex } from "../../../types";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [

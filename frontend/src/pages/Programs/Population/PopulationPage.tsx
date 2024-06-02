@@ -1,8 +1,8 @@
 import React from "react";
 import { TableOutlined, LineChartOutlined } from "@ant-design/icons";
 import { Tabs } from "antd";
-import PopulationCharts from "../../components/PopulationCharts/PopulationCharts";
-import PopulationTable from "../../components/PopulationTable/PopulationTable";
+import PopulationTable from "../../../components/PopulationTable/PopulationTable";
+import PopulationCharts from "../../../components/PopulationCharts/PopulationCharts";
 
 const items = [
   {
@@ -19,8 +19,6 @@ const items = [
   },
 ];
 
-const PopulationPage: React.FC = () => (
-  <Tabs centered size="large" defaultActiveKey="1" items={items} />
-);
+const PopulationPage: React.FC = () => <Tabs centered size="large" defaultActiveKey="1" items={items} />;
 
 export default PopulationPage;

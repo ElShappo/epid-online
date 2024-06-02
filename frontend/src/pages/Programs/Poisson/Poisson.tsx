@@ -1,7 +1,7 @@
 import { Button, Form, Input } from "antd";
 import { useMemo, useRef, useState } from "react";
 import quantile from "@stdlib/stats/base/dists/chisquare/quantile";
-import { defaultP } from "../../constants";
+import { defaultP } from "../../../constants";
 
 const CalculationsIntervals = () => {
   const [form] = Form.useForm();
