@@ -127,7 +127,7 @@ const MyMultiPolygon = observer(() => {
   return (
     <>
       {contextHolder}
-      <section className="flex flex-col items-center gap-2">
+      <section className="flex flex-col items-center gap-2 pt-4">
         <Select
           className="min-w-72 max-w-96"
           options={formattedPlotlyMapModes}
@@ -146,7 +146,7 @@ const MyMultiPolygon = observer(() => {
           onPopupScroll={onPopupScroll}
         />
       </section>
-      <div ref={containerRef} className="w-full text-center pt-6 pb-3">
+      <div ref={containerRef} className="w-full text-center pt-5 pb-3">
         <Plot
           data={data}
           layout={layout}

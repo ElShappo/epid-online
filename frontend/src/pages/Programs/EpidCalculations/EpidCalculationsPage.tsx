@@ -192,7 +192,7 @@ const CalculationsTable = observer(() => {
 
   if (gotRegions) {
     return (
-      <div className="flex flex-wrap justify-center">
+      <div className="flex flex-wrap justify-center pt-4">
         <div className="flex flex-wrap justify-center gap-y-4">
           <Spin spinning={spinning} fullscreen />
           <Checkbox.Group options={checkboxOptions} onChange={onCheckboxChange} className="w-full justify-center" />

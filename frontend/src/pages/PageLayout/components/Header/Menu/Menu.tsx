@@ -17,28 +17,6 @@ const Menu = () => {
   const showHamburger = screens.xl || screens.xxl ? false : true;
 
   const items: MenuProps["items"] = [
-    // {
-    //   key: "1",
-    //   label: (
-    //     <Button type="text" size={size} icon={<PeopleIcon />} className="flex" onClick={() => navigate(`/population`)}>
-    //       Население
-    //     </Button>
-    //   ),
-    // },
-    // {
-    //   key: "2",
-    //   label: (
-    //     <Button
-    //       type="text"
-    //       size={size}
-    //       // icon={<CalculateIcon />}
-    //       className="flex"
-    //       onClick={() => navigate(`/calculations`)}
-    //     >
-    //       Расчёты
-    //     </Button>
-    //   ),
-    // },
     {
       key: "1",
       label: (
