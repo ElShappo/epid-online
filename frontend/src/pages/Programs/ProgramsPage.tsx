@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import ProgramCard from "../../components/ProgramCard/ProgramCard";
 import { ProgramDetails } from "../../types";
-import { Input } from "antd";
+import { Divider, Input } from "antd";
 
 const programs: ProgramDetails[] = [
   {
@@ -39,10 +39,9 @@ const ProgramsPage = () => {
   }, [filter]);
 
   return (
-    <main className="p-6">
-      <h1 className="text-center text-2xl font-medium">Список доступных программ</h1>
+    <main className="p-4">
       <label className="flex flex-col items-center">
-        <div className="text-center pt-6 pb-3">Поиск программы по названию: </div>
+        <div className="text-center pb-3">Поиск программы по названию: </div>
         <Input
           className="2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full"
           placeholder="Начинайте вводить название программы..."
@@ -50,7 +49,8 @@ const ProgramsPage = () => {
           onInput={(evt) => setFilter((evt.target as HTMLInputElement).value)}
         />
       </label>
-      <div className="flex flex-wrap justify-center gap-8 pt-6">
+      <Divider className="mt-5" />
+      <div className="flex flex-wrap justify-center gap-8 max-h-[520px] max-md:max-h-[400px] overflow-y-auto">
         {filteredPrograms.map((program) => {
           return <ProgramCard {...program} />;
         })}
