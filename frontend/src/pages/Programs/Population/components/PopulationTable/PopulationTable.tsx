@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Button, Input, TreeSelect } from "antd";
-import TableComponent from "../TableComponent/TableComponent";
-import { columns } from "../../constants";
 import FileSaver from "file-saver";
-import { PopulationSingleYear } from "../../utils";
 import ExcelJS from "exceljs";
 import { observer } from "mobx-react-lite";
-import year from "../../store/year";
+import TableComponent from "../TableComponent/TableComponent";
+import { columns } from "../../../../../constants";
+import year from "../../../../../store/year";
+import { PopulationSingleYear } from "../../../../../utils";
 
 const { SHOW_PARENT } = TreeSelect;
 
@@ -15,8 +15,7 @@ const RegionsPage = observer(() => {
   const headerHeight = useOutletContext();
   console.log(headerHeight);
 
-  const [populationPerRegions, setPopulationPerRegions] =
-    useState<PopulationSingleYear>();
+  const [populationPerRegions, setPopulationPerRegions] = useState<PopulationSingleYear>();
   const [gotRegions, setGotRegions] = useState<boolean>(false);
   const [selectedRegions, setSelectedRegions] = useState<string[]>();
   const [ageFilters, setAgeFilters] = useState("");
@@ -28,9 +27,7 @@ const RegionsPage = observer(() => {
       setSelectedRegions(newValue);
     };
     return {
-      treeData: [
-        populationPerRegions?.getRegions()?.getAntDesignTreeSelectFormat(),
-      ],
+      treeData: [populationPerRegions?.getRegions()?.getAntDesignTreeSelectFormat()],
       value: selectedRegions,
       onChange,
       treeCheckable: true,
@@ -82,16 +79,14 @@ const RegionsPage = observer(() => {
               ></Input.Search>
               <TableComponent
                 height={`calc(100vh - ${headerHeight}px - 270px)`}
-                rowsWithoutSummary={populationPerRegions!
-                  .getMergedRegions(selectedRegions)
-                  .filter((row) => {
-                    if (!ageFilters) {
-                      return true;
-                    }
-                    const requiredRanges = ageFilters.split(", ");
-                    const currentRange = `${row.age_start}-${row.age_end}`;
-                    return requiredRanges.includes(currentRange);
-                  })}
+                rowsWithoutSummary={populationPerRegions!.getMergedRegions(selectedRegions).filter((row) => {
+                  if (!ageFilters) {
+                    return true;
+                  }
+                  const requiredRanges = ageFilters.split(", ");
+                  const currentRange = `${row.age_start}-${row.age_end}`;
+                  return requiredRanges.includes(currentRange);
+                })}
                 columns={columns}
                 summary={undefined}
                 // summary={!ageFilters ? summary : undefined}
@@ -110,9 +105,7 @@ const RegionsPage = observer(() => {
                   const worksheet = workbook.getWorksheet("Лист1");
 
                   let i = 2; // in Excel enumeration starts from 1
-                  for (const row of populationPerRegions!.getMergedRegions(
-                    selectedRegions
-                  )) {
+                  for (const row of populationPerRegions!.getMergedRegions(selectedRegions)) {
                     worksheet?.insertRow(i, [
                       +row.year,
                       row.territory,

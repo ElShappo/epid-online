@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Header from "../../components/PageLayout/Header/Header";
-import Body from "../../components/PageLayout/Body/Body";
+import Header from "./components/Header/Header";
+import Body from "./components/Body/Body";
 
 export const PageLayout = () => {
   const [headerHeight, setHeaderHeight] = useState(0);

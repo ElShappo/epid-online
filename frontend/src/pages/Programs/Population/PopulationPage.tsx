@@ -1,8 +1,8 @@
 import React from "react";
 import { TableOutlined, LineChartOutlined } from "@ant-design/icons";
 import { Tabs } from "antd";
-import PopulationTable from "../../../components/PopulationTable/PopulationTable";
-import PopulationCharts from "../../../components/PopulationCharts/PopulationCharts";
+import PopulationTable from "./components/PopulationTable/PopulationTable";
+import PopulationCharts from "./components/PopulationCharts/PopulationCharts";
 
 const items = [
   {

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import ProgramCard from "../../components/ProgramCard/ProgramCard";
 import { ProgramDetails } from "../../types";
 import { Divider, Input } from "antd";
+import ProgramCard from "./components/ProgramCard/ProgramCard";
 
 const programs: ProgramDetails[] = [
   {

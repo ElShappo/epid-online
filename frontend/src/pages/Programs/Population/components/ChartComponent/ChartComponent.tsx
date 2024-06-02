@@ -11,18 +11,9 @@ import {
   BarElement,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
-import { ChartData } from "../../types";
+import { ChartData } from "../../../../../types";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 type Props = {
   type: "Line" | "Bar";
