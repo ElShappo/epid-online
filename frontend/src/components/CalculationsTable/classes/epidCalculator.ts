@@ -436,7 +436,7 @@ export class EpidCalculator {
       // res += this.#relativeMorbidityFunction(i, lambda) * h * step;
       res += Math.exp(-lambda * i) * h * step;
     }
-    return res;
+    return 1 / res;
   }
 
   getAbsoluteErrorEstimation(sex?: Sex, regionCodes?: string[]) {
