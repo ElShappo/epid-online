@@ -8,26 +8,41 @@ import PopulationPage from "./pages/Population/PopulationPage";
 import CalculationsPage from "./pages/Calculations/CalculationsPage";
 import { ReactNotifications } from "react-notifications-component";
 import "react-notifications-component/dist/theme.css";
+import ProgramsPage from "./pages/Programs/ProgramsPage";
+import CalculationsCharts from "./components/CalculationsCharts/CalculationsCharts";
+import CalculationsIntervals from "./components/CalculationsIntervals/CalculationsIntervals";
 
 function App() {
   const router = createBrowserRouter([
-    {
-      path: "/authorization",
-      element: <AuthorizationPage />,
-    },
     {
       path: "/",
       element: <PageLayout />,
       children: [
         {
-          path: "population",
+          path: "programs",
+          element: <ProgramsPage />,
+        },
+        {
+          path: "programs/population",
           element: <PopulationPage />,
         },
         {
-          path: "calculations",
+          path: "programs/calculations",
           element: <CalculationsPage />,
         },
+        {
+          path: "programs/map",
+          element: <CalculationsCharts />,
+        },
+        {
+          path: "programs/poisson",
+          element: <CalculationsIntervals />,
+        },
       ],
+    },
+    {
+      path: "/authorization",
+      element: <AuthorizationPage />,
     },
     {
       path: "*",
@@ -48,10 +63,7 @@ function App() {
           // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
         }}
       >
-        <RouterProvider
-          router={router}
-          fallbackElement={<div>Hey, I am loading!</div>}
-        />
+        <RouterProvider router={router} fallbackElement={<div>Hey, I am loading!</div>} />
       </ConfigProvider>
     </>
   );

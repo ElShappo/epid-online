@@ -84,3 +84,10 @@ export type RegionPlotly = {
   x: number[];
   y: number[];
 };
+
+export type ProgramDetails = {
+  name: string;
+  description: string;
+  icon: string;
+  url: string;
+};

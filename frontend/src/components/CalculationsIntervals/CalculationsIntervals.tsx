@@ -49,7 +49,7 @@ const CalculationsIntervals = () => {
   }, [upperBound, value]);
 
   return (
-    <div className="flex flex-col gap-y-8 p-4">
+    <div className="flex flex-col justify-center items-center gap-y-8 pt-16 max-md:pt-8 p-4">
       <Form
         className="px-8 pt-4 flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full shadow-lg shadow-[#181717] bg-[#2c2b2b] rounded-xl"
         name="poisson-calculator"

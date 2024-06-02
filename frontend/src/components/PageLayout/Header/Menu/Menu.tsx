@@ -1,9 +1,10 @@
 import { Button, Dropdown, Grid, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import { QuestionCircleOutlined, MenuOutlined } from "@ant-design/icons";
+import MenuIcon from "@mui/icons-material/Menu";
 import Settings from "./Settings/Settings";
-import PeopleIcon from "@mui/icons-material/People";
-import CalculateIcon from "@mui/icons-material/Calculate";
+import TerminalIcon from "@mui/icons-material/Terminal";
+import ContactPageIcon from "@mui/icons-material/ContactPage";
+import HelpIcon from "@mui/icons-material/Help";
 
 const { useBreakpoint } = Grid;
 
@@ -11,69 +12,76 @@ const Menu = () => {
   const screens = useBreakpoint() as any;
   const navigate = useNavigate();
 
-  const size =
-    screens.lg || screens.xl || screens.xxl
-      ? "large"
-      : screens.md
-      ? "middle"
-      : "small";
+  const size = screens.lg || screens.xl || screens.xxl ? "large" : screens.md ? "middle" : "small";
 
   const showHamburger = screens.xl || screens.xxl ? false : true;
 
   const items: MenuProps["items"] = [
+    // {
+    //   key: "1",
+    //   label: (
+    //     <Button type="text" size={size} icon={<PeopleIcon />} className="flex" onClick={() => navigate(`/population`)}>
+    //       Население
+    //     </Button>
+    //   ),
+    // },
+    // {
+    //   key: "2",
+    //   label: (
+    //     <Button
+    //       type="text"
+    //       size={size}
+    //       // icon={<CalculateIcon />}
+    //       className="flex"
+    //       onClick={() => navigate(`/calculations`)}
+    //     >
+    //       Расчёты
+    //     </Button>
+    //   ),
+    // },
     {
       key: "1",
       label: (
-        <Button
-          type="text"
-          size={size}
-          icon={<PeopleIcon />}
-          className="flex"
-          onClick={() => navigate(`/population`)}
-        >
-          Население
+        <Button type="text" size={size} icon={<TerminalIcon />} className="flex" onClick={() => navigate(`/programs`)}>
+          Программы
         </Button>
       ),
     },
     {
       key: "2",
+      label: <Settings buttonSize={size} />,
+    },
+    {
+      key: "3",
       label: (
-        <Button
-          type="text"
-          size={size}
-          icon={<CalculateIcon />}
-          className="flex"
-          onClick={() => navigate(`/calculations`)}
-        >
-          Расчёты
+        <Button className="flex" size={size} type="text" icon={<HelpIcon />}>
+          FAQ
         </Button>
       ),
     },
     {
-      key: "3",
-      label: <Settings buttonSize={size} />,
-    },
-    {
       key: "4",
       label: (
-        <Button size={size} type="text" icon={<QuestionCircleOutlined />}>
-          FAQ
+        <Button
+          size={size}
+          type="text"
+          href="https://github.com/ElShappo?tab=repositories"
+          target="_blank"
+          className="flex no-underline"
+          icon={<ContactPageIcon />}
+        >
+          Контакты
         </Button>
       ),
     },
   ];
 
-  console.log(screens);
+  // console.log(screens);
 
   if (showHamburger) {
     return (
       <Dropdown menu={{ items }} placement="bottomRight">
-        <Button
-          type="text"
-          icon={<MenuOutlined />}
-          className="hamburger-button px-8"
-          size="large"
-        ></Button>
+        <Button type="text" icon={<MenuIcon />} className="hamburger-button px-8" size="large"></Button>
       </Dropdown>
     );
   } else {

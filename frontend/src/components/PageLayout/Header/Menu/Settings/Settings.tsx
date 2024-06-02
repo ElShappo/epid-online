@@ -1,11 +1,11 @@
 import { Button, DatePicker, DatePickerProps, Modal, message } from "antd";
 import { useState } from "react";
-import { SettingOutlined } from "@ant-design/icons";
 import { observer } from "mobx-react-lite";
 import year from "../../../../../store/year";
 import { availableYears, defaultYear } from "../../../../../constants";
 import { availableYearsType } from "../../../../../types";
 import dayjs from "dayjs";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 type SettingsProps = {
   buttonSize: "small" | "middle" | "large";
@@ -47,12 +47,7 @@ const Settings = observer(({ buttonSize }: SettingsProps) => {
   return (
     <>
       {contextHolder}
-      <Button
-        size={buttonSize}
-        icon={<SettingOutlined />}
-        type="text"
-        onClick={showModal}
-      >
+      <Button size={buttonSize} icon={<SettingsIcon />} type="text" onClick={showModal} className="flex">
         Настройки
       </Button>
       <Modal
