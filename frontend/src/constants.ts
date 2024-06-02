@@ -454,4 +454,7 @@ export const plotlyMapModes = [
   "Заболеваемость в выбранной возрастной группе",
 ];
 
+export const fallbackImg = "./fallback.png";
+export const noResults = "Ничего не нашлось :(";
+
 export { availableYears, columns };

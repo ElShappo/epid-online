@@ -87,7 +87,7 @@ export type RegionPlotly = {
 
 export type ProgramDetails = {
   name: string;
-  description: string;
-  icon: string;
   url: string;
+  description?: string;
+  icon?: string;
 };

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ProgramDetails } from "../../types";
 import { Divider, Input } from "antd";
 import ProgramCard from "./components/ProgramCard/ProgramCard";
+import { noResults } from "../../constants";
 
 const programs: ProgramDetails[] = [
   {
@@ -51,9 +52,11 @@ const ProgramsPage = () => {
       </label>
       <Divider className="mt-5" />
       <div className="flex flex-wrap justify-center gap-8 max-h-[520px] max-md:max-h-[400px] overflow-y-auto">
-        {filteredPrograms.map((program) => {
-          return <ProgramCard {...program} />;
-        })}
+        {filteredPrograms.length
+          ? filteredPrograms.map((program) => {
+              return <ProgramCard {...program} />;
+            })
+          : noResults}
       </div>
     </main>
   );
