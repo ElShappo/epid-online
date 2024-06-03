@@ -63,6 +63,7 @@ const MyMultiPolygon = observer(() => {
       setRegionsWithPopulation(res);
     }
     getPopulation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year.get(), api]);
 
   const data: Data[] = (regionsWithPopulation as RegionPlotly[]).map((item) => {

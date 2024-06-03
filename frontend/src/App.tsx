@@ -6,7 +6,7 @@ import { ConfigProvider, theme } from "antd";
 import { ReactNotifications } from "react-notifications-component";
 import { lazy } from "react";
 import "react-notifications-component/dist/theme.css";
-import PageLayout from "./pages/PageLayout/PageLayout";
+import PageLayout from "./pages/Layout/LayoutPage";
 
 const ProgramsPage = lazy(() => import("./pages/Programs/ProgramsPage"));
 const PopulationPage = lazy(() => import("./pages/Programs/Population/PopulationPage"));
