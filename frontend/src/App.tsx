@@ -4,13 +4,15 @@ import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 import { ConfigProvider, theme } from "antd";
 import { ReactNotifications } from "react-notifications-component";
+import { lazy } from "react";
 import "react-notifications-component/dist/theme.css";
-import ProgramsPage from "./pages/Programs/ProgramsPage";
-import CalculationsCharts from "./pages/Programs/RussiaMap/RussiaMapPage";
-import CalculationsIntervals from "./pages/Programs/Poisson/Poisson";
-import PopulationPage from "./pages/Programs/Population/PopulationPage";
-import EpidCalculationsPage from "./pages/Programs/EpidCalculations/EpidCalculationsPage";
-import { PageLayout } from "./pages/PageLayout/PageLayout";
+import PageLayout from "./pages/PageLayout/PageLayout";
+
+const ProgramsPage = lazy(() => import("./pages/Programs/ProgramsPage"));
+const PopulationPage = lazy(() => import("./pages/Programs/Population/PopulationPage"));
+const EpidCalculationsPage = lazy(() => import("./pages/Programs/EpidCalculations/EpidCalculationsPage"));
+const RussiaMapPage = lazy(() => import("./pages/Programs/RussiaMap/RussiaMapPage"));
+const PoissonPage = lazy(() => import("./pages/Programs/Poisson/PoissonPage"));
 
 function App() {
   const router = createBrowserRouter([
@@ -32,11 +34,11 @@ function App() {
         },
         {
           path: "programs/map",
-          element: <CalculationsCharts />,
+          element: <RussiaMapPage />,
         },
         {
           path: "programs/poisson",
-          element: <CalculationsIntervals />,
+          element: <PoissonPage />,
         },
       ],
     },

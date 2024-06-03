@@ -2,7 +2,7 @@ import { useState } from "react";
 import Header from "./components/Header/Header";
 import Body from "./components/Body/Body";
 
-export const PageLayout = () => {
+const PageLayout = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   return (
     <div className="layout">
@@ -11,3 +11,5 @@ export const PageLayout = () => {
     </div>
   );
 };
+
+export default PageLayout;
