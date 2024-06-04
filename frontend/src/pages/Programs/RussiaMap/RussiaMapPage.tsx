@@ -5,23 +5,44 @@ import { Data, Layout } from "plotly.js";
 import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import year from "../../../store/year";
-import { defaultMaxColorValue, defaultMinColorValue, upperYearBound } from "../../../constants";
-import { ColorPicker, ColorPickerProps, Divider, Form, Input, Select, Spin, TreeSelect, notification } from "antd";
+import { defaultMaxColorValue, defaultMinColorValue, defaultNullColorValue, upperYearBound } from "../../../constants";
+import {
+  Button,
+  ColorPicker,
+  ColorPickerProps,
+  Divider,
+  Form,
+  Input,
+  Select,
+  Spin,
+  TreeSelect,
+  notification,
+} from "antd";
 import { plotlyMapModes } from "../../../constants";
 import morbidityStructure from "../../../assets/morbidityStructure.json";
 import { PopulationSingleYear } from "../Population/classes/PopulationSingleYear";
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
+  const [api, contextHolder] = notification.useNotification();
+
+  const [characteristic, setCharacteristic] = useState<string>();
   const [disease, setDisease] = useState<string>();
   const [regionsWithPopulation, setRegionsWithPopulation] = useState<RegionPlotly[]>([]);
-  const [api, contextHolder] = notification.useNotification();
 
   const [minCharacteristicValue, setMinCharacteristicValue] = useState<number>(0);
   const [maxCharacteristicValue, setMaxCharacteristicValue] = useState<number>(0);
 
   const [minCharacteristicColor, setMinCharacteristicColor] = useState<ColorPickerProps["value"]>(defaultMinColorValue);
   const [maxCharacteristicColor, setMaxCharacteristicColor] = useState<ColorPickerProps["value"]>(defaultMaxColorValue);
+  const [nullCharacteristicColor, setNullCharacteristicColor] =
+    useState<ColorPickerProps["value"]>(defaultNullColorValue);
+
+  const [considerNullCharacteristic, setConsiderNullCharacteristic] = useState(false);
+
+  const nullCharacteristicStatus = useMemo(() => {
+    return considerNullCharacteristic ? "активирован" : "не активирован";
+  }, [considerNullCharacteristic]);
 
   const minRgbString = useMemo(
     () => (typeof minCharacteristicColor === "string" ? minCharacteristicColor : minCharacteristicColor?.toRgbString()),
@@ -33,6 +54,12 @@ const MyMultiPolygon = observer(() => {
     [maxCharacteristicColor]
   );
 
+  const nullRgbString = useMemo(
+    () =>
+      typeof nullCharacteristicColor === "string" ? nullCharacteristicColor : nullCharacteristicColor?.toRgbString(),
+    [nullCharacteristicColor]
+  );
+
   const formattedPlotlyMapModes = useMemo(() => {
     return plotlyMapModes.map((mode) => {
       return {
@@ -42,13 +69,58 @@ const MyMultiPolygon = observer(() => {
     });
   }, []);
 
-  const onChange = (newValue: string) => {
+  const onCharacteristicChange = (newValue: string) => {
+    setCharacteristic(newValue);
+  };
+
+  const onDiseaseChange = (newValue: string) => {
     setDisease(newValue);
   };
 
   const onPopupScroll = (e: SyntheticEvent) => {
     console.log("onPopupScroll", e);
   };
+
+  const data: Data[] = (regionsWithPopulation as RegionPlotly[]).map((item) => {
+    return {
+      x: item.x,
+      y: item.y,
+      name: item.region,
+      text: `<b>${item.region}</b><br>${item.federal_district}<br>Население: ${item.population ?? "нет информации"} `,
+      hoverinfo: "text",
+      line_color: "grey",
+      fill: "toself", // specify the fill mode
+      line_width: 1,
+      fillcolor: "rgba(255, 0, 0, 0.2)", // fill color with opacity
+      type: "scatter", // trace type
+      showlegend: false,
+    };
+  });
+
+  const layout = {
+    title: "Карта Российской Федерации",
+    autosize: true,
+    xaxis: {
+      visible: false,
+    },
+    yaxis: {
+      visible: false,
+      scaleanchor: "x",
+      scaleratio: 1,
+    },
+    margin: {
+      l: 10,
+      r: 10,
+      b: 10,
+      t: 50,
+      pad: 10,
+    },
+    legend: {
+      font: {
+        size: 8,
+      },
+    },
+  } as Layout;
 
   useEffect(() => {
     async function getPopulation() {
@@ -82,22 +154,6 @@ const MyMultiPolygon = observer(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year.get(), api]);
 
-  const data: Data[] = (regionsWithPopulation as RegionPlotly[]).map((item) => {
-    return {
-      x: item.x,
-      y: item.y,
-      name: item.region,
-      text: `<b>${item.region}</b><br>${item.federal_district}<br>Население: ${item.population ?? "нет информации"} `,
-      hoverinfo: "text",
-      line_color: "grey",
-      fill: "toself", // specify the fill mode
-      line_width: 1,
-      fillcolor: "rgba(255, 0, 0, 0.2)", // fill color with opacity
-      type: "scatter", // trace type
-      showlegend: false,
-    };
-  });
-
   useEffect(() => {
     const container = containerRef.current as null | HTMLElement;
 
@@ -114,31 +170,6 @@ const MyMultiPolygon = observer(() => {
     window.addEventListener("resize", adjustSize);
   }, []);
 
-  const layout = {
-    title: "Карта Российской Федерации",
-    autosize: true,
-    xaxis: {
-      visible: false,
-    },
-    yaxis: {
-      visible: false,
-      scaleanchor: "x",
-      scaleratio: 1,
-    },
-    margin: {
-      l: 10,
-      r: 10,
-      b: 10,
-      t: 50,
-      pad: 10,
-    },
-    legend: {
-      font: {
-        size: 8,
-      },
-    },
-  } as Layout;
-
   return (
     <>
       {contextHolder}
@@ -148,6 +179,7 @@ const MyMultiPolygon = observer(() => {
             className="min-w-72 max-w-96"
             options={formattedPlotlyMapModes}
             placeholder="Выберите характеристику"
+            onChange={onCharacteristicChange}
           />
           <TreeSelect
             className="min-w-72 max-w-96"
@@ -157,7 +189,7 @@ const MyMultiPolygon = observer(() => {
             placeholder="Выберите заболевание"
             allowClear
             treeDefaultExpandAll
-            onChange={onChange}
+            onChange={onDiseaseChange}
             treeData={morbidityStructure}
             onPopupScroll={onPopupScroll}
           />
@@ -175,6 +207,7 @@ const MyMultiPolygon = observer(() => {
             label={<span className="text-base">Цветовая палитра, отвечающая мин. значению</span>}
           >
             <ColorPicker
+              defaultValue={minCharacteristicColor}
               value={minCharacteristicColor}
               onChange={setMinCharacteristicColor}
               format="rgb"
@@ -199,8 +232,38 @@ const MyMultiPolygon = observer(() => {
             label={<span className="text-base">Цветовая палитра, отвечающая макс. значению</span>}
           >
             <ColorPicker
+              defaultValue={maxCharacteristicColor}
               value={maxCharacteristicColor}
               onChange={setMaxCharacteristicColor}
+              format="rgb"
+              disabledAlpha
+              showText
+            />
+          </Form.Item>
+        </Form>
+        <Form className="flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
+          <div className="flex p-5">
+            <div className="text-base">
+              Статус:{" "}
+              <span className={considerNullCharacteristic ? "text-green-600" : "text-gray-500"}>
+                {nullCharacteristicStatus}
+              </span>
+            </div>
+            <div className="flex-grow flex justify-end">
+              <Button type="primary" onClick={() => setConsiderNullCharacteristic((prev) => !prev)}>
+                Активировать
+              </Button>
+            </div>
+          </div>
+          <Form.Item
+            className="flex justify-center"
+            name="null-color"
+            label={<span className="text-base">Цветовая палитра, отвечающая нулевому значению</span>}
+          >
+            <ColorPicker
+              defaultValue={nullCharacteristicColor}
+              value={nullCharacteristicColor}
+              onChange={setNullCharacteristicColor}
               format="rgb"
               disabledAlpha
               showText

@@ -461,5 +461,6 @@ export const loadingRegionsMessage = "Идёт загрузка регионов
 
 export const defaultMinColorValue = "rgb(255, 255, 255)";
 export const defaultMaxColorValue = "rgb(0, 0, 0)";
+export const defaultNullColorValue = "rgb(255, 255, 255)";
 
 export { availableYears, columns };
