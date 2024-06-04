@@ -459,4 +459,7 @@ export const noResults = "Ничего не нашлось :(";
 export const loadingMessage = "Идёт загрузка...";
 export const loadingRegionsMessage = "Идёт загрузка регионов...";
 
+export const defaultMinColorValue = "rgb(255, 255, 255)";
+export const defaultMaxColorValue = "rgb(0, 0, 0)";
+
 export { availableYears, columns };
