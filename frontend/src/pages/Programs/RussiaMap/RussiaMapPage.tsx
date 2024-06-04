@@ -7,7 +7,7 @@ import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import year from "../../../store/year";
 import { upperYearBound } from "../../../constants";
-import { Select, Spin, TreeSelect, notification } from "antd";
+import { ColorPicker, Divider, Select, Spin, TreeSelect, notification } from "antd";
 import { plotlyMapModes } from "../../../constants";
 import morbidityStructure from "../../../assets/morbidityStructure.json";
 
@@ -82,8 +82,6 @@ const MyMultiPolygon = observer(() => {
     };
   });
 
-  useEffect(() => {});
-
   useEffect(() => {
     const container = containerRef.current as null | HTMLElement;
 
@@ -147,7 +145,12 @@ const MyMultiPolygon = observer(() => {
           onPopupScroll={onPopupScroll}
         />
       </section>
-      <div ref={containerRef} className="w-full text-center pt-5 pb-3">
+      <section>
+        <h2>Настройка цветовой палитры</h2>
+        <ColorPicker defaultValue="#1677ff" showText />
+      </section>
+      <Divider className="mt-5" />
+      <div ref={containerRef} className="w-full text-center pb-3">
         <Plot
           data={data}
           layout={layout}

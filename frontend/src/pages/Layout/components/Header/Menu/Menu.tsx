@@ -32,7 +32,7 @@ const Menu = () => {
     {
       key: "3",
       label: (
-        <Button className="flex" size={size} type="text" icon={<HelpIcon />}>
+        <Button className="flex" size={size} type="text" icon={<HelpIcon />} onClick={() => navigate("/faq")}>
           FAQ
         </Button>
       ),

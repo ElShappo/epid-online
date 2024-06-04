@@ -7,6 +7,8 @@ import { ReactNotifications } from "react-notifications-component";
 import { lazy } from "react";
 import "react-notifications-component/dist/theme.css";
 import PageLayout from "./pages/Layout/LayoutPage";
+import FAQPage from "./pages/FAQ/FAQPage";
+import DescriptionPage from "./pages/Description/DescriptionPage";
 
 const ProgramsPage = lazy(() => import("./pages/Programs/ProgramsPage"));
 const PopulationPage = lazy(() => import("./pages/Programs/Population/PopulationPage"));
@@ -20,6 +22,10 @@ function App() {
       path: "/",
       element: <PageLayout />,
       children: [
+        {
+          path: "",
+          element: <DescriptionPage />,
+        },
         {
           path: "programs",
           element: <ProgramsPage />,
@@ -40,6 +46,7 @@ function App() {
           path: "programs/poisson",
           element: <PoissonPage />,
         },
+        { path: "/faq", element: <FAQPage /> },
       ],
     },
     {
