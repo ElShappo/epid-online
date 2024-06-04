@@ -9,7 +9,7 @@ import type { UploadProps } from "antd";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
-import { PopulationSingleYear, getRemainingHeightString } from "../../../utils";
+import { getRemainingHeightString } from "../../../utils";
 import {
   EpidTextArea,
   InputMode,
@@ -42,6 +42,7 @@ import year from "../../../store/year";
 import { Sex } from "../../../types";
 import Loader from "../../../components/Loader/Loader";
 import headerHeight from "../../../store/headerHeight";
+import { PopulationSingleYear } from "../Population/classes/PopulationSingleYear";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [
@@ -275,7 +276,10 @@ const CalculationsTable = observer(() => {
 
                   if (window.Worker) {
                     console.log("workers are available");
-                    const worker = new Worker(new URL("./workers/worker.ts", import.meta.url), { type: "module" });
+                    const worker = new Worker(
+                      new URL("../../../components/CalculationsTable/workers/worker.ts", import.meta.url),
+                      { type: "module" }
+                    );
 
                     // structuredClone algorithm is unable to encode a class instance correctly
                     // thus we can't pass populationPerRegions

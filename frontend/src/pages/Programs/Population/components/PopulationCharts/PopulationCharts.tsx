@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import Chart from "../ChartComponent/ChartComponent";
 import { TreeSelect } from "antd";
 import { observer } from "mobx-react-lite";
-import { PopulationSingleYear } from "../../../../../utils";
 import year from "../../../../../store/year";
 import { loadingRegionsMessage } from "../../../../../constants";
 import Loader from "../../../../../components/Loader/Loader";
 import headerHeight from "../../../../../store/headerHeight";
+import { PopulationSingleYear } from "../../classes/PopulationSingleYear";
 
 const PopulationCharts = observer(() => {
   console.log(headerHeight);

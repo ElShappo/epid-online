@@ -1,5 +1,4 @@
 import Plot from "react-plotly.js";
-import { PopulationSingleYear } from "../../../utils";
 import regions from "../../../assets/filtered_regions_with_changed_names.json";
 import { RegionPlotly } from "../../../types";
 import { Data, Layout } from "plotly.js";
@@ -10,6 +9,7 @@ import { upperYearBound } from "../../../constants";
 import { ColorPicker, Divider, Select, Spin, TreeSelect, notification } from "antd";
 import { plotlyMapModes } from "../../../constants";
 import morbidityStructure from "../../../assets/morbidityStructure.json";
+import { PopulationSingleYear } from "../Population/classes/PopulationSingleYear";
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);

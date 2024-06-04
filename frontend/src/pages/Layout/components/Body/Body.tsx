@@ -6,7 +6,7 @@ import { getRemainingHeightString } from "../../../../utils";
 import { observer } from "mobx-react-lite";
 
 const Body = observer(() => {
-  console.log(headerHeight.get());
+  console.log(`Header height = ${headerHeight.get()}`);
   const remainingHeight = getRemainingHeightString(headerHeight.get());
 
   return (

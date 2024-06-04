@@ -1,14 +1,13 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import AuthorizationPage from "./pages/Authorization/AuthorizationPage";
-import NotFoundPage from "./pages/NotFound/NotFoundPage";
-import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
 import { ConfigProvider, theme } from "antd";
 import { ReactNotifications } from "react-notifications-component";
 import { lazy } from "react";
-import "react-notifications-component/dist/theme.css";
+import AuthorizationPage from "./pages/Authorization/AuthorizationPage";
+import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import LayoutPage from "./pages/Layout/LayoutPage";
 import FAQPage from "./pages/FAQ/FAQPage";
 import DescriptionPage from "./pages/Description/DescriptionPage";
+import "react-notifications-component/dist/theme.css";
 
 const ProgramsPage = lazy(() => import("./pages/Programs/ProgramsPage"));
 const PopulationPage = lazy(() => import("./pages/Programs/Population/PopulationPage"));
@@ -56,7 +55,6 @@ function App() {
     {
       path: "*",
       element: <NotFoundPage />,
-      loader: pageNotFoundLoader,
     },
   ]);
 
@@ -72,7 +70,7 @@ function App() {
           // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
         }}
       >
-        <RouterProvider router={router} fallbackElement={<div>Hey, I am loading!</div>} />
+        <RouterProvider router={router} />
       </ConfigProvider>
     </>
   );

@@ -6,15 +6,13 @@ import { observer } from "mobx-react-lite";
 import TableComponent from "../TableComponent/TableComponent";
 import { columns, loadingRegionsMessage } from "../../../../../constants";
 import year from "../../../../../store/year";
-import { PopulationSingleYear } from "../../../../../utils";
 import headerHeight from "../../../../../store/headerHeight";
 import Loader from "../../../../../components/Loader/Loader";
+import { PopulationSingleYear } from "../../classes/PopulationSingleYear";
 
 const { SHOW_PARENT } = TreeSelect;
 
 const RegionsPage = observer(() => {
-  console.log(headerHeight);
-
   const [populationPerRegions, setPopulationPerRegions] = useState<PopulationSingleYear>();
   const [gotRegions, setGotRegions] = useState<boolean>(false);
   const [selectedRegions, setSelectedRegions] = useState<string[]>();

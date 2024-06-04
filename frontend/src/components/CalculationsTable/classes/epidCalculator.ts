@@ -1,6 +1,5 @@
 import { calculationsPrecision, defaultP, upperYearBound } from "../../../constants";
 import { Sex } from "../../../types";
-import { PopulationSingleYear } from "../../../utils";
 import quantile from "@stdlib/stats/base/dists/chisquare/quantile";
 import {
   EpidTextArea,
@@ -18,6 +17,7 @@ import {
   CalculatedTableRow,
 } from "../types/calculatedTableTypes";
 import { capitalize, mapRegionCodes, mapSex } from "../utils/utils";
+import { PopulationSingleYear } from "../../../pages/Programs/Population/classes/PopulationSingleYear";
 
 export class EpidCalculatorException extends Error {
   constructor(message: string) {

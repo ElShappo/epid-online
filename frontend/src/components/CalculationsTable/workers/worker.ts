@@ -1,4 +1,4 @@
-import { PopulationSingleYear } from "../../../utils";
+import { PopulationSingleYear } from "../../../pages/Programs/Population/classes/PopulationSingleYear";
 import { EpidCalculator } from "../classes/epidCalculator";
 import { ModelEstimationTableColumns } from "../ModelEstimationTable";
 import { WorkerInput, WorkerOutput } from "../types/textAreaTypes";
