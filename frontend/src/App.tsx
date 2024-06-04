@@ -6,7 +6,7 @@ import { ConfigProvider, theme } from "antd";
 import { ReactNotifications } from "react-notifications-component";
 import { lazy } from "react";
 import "react-notifications-component/dist/theme.css";
-import PageLayout from "./pages/Layout/LayoutPage";
+import LayoutPage from "./pages/Layout/LayoutPage";
 import FAQPage from "./pages/FAQ/FAQPage";
 import DescriptionPage from "./pages/Description/DescriptionPage";
 
@@ -20,7 +20,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <PageLayout />,
+      element: <LayoutPage />,
       children: [
         {
           path: "",

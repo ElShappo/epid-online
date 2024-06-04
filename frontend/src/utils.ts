@@ -766,4 +766,8 @@ export class PopulationSingleYear {
   }
 }
 
+export function getRemainingHeightString(height: number) {
+  return `calc(100vh - ${height}px)`;
+}
+
 export { RangeValidationException, BoundsOrderException, parsePositiveNumberRanges };

@@ -1,23 +1,20 @@
 import Menu from "./Menu/Menu";
 import { useEffect, useRef } from "react";
 import Logo from "./Logo/Logo";
+import headerHeight from "../../../../store/headerHeight";
+import { observer } from "mobx-react-lite";
 
-type HeaderProps = {
-  setHeaderHeight: React.Dispatch<React.SetStateAction<number>>;
-};
-
-const Header = ({ setHeaderHeight }: HeaderProps) => {
+const Header = observer(() => {
   const ref = useRef(null);
 
   useEffect(() => {
     if (ref.current) {
       const getTabsHeight = () => {
-        console.log((ref.current! as HTMLElement).offsetHeight);
-        setHeaderHeight((ref.current! as HTMLElement).offsetHeight);
+        headerHeight.set((ref.current! as HTMLElement).offsetHeight);
       };
       new ResizeObserver(getTabsHeight).observe(ref.current);
     }
-  }, [setHeaderHeight]);
+  }, []);
 
   return (
     <header className=" bg-slate-800 p-6 max-ms:px-2" ref={ref}>
@@ -27,6 +24,6 @@ const Header = ({ setHeaderHeight }: HeaderProps) => {
       </nav>
     </header>
   );
-};
+});
 
 export default Header;

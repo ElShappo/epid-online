@@ -3,6 +3,7 @@ import { ProgramDetails } from "../../types";
 import { Divider, Input } from "antd";
 import ProgramCard from "./components/ProgramCard/ProgramCard";
 import { noResults } from "../../constants";
+import { observer } from "mobx-react-lite";
 
 const programs: ProgramDetails[] = [
   {
@@ -33,14 +34,14 @@ const programs: ProgramDetails[] = [
   },
 ];
 
-const ProgramsPage = () => {
+const ProgramsPage = observer(() => {
   const [filter, setFilter] = useState("");
   const filteredPrograms = useMemo(() => {
     return programs.filter((program) => program.name.includes(filter));
   }, [filter]);
 
   return (
-    <main className="p-4">
+    <section className="p-4 overflow-y-auto">
       <label className="flex flex-col items-center">
         <div className="text-center pb-3">Поиск программы по названию: </div>
         <Input
@@ -51,15 +52,15 @@ const ProgramsPage = () => {
         />
       </label>
       <Divider className="mt-5" />
-      <div className="flex flex-wrap justify-center gap-8 max-h-[520px] overflow-y-auto">
+      <div className="flex flex-wrap justify-center gap-8 overflow-y-auto">
         {filteredPrograms.length
           ? filteredPrograms.map((program) => {
               return <ProgramCard {...program} />;
             })
           : noResults}
       </div>
-    </main>
+    </section>
   );
-};
+});
 
 export default ProgramsPage;

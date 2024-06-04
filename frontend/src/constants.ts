@@ -456,5 +456,7 @@ export const plotlyMapModes = [
 
 export const fallbackImg = "./fallback.png";
 export const noResults = "Ничего не нашлось :(";
+export const loadingMessage = "Идёт загрузка...";
+export const loadingRegionsMessage = "Идёт загрузка регионов...";
 
 export { availableYears, columns };

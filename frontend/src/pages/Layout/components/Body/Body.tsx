@@ -1,18 +1,21 @@
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
+import Loader from "../../../../components/Loader/Loader";
+import headerHeight from "../../../../store/headerHeight";
+import { getRemainingHeightString } from "../../../../utils";
+import { observer } from "mobx-react-lite";
 
-type BodyProps = {
-  headerHeight: number;
-};
-const Body = ({ headerHeight }: BodyProps) => {
-  console.log(headerHeight);
+const Body = observer(() => {
+  console.log(headerHeight.get());
+  const remainingHeight = getRemainingHeightString(headerHeight.get());
+
   return (
-    <div className="overflow-y-auto px-4 box-border" style={{ height: `calc(100vh - ${headerHeight}px)` }}>
-      <Suspense fallback={"Идёт загрузка..."}>
-        <Outlet context={headerHeight} />
+    <main className="overflow-y-auto px-4 box-border" style={{ height: remainingHeight }}>
+      <Suspense fallback=<Loader text="Идёт загрузка..." height={remainingHeight} />>
+        <Outlet />
       </Suspense>
-    </div>
+    </main>
   );
-};
+});
 
 export default Body;

@@ -9,7 +9,7 @@ import type { UploadProps } from "antd";
 import { Store } from "react-notifications-component";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
-import { PopulationSingleYear } from "../../../utils";
+import { PopulationSingleYear, getRemainingHeightString } from "../../../utils";
 import {
   EpidTextArea,
   InputMode,
@@ -33,9 +33,15 @@ import {
 } from "../../../components/CalculationsTable/constants/textAreaConstants";
 import { CalculatedTableRow } from "../../../components/CalculationsTable/types/calculatedTableTypes";
 import { mapSex, mapRegionCodes, extractDataForPlotting } from "../../../components/CalculationsTable/utils/utils";
-import { calculatedSexRecognitionTableColumns, calculatedNoSexRecognitionTableColumns } from "../../../constants";
+import {
+  calculatedSexRecognitionTableColumns,
+  calculatedNoSexRecognitionTableColumns,
+  loadingRegionsMessage,
+} from "../../../constants";
 import year from "../../../store/year";
 import { Sex } from "../../../types";
+import Loader from "../../../components/Loader/Loader";
+import headerHeight from "../../../store/headerHeight";
 const { SHOW_PARENT } = TreeSelect;
 
 const checkboxOptions = [
@@ -192,7 +198,7 @@ const CalculationsTable = observer(() => {
 
   if (gotRegions) {
     return (
-      <div className="flex flex-wrap justify-center pt-4">
+      <section className="flex flex-wrap justify-center pt-4">
         <div className="flex flex-wrap justify-center gap-y-4">
           <Spin spinning={spinning} fullscreen />
           <Checkbox.Group options={checkboxOptions} onChange={onCheckboxChange} className="w-full justify-center" />
@@ -467,10 +473,10 @@ const CalculationsTable = observer(() => {
             style={{ width: "100%" }}
           />
         </div>
-      </div>
+      </section>
     );
   } else {
-    return <div>Loading regions...</div>;
+    return <Loader text={loadingRegionsMessage} height={getRemainingHeightString(headerHeight.get())} />;
   }
 });
 
