@@ -51,7 +51,7 @@ const ProgramsPage = () => {
         />
       </label>
       <Divider className="mt-5" />
-      <div className="flex flex-wrap justify-center gap-8 max-h-[520px] max-md:max-h-[400px] overflow-y-auto">
+      <div className="flex flex-wrap justify-center gap-8 max-h-[520px] overflow-y-auto">
         {filteredPrograms.length
           ? filteredPrograms.map((program) => {
               return <ProgramCard {...program} />;

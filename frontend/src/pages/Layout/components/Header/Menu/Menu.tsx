@@ -74,7 +74,7 @@ const Menu = () => {
         <Button
           type="text"
           icon={<MenuIcon fontSize="large" />}
-          className="hamburger-button px-8"
+          className="flex justify-center items-center"
           size="large"
         ></Button>
       </Dropdown>
