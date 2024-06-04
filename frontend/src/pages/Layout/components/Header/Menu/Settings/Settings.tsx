@@ -47,7 +47,13 @@ const Settings = observer(({ buttonSize }: SettingsProps) => {
   return (
     <>
       {contextHolder}
-      <Button size={buttonSize} icon={<SettingsIcon />} type="text" onClick={showModal} className="flex">
+      <Button
+        size={buttonSize}
+        icon={<SettingsIcon fontSize="large" />}
+        type="text"
+        onClick={showModal}
+        className="flex items-center h-auto text-xl"
+      >
         Настройки
       </Button>
       <Modal

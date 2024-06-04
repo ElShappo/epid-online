@@ -1,6 +1,6 @@
 const DescriptionPage = () => {
   return (
-    <main className="flex justify-center text-2xl pt-4">
+    <main className="flex justify-center text-xl pt-4">
       <section className="flex flex-col gap-8 xl:w-2/3 p-4">
         <p className="card p-6">
           Основная сфера использования данного приложения - проведение демографического анализа субъектов Российской
