@@ -22,6 +22,31 @@ import { Store } from "react-notifications-component";
 import Loader from "../../../components/Loader/Loader";
 import headerHeight from "../../../store/headerHeight";
 
+const layout = {
+  title: "Карта Российской Федерации",
+  autosize: true,
+  xaxis: {
+    visible: false,
+  },
+  yaxis: {
+    visible: false,
+    scaleanchor: "x",
+    scaleratio: 1,
+  },
+  margin: {
+    l: 10,
+    r: 10,
+    b: 10,
+    t: 50,
+    pad: 10,
+  },
+  legend: {
+    font: {
+      size: 8,
+    },
+  },
+} as Layout;
+
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
   const [mapData, setMapData] = useState<RussiaMapData[]>([]);
@@ -39,6 +64,16 @@ const MyMultiPolygon = observer(() => {
     useState<ColorPickerProps["value"]>(defaultNullColorValue);
 
   const [considerNullCharacteristic, setConsiderNullCharacteristic] = useState(false);
+
+  const [displayCharacteristic, setDisplayCharacteristic] = useState<string>("");
+  const [displayDisease, setDisplayDisease] = useState<string>("");
+
+  const mapTitle = useMemo(() => {
+    if (displayDisease && displayCharacteristic) {
+      return `Карта Российской Федерации: ${displayDisease}, ${displayCharacteristic}`;
+    }
+    return "Карта Российской Федерации";
+  }, [displayCharacteristic, displayDisease]);
 
   const nullCharacteristicStatus = useMemo(() => {
     return considerNullCharacteristic ? "активирован" : "не активирован";
@@ -171,36 +206,14 @@ const MyMultiPolygon = observer(() => {
               region.population ?? "нет информации"
             } ` + `<br>${capitalizeFirstLetter(characteristic)}: ${value}`;
 
+          setDisplayCharacteristic(characteristic);
+          setDisplayDisease(disease);
+
           return { ...region, fillcolor: `rgba(${R}, ${G}, ${B}, 0.8)`, text: newText };
         });
       });
     }
   };
-
-  const layout = {
-    title: "Карта Российской Федерации",
-    autosize: true,
-    xaxis: {
-      visible: false,
-    },
-    yaxis: {
-      visible: false,
-      scaleanchor: "x",
-      scaleratio: 1,
-    },
-    margin: {
-      l: 10,
-      r: 10,
-      b: 10,
-      t: 50,
-      pad: 10,
-    },
-    legend: {
-      font: {
-        size: 8,
-      },
-    },
-  } as Layout;
 
   useEffect(() => {
     async function getPopulation() {
@@ -231,7 +244,7 @@ const MyMultiPolygon = observer(() => {
           } `,
           hoverinfo: "text",
           line: {
-            color: "grey",
+            color: minRgbString,
             width: 1,
           },
           fill: "toself", // specify the fill mode
@@ -378,7 +391,7 @@ const MyMultiPolygon = observer(() => {
       <div ref={containerRef} className="w-full text-center pb-3">
         <Plot
           data={mapData}
-          layout={layout}
+          layout={{ ...layout, title: mapTitle }}
           config={{
             responsive: true,
           }}
