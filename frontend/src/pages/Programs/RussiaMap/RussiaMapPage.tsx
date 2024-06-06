@@ -9,31 +9,23 @@ import {
   defaultMaxColorValue,
   defaultMinColorValue,
   defaultNullColorValue,
+  loadingRegionsMessage,
   plotlyMapModes,
   upperYearBound,
 } from "../../../constants";
-import {
-  Button,
-  ColorPicker,
-  ColorPickerProps,
-  Divider,
-  Form,
-  Input,
-  Select,
-  Spin,
-  TreeSelect,
-  notification,
-} from "antd";
+import { Button, ColorPicker, ColorPickerProps, Divider, Form, Input, Select, TreeSelect } from "antd";
 import morbidityStructure from "../../../assets/morbidityStructure.json";
 import formattedMorbidity from "../../../assets/formattedMorbidity.json";
 import { PopulationSingleYear } from "../Population/classes/PopulationSingleYear";
 import { capitalizeFirstLetter, getLinearInterpolation, getRGBComponent } from "../../../utils";
 import { Store } from "react-notifications-component";
+import Loader from "../../../components/Loader/Loader";
+import headerHeight from "../../../store/headerHeight";
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
-  const [api, contextHolder] = notification.useNotification();
   const [mapData, setMapData] = useState<RussiaMapData[]>([]);
+  const [gotRegions, setGotRegions] = useState(false);
 
   const [characteristic, setCharacteristic] = useState<string>();
   const [disease, setDisease] = useState<string>();
@@ -212,15 +204,6 @@ const MyMultiPolygon = observer(() => {
 
   useEffect(() => {
     async function getPopulation() {
-      api.info({
-        message: (
-          <div className="flex items-center gap-4">
-            Загружаю карту
-            <Spin />
-          </div>
-        ),
-      });
-
       const populationSingleYear = new PopulationSingleYear(year.get());
       await populationSingleYear.setRegions();
 
@@ -235,35 +218,34 @@ const MyMultiPolygon = observer(() => {
           return region;
         }
       });
-      api.destroy();
-      setMapData(
-        res.map((item) => {
-          return {
-            population: item.population,
-            region: item.region,
-            federal_district: item.federal_district,
-            x: item.x,
-            y: item.y,
-            name: item.region,
-            text: `<b>${item.region}</b><br>${item.federal_district}<br>Население: ${
-              item.population ?? "нет информации"
-            } `,
-            hoverinfo: "text",
-            line: {
-              color: "grey",
-              width: 1,
-            },
-            fill: "toself", // specify the fill mode
-            fillcolor: "rgba(255, 0, 0, 0.2)", // fill color with opacity
-            type: "scatter", // trace type
-            showlegend: false,
-          };
-        })
-      );
+      const newMapData: RussiaMapData[] = res.map((item) => {
+        return {
+          population: item.population,
+          region: item.region,
+          federal_district: item.federal_district,
+          x: item.x,
+          y: item.y,
+          name: item.region,
+          text: `<b>${item.region}</b><br>${item.federal_district}<br>Население: ${
+            item.population ?? "нет информации"
+          } `,
+          hoverinfo: "text",
+          line: {
+            color: "grey",
+            width: 1,
+          },
+          fill: "toself", // specify the fill mode
+          fillcolor: "rgba(255, 0, 0, 0.2)", // fill color with opacity
+          type: "scatter", // trace type
+          showlegend: false,
+        };
+      });
+      setGotRegions(true);
+      setMapData(newMapData);
     }
     getPopulation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year.get(), api]);
+  }, [year.get()]);
 
   useEffect(() => {
     const container = containerRef.current as null | HTMLElement;
@@ -281,9 +263,12 @@ const MyMultiPolygon = observer(() => {
     window.addEventListener("resize", adjustSize);
   }, []);
 
+  if (!gotRegions) {
+    return <Loader text={loadingRegionsMessage} height={`calc(100vh - ${headerHeight.get()}px)`} />;
+  }
+
   return (
     <>
-      {contextHolder}
       <section className="flex flex-wrap justify-center gap-4">
         <article className="w-full flex flex-wrap gap-4 pt-4 justify-center">
           <Select
