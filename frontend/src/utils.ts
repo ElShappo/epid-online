@@ -1,3 +1,4 @@
+import { ColorPickerProps } from "antd";
 import { BoundsOrderException, RangeValidationException } from "./exceptions";
 
 // given an input like: 1-5, 7, 10-14
@@ -44,6 +45,30 @@ function parsePositiveNumberRanges(input: string) {
 
 export function getRemainingHeightString(height: number) {
   return `calc(100vh - ${height}px)`;
+}
+
+// get a 'y' coord corresponding to 'x' coord assuming a line passes through (x1, y1) and (x2, y2)
+export function getLinearInterpolation(x: number, x1: number, y1: number, x2: number, y2: number) {
+  return ((x - x1) * (y2 - y1)) / (x2 - x1) + y1;
+}
+
+export function getRGBComponent(color: ColorPickerProps["value"], component: "R" | "G" | "B") {
+  const matches = (color as string).match(/\d+/g) || [];
+
+  switch (component) {
+    case "R":
+      return +matches[0]!;
+    case "G":
+      return +matches[1]!;
+    case "B":
+      return +matches[2]!;
+    default:
+      throw new Error("invalid function usage");
+  }
+}
+
+export function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export { RangeValidationException, BoundsOrderException, parsePositiveNumberRanges };

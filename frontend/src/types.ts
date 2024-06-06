@@ -1,3 +1,4 @@
+import { PlotData } from "plotly.js";
 import { availableYears } from "./constants";
 
 export interface DataType {
@@ -90,4 +91,20 @@ export type ProgramDetails = {
   url: string;
   description?: string;
   icon?: string;
+};
+
+export type RussiaMapData = {
+  [Key in keyof Partial<PlotData>]?: Partial<PlotData>[Key];
+} & { region: string; federal_district: string; population?: number };
+
+export type FormattedMorbidity = {
+  [key1: string]: {
+    [key2: string]: {
+      [key3: string]: {
+        [key4: string]: {
+          [key5: string]: number;
+        };
+      };
+    };
+  };
 };
