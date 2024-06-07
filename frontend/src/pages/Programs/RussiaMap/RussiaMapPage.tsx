@@ -13,7 +13,18 @@ import {
   plotlyMapModes,
   upperYearBound,
 } from "../../../constants";
-import { Button, ColorPicker, ColorPickerProps, Divider, Form, Input, Select, TreeSelect } from "antd";
+import {
+  Button,
+  Checkbox,
+  CheckboxProps,
+  ColorPicker,
+  ColorPickerProps,
+  Divider,
+  Form,
+  Input,
+  Select,
+  TreeSelect,
+} from "antd";
 import morbidityStructure from "../../../assets/morbidityStructure.json";
 import formattedMorbidity from "../../../assets/formattedMorbidity.json";
 import { PopulationSingleYear } from "../Population/classes/PopulationSingleYear";
@@ -47,6 +58,13 @@ const layout = {
   },
 } as Layout;
 
+const formattedPlotlyMapModes = plotlyMapModes.map((mode) => {
+  return {
+    value: mode,
+    title: mode,
+  };
+});
+
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
   const [mapData, setMapData] = useState<RussiaMapData[]>([]);
@@ -66,7 +84,7 @@ const MyMultiPolygon = observer(() => {
   const [nullCharacteristicColor, setNullCharacteristicColor] =
     useState<ColorPickerProps["value"]>(defaultNullColorValue);
 
-  const [considerNullCharacteristic, setConsiderNullCharacteristic] = useState(false);
+  const [considerNullCharacteristic, setConsiderNullCharacteristic] = useState(true);
 
   const [displayCharacteristic, setDisplayCharacteristic] = useState<string>("");
   const [displayDisease, setDisplayDisease] = useState<string>("");
@@ -109,6 +127,16 @@ const MyMultiPolygon = observer(() => {
 
   const onPopupScroll = (e: SyntheticEvent) => {
     console.log("onPopupScroll", e);
+  };
+
+  const onLegendChange: CheckboxProps["onChange"] = (e) => {
+    const showLegend = e.target.checked;
+
+    setMapData((prev) => {
+      return prev.map((region) => {
+        return { ...region, showlegend: showLegend };
+      });
+    });
   };
 
   const handleMapCalculation = () => {
@@ -271,13 +299,6 @@ const MyMultiPolygon = observer(() => {
   if (!gotRegions) {
     return <Loader text={loadingRegionsMessage} height={`calc(100vh - ${headerHeight.get()}px)`} />;
   }
-
-  const formattedPlotlyMapModes = plotlyMapModes.map((mode) => {
-    return {
-      value: mode,
-      title: mode,
-    };
-  });
 
   return (
     <>
@@ -485,7 +506,12 @@ const MyMultiPolygon = observer(() => {
           </Button>
         </Form.Item>
       </Form>
-      <Divider className="mt-0" />
+      <Divider className="my-0" />
+      <article className="text-center py-4">
+        <Checkbox defaultChecked={false} onChange={onLegendChange} className="text-xl">
+          Легенда карты
+        </Checkbox>
+      </article>
       <div ref={containerRef} className="w-full text-center pb-3">
         <Plot
           data={mapData}

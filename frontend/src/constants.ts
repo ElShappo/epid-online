@@ -447,11 +447,9 @@ export const calculatedTableColumnTypes = [
 export const plotlyMapModes = [
   "абсолютная заболеваемость",
   "интенсивная заболеваемость на 100 тысяч",
+  "стандартизованная заболеваемость",
   "контактное число",
   "выявляемость",
-  "стандартизованная заболеваемость совокупного населения",
-  "заболеваемость совокупного населения",
-  "заболеваемость в выбранной возрастной группе",
 ];
 
 export const fallbackImg = "./fallback.png";
@@ -461,6 +459,6 @@ export const loadingRegionsMessage = "Идёт загрузка регионов
 
 export const defaultMinColorValue = "rgb(255, 255, 255)";
 export const defaultMaxColorValue = "rgb(0, 0, 0)";
-export const defaultNullColorValue = "rgb(255, 255, 255)";
+export const defaultNullColorValue = "rgb(29, 190, 51)";
 
 export { availableYears, columns };
