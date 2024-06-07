@@ -55,6 +55,9 @@ const MyMultiPolygon = observer(() => {
   const [characteristic, setCharacteristic] = useState<string>();
   const [disease, setDisease] = useState<string>();
 
+  const [minAge, setMinAge] = useState(0);
+  const [maxAge, setMaxAge] = useState(upperYearBound);
+
   const [minCharacteristicValue, setMinCharacteristicValue] = useState<number>(0);
   const [maxCharacteristicValue, setMaxCharacteristicValue] = useState<number>(10);
 
@@ -94,15 +97,6 @@ const MyMultiPolygon = observer(() => {
       typeof nullCharacteristicColor === "string" ? nullCharacteristicColor : nullCharacteristicColor?.toRgbString(),
     [nullCharacteristicColor]
   );
-
-  const formattedPlotlyMapModes = useMemo(() => {
-    return plotlyMapModes.map((mode) => {
-      return {
-        value: mode,
-        title: mode,
-      };
-    });
-  }, []);
 
   const onCharacteristicChange = (newValue: string) => {
     setCharacteristic(newValue);
@@ -159,8 +153,6 @@ const MyMultiPolygon = observer(() => {
               "0 ; 199"
             ]?.[String(characteristic)] || 0;
 
-          // console.log(value);
-
           if (!value && considerNullCharacteristic) {
             [R, G, B] = [
               getRGBComponent(nullRgbString, "R")!,
@@ -168,8 +160,6 @@ const MyMultiPolygon = observer(() => {
               getRGBComponent(nullRgbString, "B")!,
             ];
           } else if (value <= minCharacteristicValue || value >= maxCharacteristicValue) {
-            console.log(region.name);
-            console.log("yep, that is right");
             if (value <= minCharacteristicValue) {
               [R, G, B] = [
                 getRGBComponent(minRgbString, "R")!,
@@ -280,17 +270,48 @@ const MyMultiPolygon = observer(() => {
     return <Loader text={loadingRegionsMessage} height={`calc(100vh - ${headerHeight.get()}px)`} />;
   }
 
+  const formattedPlotlyMapModes = plotlyMapModes.map((mode) => {
+    return {
+      value: mode,
+      title: mode,
+    };
+  });
+
   return (
     <>
-      <section className="flex flex-wrap justify-center gap-4">
-        <article className="w-full flex flex-wrap gap-4 pt-4 justify-center">
+      <Form
+        className="flex flex-wrap justify-center gap-4"
+        autoComplete="off"
+        onFinish={() => {
+          console.log("everything is fine!");
+          handleMapCalculation();
+        }}
+        onFinishFailed={() => {
+          Store.addNotification({
+            title: "Расчёт не был проведен",
+            message: "Необходимо правильно заполнить все поля формы",
+            type: "danger",
+            insert: "top",
+            container: "top-right",
+            animationIn: ["animate__animated", "animate__fadeIn"],
+            animationOut: ["animate__animated", "animate__fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true,
+            },
+          });
+        }}
+      >
+        <section className="w-full flex flex-wrap gap-4 pt-4 justify-center">
           <Select
+            size="large"
             className="min-w-72 max-w-96"
             options={formattedPlotlyMapModes}
             placeholder="Выберите характеристику"
             onChange={onCharacteristicChange}
           />
           <TreeSelect
+            size="large"
             className="min-w-72 max-w-96"
             showSearch
             value={disease}
@@ -302,57 +323,52 @@ const MyMultiPolygon = observer(() => {
             treeData={morbidityStructure}
             onPopupScroll={onPopupScroll}
           />
-        </article>
-        <Form className="px-8 pt-4 flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
-          <Form.Item name="min-value" label={<span className="text-base">Мин. значение выбранной характеристики</span>}>
-            <Input
-              defaultValue={minCharacteristicValue}
-              size="large"
-              value={minCharacteristicValue}
-              onChange={(evt) => setMinCharacteristicValue(+evt.target.value)}
-            />
+        </section>
+        <section className="px-8 pt-4 flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
+          <Form.Item
+            initialValue={minAge}
+            rules={[
+              {
+                required: true,
+                message: "Пожалуйста, введите число",
+              },
+              {
+                validator: (_, value) => {
+                  if (value >= 0 && Number.isInteger(+value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Значение должно быть неотрицательным целым числом"));
+                },
+              },
+            ]}
+            name="min-age"
+            label={<span className="text-base">Начальный возраст</span>}
+          >
+            <Input size="large" value={minAge} onChange={(evt) => setMinAge(+evt.target.value)} />
           </Form.Item>
           <Form.Item
-            name="min-color"
-            label={<span className="text-base">Цветовая палитра, отвечающая мин. значению</span>}
+            initialValue={maxAge}
+            rules={[
+              {
+                required: true,
+                message: "Пожалуйста, введите число",
+              },
+              {
+                validator: (_, value) => {
+                  if (value >= 0 && Number.isInteger(+value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Значение должно быть неотрицательным целым числом"));
+                },
+              },
+            ]}
+            name="max-age"
+            label={<span className="text-base">Конечный возраст</span>}
           >
-            <ColorPicker
-              defaultValue={minCharacteristicColor}
-              value={minCharacteristicColor}
-              onChange={setMinCharacteristicColor}
-              format="rgb"
-              disabledAlpha
-              showText
-            />
+            <Input size="large" value={maxAge} onChange={(evt) => setMaxAge(+evt.target.value)} />
           </Form.Item>
-        </Form>
-        <Form className="px-8 pt-4 flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
-          <Form.Item
-            name="max-value"
-            label={<span className="text-base">Макс. значение выбранной характеристики</span>}
-          >
-            <Input
-              defaultValue={maxCharacteristicValue}
-              size="large"
-              value={maxCharacteristicValue}
-              onChange={(evt) => setMaxCharacteristicValue(+evt.target.value)}
-            />
-          </Form.Item>
-          <Form.Item
-            name="max-color"
-            label={<span className="text-base">Цветовая палитра, отвечающая макс. значению</span>}
-          >
-            <ColorPicker
-              defaultValue={maxCharacteristicColor}
-              value={maxCharacteristicColor}
-              onChange={setMaxCharacteristicColor}
-              format="rgb"
-              disabledAlpha
-              showText
-            />
-          </Form.Item>
-        </Form>
-        <Form className="flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
+        </section>
+        <section className="flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
           <div className="flex p-5">
             <div className="text-base">
               Статус:{" "}
@@ -380,14 +396,94 @@ const MyMultiPolygon = observer(() => {
               showText
             />
           </Form.Item>
-        </Form>
-        <div className="w-full text-center">
-          <Button type="primary" className="bg-green-700" size="large" onClick={handleMapCalculation}>
+        </section>
+        <section className="px-8 pt-4 flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
+          <Form.Item
+            initialValue={minCharacteristicValue}
+            rules={[
+              {
+                required: true,
+                message: "Пожалуйста, введите число",
+              },
+              {
+                validator: (_, value) => {
+                  if (value >= 0) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Значение должно быть неотрицательным числом"));
+                },
+              },
+            ]}
+            name="min-value"
+            label={<span className="text-base">Мин. значение выбранной характеристики</span>}
+          >
+            <Input
+              size="large"
+              value={minCharacteristicValue}
+              onChange={(evt) => setMinCharacteristicValue(+evt.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            name="min-color"
+            label={<span className="text-base">Цветовая палитра, отвечающая мин. значению</span>}
+          >
+            <ColorPicker
+              defaultValue={minCharacteristicColor}
+              value={minCharacteristicColor}
+              onChange={setMinCharacteristicColor}
+              format="rgb"
+              disabledAlpha
+              showText
+            />
+          </Form.Item>
+        </section>
+        <section className="px-8 pt-4 flex flex-col 2xl:w-2/5 xl:w-1/2 lg:w-2/3 md:w-5/6 w-full card">
+          <Form.Item
+            initialValue={maxCharacteristicValue}
+            name="max-value"
+            label={<span className="text-base">Макс. значение выбранной характеристики</span>}
+            rules={[
+              {
+                required: true,
+                message: "Пожалуйста, введите число",
+              },
+              {
+                validator: (_, value) => {
+                  if (value >= 0) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Значение должно быть неотрицательным числом"));
+                },
+              },
+            ]}
+          >
+            <Input
+              size="large"
+              value={maxCharacteristicValue}
+              onChange={(evt) => setMaxCharacteristicValue(+evt.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            name="max-color"
+            label={<span className="text-base">Цветовая палитра, отвечающая макс. значению</span>}
+          >
+            <ColorPicker
+              defaultValue={maxCharacteristicColor}
+              value={maxCharacteristicColor}
+              onChange={setMaxCharacteristicColor}
+              format="rgb"
+              disabledAlpha
+              showText
+            />
+          </Form.Item>
+        </section>
+        <Form.Item className="w-full text-center">
+          <Button type="primary" className="bg-green-700" size="large" htmlType="submit">
             Рассчитать
           </Button>
-        </div>
-      </section>
-      <Divider className="mt-4" />
+        </Form.Item>
+      </Form>
+      <Divider className="mt-0" />
       <div ref={containerRef} className="w-full text-center pb-3">
         <Plot
           data={mapData}
