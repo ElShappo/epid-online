@@ -95,7 +95,7 @@ export type ProgramDetails = {
 
 export type RussiaMapData = {
   [Key in keyof Partial<PlotData>]?: Partial<PlotData>[Key];
-} & { region_code?: string; region: string; federal_district: string; population?: number };
+} & { region_code?: string; region: string; federal_district: string; totalPopulation?: number };
 
 export type FormattedMorbidity = {
   [key1: string]: {

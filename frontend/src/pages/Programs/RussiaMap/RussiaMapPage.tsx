@@ -95,10 +95,10 @@ const MyMultiPolygon = observer(() => {
 
   const mapTitle = useMemo(() => {
     if (displayDisease && displayCharacteristic) {
-      return `Карта Российской Федерации: ${displayDisease}, ${displayCharacteristic}`;
+      return `<b>Карта Российской Федерации</b><br><br><i>заболевание</i>: ${displayDisease};<br><i>характеристика:</i> ${displayCharacteristic};<br><i>возрастная группа</i>: ${minAge}-${maxAge} (лет)`;
     }
-    return "Карта Российской Федерации";
-  }, [displayCharacteristic, displayDisease]);
+    return `<b>Карта Российской Федерации</b><br><br><i>возрастная группа</i>: ${minAge}-${maxAge} (лет)`;
+  }, [displayCharacteristic, displayDisease, maxAge, minAge]);
 
   const nullCharacteristicStatus = useMemo(() => {
     return considerNullCharacteristic ? "активирован" : "не активирован";
@@ -258,7 +258,7 @@ const MyMultiPolygon = observer(() => {
 
           const newText =
             `<b>${region.region}</b><br>${region.federal_district}<br>Общее население: ${
-              region.population ?? "нет информации"
+              region.totalPopulation ?? "нет информации"
             } ` + `<br>${capitalizeFirstLetter(characteristic)}: ${value}`;
 
           setDisplayCharacteristic(characteristic);
