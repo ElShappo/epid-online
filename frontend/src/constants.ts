@@ -447,10 +447,13 @@ export const calculatedTableColumnTypes = [
 export const plotlyMapModes = [
   "абсолютная заболеваемость",
   "интенсивная заболеваемость на 100 тысяч",
-  "стандартизованная заболеваемость",
+  "стандартизованная абсолютная заболеваемость",
+  "стандартизованная интенсивная на 100 тысяч заболеваемость",
   "контактное число",
   "выявляемость",
-];
+] as const;
+
+export type MapMode = (typeof plotlyMapModes)[number];
 
 export const fallbackImg = "./fallback.png";
 export const noResults = "Ничего не нашлось :(";

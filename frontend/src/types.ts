@@ -81,7 +81,7 @@ export type Sex = "male" | "female";
 export type RegionPlotly = {
   region: string;
   federal_district: string;
-  population?: number;
+  totalPopulation?: number;
   x: number[];
   y: number[];
 };
@@ -95,7 +95,7 @@ export type ProgramDetails = {
 
 export type RussiaMapData = {
   [Key in keyof Partial<PlotData>]?: Partial<PlotData>[Key];
-} & { region: string; federal_district: string; population?: number };
+} & { region_code?: string; region: string; federal_district: string; population?: number };
 
 export type FormattedMorbidity = {
   [key1: string]: {

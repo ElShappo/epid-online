@@ -144,6 +144,10 @@ export class PopulationSingleYear {
     return this.#population;
   }
 
+  getRegionByName(name: string) {
+    return this.#regions?.getRegionByName(name);
+  }
+
   // there is no year-by-year population info for 80+ year olds
   // there are only single chunks of data for 80+ and 85+ that are available
   // (i.e. there is no year-by-year division in both of these chunks)

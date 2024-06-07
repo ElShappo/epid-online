@@ -6,6 +6,7 @@ import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import year from "../../../store/year";
 import {
+  MapMode,
   defaultMaxColorValue,
   defaultMinColorValue,
   defaultNullColorValue,
@@ -32,6 +33,7 @@ import { capitalizeFirstLetter, getLinearInterpolation, getRGBComponent } from "
 import { Store } from "react-notifications-component";
 import Loader from "../../../components/Loader/Loader";
 import headerHeight from "../../../store/headerHeight";
+import { AbstractEpidCalculator } from "./classes/abstractEpidCalculator";
 
 const layout = {
   title: "Карта Российской Федерации",
@@ -67,10 +69,12 @@ const formattedPlotlyMapModes = plotlyMapModes.map((mode) => {
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
+
+  const [populationSingleYear, setPopulationSingleYear] = useState<PopulationSingleYear>();
   const [mapData, setMapData] = useState<RussiaMapData[]>([]);
   const [gotRegions, setGotRegions] = useState(false);
 
-  const [characteristic, setCharacteristic] = useState<string>();
+  const [characteristic, setCharacteristic] = useState<MapMode>();
   const [disease, setDisease] = useState<string>();
 
   const [minAge, setMinAge] = useState(0);
@@ -116,7 +120,7 @@ const MyMultiPolygon = observer(() => {
     [nullCharacteristicColor]
   );
 
-  const onCharacteristicChange = (newValue: string) => {
+  const onCharacteristicChange = (newValue: MapMode) => {
     setCharacteristic(newValue);
   };
 
@@ -157,7 +161,7 @@ const MyMultiPolygon = observer(() => {
     } else if (!disease) {
       Store.addNotification({
         title: "Расчёт не был проведен",
-        message: "Чтобы провести расчёт, необходимо заболевание",
+        message: "Чтобы провести расчёт, необходимо выбрать заболевание",
         type: "danger",
         insert: "top",
         container: "top-right",
@@ -177,11 +181,42 @@ const MyMultiPolygon = observer(() => {
 
           const ageRange = `${minAge} ; ${maxAge}`;
 
-          // current characteristic value
-          const value =
-            (formattedMorbidity as FormattedMorbidity)[String(disease)]?.["2022-01-01 ; 2022-12-31"]?.[region.name!]?.[
+          const absoluteMorbidity =
+            (formattedMorbidity as FormattedMorbidity)[disease]?.["2022-01-01 ; 2022-12-31"]?.[region.name!]?.[
               ageRange
-            ]?.[String(characteristic)] || 0;
+            ]?.[plotlyMapModes[0]] || 0;
+
+          // current characteristic value
+          let value = (formattedMorbidity as FormattedMorbidity)[disease]?.["2022-01-01 ; 2022-12-31"]?.[
+            region.name!
+          ]?.[ageRange]?.[String(characteristic)];
+
+          const abstractEpidCalculator = new AbstractEpidCalculator();
+
+          if (value === null || value === undefined) {
+            switch (characteristic) {
+              case "интенсивная заболеваемость на 100 тысяч": {
+                const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
+                value = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
+                break;
+              }
+              case "стандартизованная абсолютная заболеваемость": {
+                const h = populationSingleYear!.h(minAge, maxAge, undefined, [region.region_code!]);
+                value = abstractEpidCalculator.getStandardizedMorbidity([absoluteMorbidity], [h]) as number;
+                break;
+              }
+              case "стандартизованная интенсивная на 100 тысяч заболеваемость": {
+                const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
+                const h = populationSingleYear!.h(minAge, maxAge, undefined, [region.region_code!]);
+                const intensiveMorbidity = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
+                value = abstractEpidCalculator.getStandardizedMorbidity([intensiveMorbidity], [h]) as number;
+                break;
+              }
+              default: {
+                value = 0;
+              }
+            }
+          }
 
           if (!value && considerNullCharacteristic) {
             [R, G, B] = [
@@ -222,7 +257,7 @@ const MyMultiPolygon = observer(() => {
           }
 
           const newText =
-            `<b>${region.region}</b><br>${region.federal_district}<br>Население: ${
+            `<b>${region.region}</b><br>${region.federal_district}<br>Общее население: ${
               region.population ?? "нет информации"
             } ` + `<br>${capitalizeFirstLetter(characteristic)}: ${value}`;
 
@@ -237,30 +272,34 @@ const MyMultiPolygon = observer(() => {
 
   useEffect(() => {
     async function getPopulation() {
-      const populationSingleYear = new PopulationSingleYear(year.get());
-      await populationSingleYear.setRegions();
+      const populationSingleYearLocal = new PopulationSingleYear(year.get());
+      await populationSingleYearLocal.setRegions();
 
-      const regionsList = populationSingleYear.getRegions();
+      setPopulationSingleYear(populationSingleYearLocal);
+
+      const regionsList = populationSingleYearLocal.getRegions();
 
       const res: RegionPlotly[] = (regions as RegionPlotly[]).map((region) => {
         const regionCode = regionsList?.getRegionByName(region.region)?.territory_code;
         if (regionCode) {
-          const population = populationSingleYear.n(0, upperYearBound, undefined, [regionCode]);
-          return { ...region, population };
+          const totalPopulation = populationSingleYearLocal.n(0, upperYearBound, undefined, [regionCode]);
+          return { ...region, totalPopulation };
         } else {
           return region;
         }
       });
+
       const newMapData: RussiaMapData[] = res.map((item) => {
         return {
-          population: item.population,
+          region_code: populationSingleYearLocal?.getRegionByName(item.region)?.territory_code,
+          totalPopulation: item.totalPopulation,
           region: item.region,
           federal_district: item.federal_district,
           x: item.x,
           y: item.y,
           name: item.region,
-          text: `<b>${item.region}</b><br>${item.federal_district}<br>Население: ${
-            item.population ?? "нет информации"
+          text: `<b>${item.region}</b><br>${item.federal_district}<br>Общее население: ${
+            item.totalPopulation ?? "нет информации"
           } `,
           hoverinfo: "text",
           line: {
@@ -306,7 +345,6 @@ const MyMultiPolygon = observer(() => {
         className="flex flex-wrap justify-center gap-4"
         autoComplete="off"
         onFinish={() => {
-          console.log("everything is fine!");
           handleMapCalculation();
         }}
         onFinishFailed={() => {
@@ -519,7 +557,7 @@ const MyMultiPolygon = observer(() => {
           config={{
             responsive: true,
           }}
-          className="w-[80%] h-[80%] min-w-[800px] min-h-[560px]"
+          className="w-[80%] h-[80%] min-w-[800px] min-h-[750px]"
           useResizeHandler={true}
           onHover={(data) => {
             console.log(data);
