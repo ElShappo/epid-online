@@ -450,7 +450,6 @@ export const plotlyMapModes = [
   "стандартизованная абсолютная заболеваемость",
   "стандартизованная интенсивная на 100 тысяч заболеваемость",
   "контактное число",
-  "выявляемость",
 ] as const;
 
 export type MapMode = (typeof plotlyMapModes)[number];

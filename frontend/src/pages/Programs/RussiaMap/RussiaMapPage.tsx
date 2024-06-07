@@ -24,6 +24,7 @@ import {
   Form,
   Input,
   Select,
+  Spin,
   TreeSelect,
 } from "antd";
 import morbidityStructure from "../../../assets/morbidityStructure.json";
@@ -34,6 +35,7 @@ import { Store } from "react-notifications-component";
 import Loader from "../../../components/Loader/Loader";
 import headerHeight from "../../../store/headerHeight";
 import { AbstractEpidCalculator } from "./classes/abstractEpidCalculator";
+import { RussiaMapWorkerInput, RussiaMapWorkerOutput } from "./types/types";
 
 const layout = {
   title: "Карта Российской Федерации",
@@ -69,6 +71,7 @@ const formattedPlotlyMapModes = plotlyMapModes.map((mode) => {
 
 const MyMultiPolygon = observer(() => {
   const containerRef = useRef(null);
+  const [spinning, setSpinning] = useState(false);
 
   const [populationSingleYear, setPopulationSingleYear] = useState<PopulationSingleYear>();
   const [mapData, setMapData] = useState<RussiaMapData[]>([]);
@@ -181,8 +184,55 @@ const MyMultiPolygon = observer(() => {
         },
       });
     } else {
-      setMapData((prev) => {
-        return prev.map((region) => {
+      setSpinning(true);
+      if (window.Worker) {
+        console.log("workers are available");
+        const worker = new Worker(new URL("./workers/worker.ts", import.meta.url), { type: "module" });
+
+        // note that structuredClone algorithm is unable to encode a class instance correctly
+        // which is used to transfer items in worker
+        const workerParams: RussiaMapWorkerInput = {
+          minAge,
+          maxAge,
+          disease,
+          characteristic,
+          mapData,
+          stringifiedFormOptions,
+          prevStringifiedFormOptions,
+          considerNullCharacteristic,
+          nullRgbString: nullRgbString!,
+          minRgbString: minRgbString!,
+          maxRgbString: maxRgbString!,
+          minCharacteristicValue,
+          maxCharacteristicValue,
+          year: year.get(),
+        };
+
+        worker.postMessage(workerParams);
+
+        worker.onmessage = (e: MessageEvent<RussiaMapWorkerOutput>) => {
+          setMapData(e.data);
+          setSpinning(false);
+        };
+
+        worker.onerror = (error) => {
+          Store.addNotification({
+            title: "Не удалось провести расчёт",
+            message: error.message,
+            type: "danger",
+            insert: "top",
+            container: "top-right",
+            animationIn: ["animate__animated", "animate__fadeIn"],
+            animationOut: ["animate__animated", "animate__fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true,
+            },
+          });
+          setSpinning(false);
+        };
+      } else {
+        const newMapData = mapData.map((region) => {
           let R: number;
           let G: number;
           let B: number;
@@ -256,7 +306,6 @@ const MyMultiPolygon = observer(() => {
             setPrevStringifiedFormOptions(stringifiedFormOptions);
           } else {
             value = region.characteristicValue!;
-            console.log(value);
           }
 
           if (!value && considerNullCharacteristic) {
@@ -307,7 +356,9 @@ const MyMultiPolygon = observer(() => {
 
           return { ...region, fillcolor: `rgba(${R}, ${G}, ${B}, 0.8)`, text: newText, characteristicValue: value };
         });
-      });
+        setSpinning(false);
+        setMapData(newMapData);
+      }
     }
   };
 
@@ -382,6 +433,7 @@ const MyMultiPolygon = observer(() => {
 
   return (
     <>
+      <Spin spinning={spinning} fullscreen />
       <Form
         className="flex flex-wrap justify-center gap-4"
         autoComplete="off"
