@@ -201,15 +201,39 @@ const MyMultiPolygon = observer(() => {
                 break;
               }
               case "стандартизованная абсолютная заболеваемость": {
-                const h = populationSingleYear!.h(minAge, maxAge, undefined, [region.region_code!]);
+                const h = populationSingleYear!.h(minAge, maxAge);
                 value = abstractEpidCalculator.getStandardizedMorbidity([absoluteMorbidity], [h]) as number;
                 break;
               }
               case "стандартизованная интенсивная на 100 тысяч заболеваемость": {
                 const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
-                const h = populationSingleYear!.h(minAge, maxAge, undefined, [region.region_code!]);
+                const h = populationSingleYear!.h(minAge, maxAge);
                 const intensiveMorbidity = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
                 value = abstractEpidCalculator.getStandardizedMorbidity([intensiveMorbidity], [h]) as number;
+                break;
+              }
+              case "контактное число": {
+                const ageStep = 1;
+                const paramStep = 0.1;
+
+                const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
+                const illFraction = absoluteMorbidity / n;
+                const lambda = abstractEpidCalculator.getLambdaEstimation(
+                  illFraction,
+                  minAge,
+                  maxAge,
+                  ageStep,
+                  paramStep
+                );
+
+                const hArray = [];
+
+                for (let i = 0; i <= 100; i += ageStep) {
+                  const flooredI = Math.floor(i);
+                  hArray.push(populationSingleYear!.h(flooredI, flooredI, undefined, [region.region_code!]));
+                }
+
+                value = abstractEpidCalculator.getContactNumber(lambda, hArray, ageStep) as number;
                 break;
               }
               default: {
