@@ -147,10 +147,12 @@ const MyMultiPolygon = observer(() => {
           let G: number;
           let B: number;
 
+          const ageRange = `${minAge} ; ${maxAge}`;
+
           // current characteristic value
           const value =
             (formattedMorbidity as FormattedMorbidity)[String(disease)]?.["2022-01-01 ; 2022-12-31"]?.[region.name!]?.[
-              "0 ; 199"
+              ageRange
             ]?.[String(characteristic)] || 0;
 
           if (!value && considerNullCharacteristic) {
