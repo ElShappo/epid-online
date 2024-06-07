@@ -303,7 +303,6 @@ const MyMultiPolygon = observer(() => {
                 }
               }
             }
-            setPrevStringifiedFormOptions(stringifiedFormOptions);
           } else {
             value = region.characteristicValue!;
           }
@@ -351,14 +350,15 @@ const MyMultiPolygon = observer(() => {
               region.totalPopulation ?? "нет информации"
             } ` + `<br>${capitalizeFirstLetter(characteristic)}: ${value}`;
 
-          setDisplayCharacteristic(characteristic);
-          setDisplayDisease(disease);
-
           return { ...region, fillcolor: `rgba(${R}, ${G}, ${B}, 0.8)`, text: newText, characteristicValue: value };
         });
-        setSpinning(false);
         setMapData(newMapData);
+        setSpinning(false);
       }
+
+      setPrevStringifiedFormOptions(stringifiedFormOptions);
+      setDisplayCharacteristic(characteristic);
+      setDisplayDisease(disease);
     }
   };
 
@@ -652,10 +652,10 @@ const MyMultiPolygon = observer(() => {
           }}
           className="w-[80%] h-[80%] min-w-[800px] min-h-[750px]"
           useResizeHandler={true}
-          onHover={(data) => {
-            console.log(data);
-            console.log(data.points[0].data);
-          }}
+          // onHover={(data) => {
+          //   console.log(data);
+          //   console.log(data.points[0].data);
+          // }}
         />
       </div>
     </>

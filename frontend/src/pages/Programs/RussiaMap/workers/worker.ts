@@ -25,6 +25,9 @@ self.onmessage = async function (e: MessageEvent<RussiaMapWorkerInput>) {
     maxCharacteristicValue,
   } = e.data;
 
+  //   console.log(prevStringifiedFormOptions);
+  //   console.log(stringifiedFormOptions);
+
   const populationSingleYear = new PopulationSingleYear(year);
   await populationSingleYear.setRegions();
 
@@ -94,6 +97,7 @@ self.onmessage = async function (e: MessageEvent<RussiaMapWorkerInput>) {
         }
       }
     } else {
+      //   console.log("they are equal!");
       value = region.characteristicValue!;
     }
 
