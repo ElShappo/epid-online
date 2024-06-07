@@ -93,6 +93,15 @@ const MyMultiPolygon = observer(() => {
   const [displayCharacteristic, setDisplayCharacteristic] = useState<string>("");
   const [displayDisease, setDisplayDisease] = useState<string>("");
 
+  // if that thing doesn't change, then it means that all form options (not to say about color pallete values)
+  // stay the same - thus we are able to memoize the result of the previous calculation
+  // and only change colors (again, without actually recalculating the characteristics)
+  const stringifiedFormOptions = useMemo(() => {
+    return `${characteristic} ; ${disease} ; ${minAge} ; ${maxAge}`;
+  }, [characteristic, disease, maxAge, minAge]);
+
+  const [prevStringifiedFormOptions, setPrevStringifiedFormOptions] = useState("");
+
   const mapTitle = useMemo(() => {
     if (displayDisease && displayCharacteristic) {
       return `<b>Карта Российской Федерации</b><br><br><i>заболевание</i>: ${displayDisease};<br><i>характеристика:</i> ${displayCharacteristic};<br><i>возрастная группа</i>: ${minAge}-${maxAge} (лет)`;
@@ -125,7 +134,6 @@ const MyMultiPolygon = observer(() => {
   };
 
   const onDiseaseChange = (newValue: string) => {
-    console.log(newValue);
     setDisease(newValue);
   };
 
@@ -179,67 +187,76 @@ const MyMultiPolygon = observer(() => {
           let G: number;
           let B: number;
 
-          const ageRange = `${minAge} ; ${maxAge}`;
+          let value: number;
 
-          const absoluteMorbidity =
-            (formattedMorbidity as FormattedMorbidity)[disease]?.["2022-01-01 ; 2022-12-31"]?.[region.name!]?.[
+          // this if-block is used to check whether we can memoize calculations if only color pallete has changed
+          if (stringifiedFormOptions !== prevStringifiedFormOptions) {
+            const ageRange = `${minAge} ; ${maxAge}`;
+
+            const absoluteMorbidity =
+              (formattedMorbidity as FormattedMorbidity)[disease]?.["2022-01-01 ; 2022-12-31"]?.[region.name!]?.[
+                ageRange
+              ]?.[plotlyMapModes[0]] || 0;
+
+            // current characteristic value
+            value = (formattedMorbidity as FormattedMorbidity)[disease]?.["2022-01-01 ; 2022-12-31"]?.[region.name!]?.[
               ageRange
-            ]?.[plotlyMapModes[0]] || 0;
+            ]?.[String(characteristic)];
 
-          // current characteristic value
-          let value = (formattedMorbidity as FormattedMorbidity)[disease]?.["2022-01-01 ; 2022-12-31"]?.[
-            region.name!
-          ]?.[ageRange]?.[String(characteristic)];
+            const abstractEpidCalculator = new AbstractEpidCalculator();
 
-          const abstractEpidCalculator = new AbstractEpidCalculator();
-
-          if (value === null || value === undefined) {
-            switch (characteristic) {
-              case "интенсивная заболеваемость на 100 тысяч": {
-                const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
-                value = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
-                break;
-              }
-              case "стандартизованная абсолютная заболеваемость": {
-                const h = populationSingleYear!.h(minAge, maxAge);
-                value = abstractEpidCalculator.getStandardizedMorbidity([absoluteMorbidity], [h]) as number;
-                break;
-              }
-              case "стандартизованная интенсивная на 100 тысяч заболеваемость": {
-                const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
-                const h = populationSingleYear!.h(minAge, maxAge);
-                const intensiveMorbidity = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
-                value = abstractEpidCalculator.getStandardizedMorbidity([intensiveMorbidity], [h]) as number;
-                break;
-              }
-              case "контактное число": {
-                const ageStep = 1;
-                const paramStep = 0.1;
-
-                const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
-                const illFraction = absoluteMorbidity / n;
-                const lambda = abstractEpidCalculator.getLambdaEstimation(
-                  illFraction,
-                  minAge,
-                  maxAge,
-                  ageStep,
-                  paramStep
-                );
-
-                const hArray = [];
-
-                for (let i = 0; i <= 100; i += ageStep) {
-                  const flooredI = Math.floor(i);
-                  hArray.push(populationSingleYear!.h(flooredI, flooredI, undefined, [region.region_code!]));
+            if (value === null || value === undefined) {
+              switch (characteristic) {
+                case "интенсивная заболеваемость на 100 тысяч": {
+                  const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
+                  value = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
+                  break;
                 }
+                case "стандартизованная абсолютная заболеваемость": {
+                  const h = populationSingleYear!.h(minAge, maxAge);
+                  value = abstractEpidCalculator.getStandardizedMorbidity([absoluteMorbidity], [h]) as number;
+                  break;
+                }
+                case "стандартизованная интенсивная на 100 тысяч заболеваемость": {
+                  const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
+                  const h = populationSingleYear!.h(minAge, maxAge);
+                  const intensiveMorbidity = abstractEpidCalculator.getIntensiveMorbidity(absoluteMorbidity, n);
+                  value = abstractEpidCalculator.getStandardizedMorbidity([intensiveMorbidity], [h]) as number;
+                  break;
+                }
+                case "контактное число": {
+                  const ageStep = 1;
+                  const paramStep = 0.1;
 
-                value = abstractEpidCalculator.getContactNumber(lambda, hArray, ageStep) as number;
-                break;
-              }
-              default: {
-                value = 0;
+                  const n = populationSingleYear!.n(minAge, maxAge, undefined, [region.region_code!]);
+                  const illFraction = absoluteMorbidity / n;
+                  const lambda = abstractEpidCalculator.getLambdaEstimation(
+                    illFraction,
+                    minAge,
+                    maxAge,
+                    ageStep,
+                    paramStep
+                  );
+
+                  const hArray = [];
+
+                  for (let i = 0; i <= 100; i += ageStep) {
+                    const flooredI = Math.floor(i);
+                    hArray.push(populationSingleYear!.h(flooredI, flooredI, undefined, [region.region_code!]));
+                  }
+
+                  value = abstractEpidCalculator.getContactNumber(lambda, hArray, ageStep) as number;
+                  break;
+                }
+                default: {
+                  value = 0;
+                }
               }
             }
+            setPrevStringifiedFormOptions(stringifiedFormOptions);
+          } else {
+            value = region.characteristicValue!;
+            console.log(value);
           }
 
           if (!value && considerNullCharacteristic) {
@@ -288,7 +305,7 @@ const MyMultiPolygon = observer(() => {
           setDisplayCharacteristic(characteristic);
           setDisplayDisease(disease);
 
-          return { ...region, fillcolor: `rgba(${R}, ${G}, ${B}, 0.8)`, text: newText };
+          return { ...region, fillcolor: `rgba(${R}, ${G}, ${B}, 0.8)`, text: newText, characteristicValue: value };
         });
       });
     }
