@@ -1,38 +1,60 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ConfigProvider, theme } from "antd";
+import { ReactNotifications } from "react-notifications-component";
+import { lazy } from "react";
 import AuthorizationPage from "./pages/Authorization/AuthorizationPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
-import pageNotFoundLoader from "./loaders/pageNotFoundLoader";
-import { PageLayout } from "./components/PageLayout/PageLayout";
-import { ConfigProvider, theme } from "antd";
-import PopulationPage from "./pages/Population/PopulationPage";
-import CalculationsPage from "./pages/Calculations/CalculationsPage";
-import { ReactNotifications } from "react-notifications-component";
+import LayoutPage from "./pages/Layout/LayoutPage";
+import FAQPage from "./pages/FAQ/FAQPage";
+import DescriptionPage from "./pages/Description/DescriptionPage";
 import "react-notifications-component/dist/theme.css";
+
+const ProgramsPage = lazy(() => import("./pages/Programs/ProgramsPage"));
+const PopulationPage = lazy(() => import("./pages/Programs/Population/PopulationPage"));
+const EpidCalculationsPage = lazy(() => import("./pages/Programs/EpidCalculations/EpidCalculationsPage"));
+const RussiaMapPage = lazy(() => import("./pages/Programs/RussiaMap/RussiaMapPage"));
+const PoissonPage = lazy(() => import("./pages/Programs/Poisson/PoissonPage"));
 
 function App() {
   const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <LayoutPage />,
+      children: [
+        {
+          path: "",
+          element: <DescriptionPage />,
+        },
+        {
+          path: "programs",
+          element: <ProgramsPage />,
+        },
+        {
+          path: "programs/population",
+          element: <PopulationPage />,
+        },
+        {
+          path: "programs/calculations",
+          element: <EpidCalculationsPage />,
+        },
+        {
+          path: "programs/map",
+          element: <RussiaMapPage />,
+        },
+        {
+          path: "programs/poisson",
+          element: <PoissonPage />,
+        },
+        { path: "/faq", element: <FAQPage /> },
+      ],
+    },
     {
       path: "/authorization",
       element: <AuthorizationPage />,
     },
     {
-      path: "/",
-      element: <PageLayout />,
-      children: [
-        {
-          path: "population",
-          element: <PopulationPage />,
-        },
-        {
-          path: "calculations",
-          element: <CalculationsPage />,
-        },
-      ],
-    },
-    {
       path: "*",
       element: <NotFoundPage />,
-      loader: pageNotFoundLoader,
     },
   ]);
 
@@ -48,10 +70,7 @@ function App() {
           // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
         }}
       >
-        <RouterProvider
-          router={router}
-          fallbackElement={<div>Hey, I am loading!</div>}
-        />
+        <RouterProvider router={router} />
       </ConfigProvider>
     </>
   );

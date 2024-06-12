@@ -1,17 +1,7 @@
-import {
-  DataType,
-  TextAreaTitle,
-  TextAreaTitleAgeEndChecked,
-  TextAreaTitleAllChecked,
-  TextAreaTitleAllUnchecked,
-  TextAreaTitleSexRecognitionChecked,
-} from "./types";
+import { DataType } from "./types";
 import type { ColumnsType } from "antd/es/table";
 
-const availableYears = [
-  2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022,
-  2023,
-] as const;
+const availableYears = [2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023] as const;
 
 export const defaultYear = availableYears.at(-1);
 
@@ -164,66 +154,20 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-export const textAreaAvailableTitles: TextAreaTitle[] = [
-  "Начальный возраст",
-  "Конечный возраст",
-
-  "Число заболевших (Россия)",
-  "Число заболевших (мужчины, Россия)",
-  "Число заболевших (женщины, Россия)",
-
-  "Число заболевших (выбран. регионы)",
-  "Число заболевших (мужчины, выбран. регионы)",
-  "Число заболевших (женщины, выбран. регионы)",
-];
-
-export const textAreaTitlesAllChecked: TextAreaTitleAllChecked[] = [
-  "Начальный возраст",
-  "Конечный возраст",
-
-  "Число заболевших (мужчины, Россия)",
-  "Число заболевших (женщины, Россия)",
-
-  "Число заболевших (мужчины, выбран. регионы)",
-  "Число заболевших (женщины, выбран. регионы)",
-];
-
-export const textAreaTitlesAllUnchecked: TextAreaTitleAllUnchecked[] = [
-  "Начальный возраст",
-  "Число заболевших (Россия)",
-  "Число заболевших (выбран. регионы)",
-];
-
-export const textAreaTitlesAgeEndChecked: TextAreaTitleAgeEndChecked[] = [
-  "Начальный возраст",
-  "Конечный возраст",
-  "Число заболевших (Россия)",
-  "Число заболевших (выбран. регионы)",
-];
-
-export const textAreaTitlesSexRecognitionChecked: TextAreaTitleSexRecognitionChecked[] =
-  [
-    "Начальный возраст",
-
-    "Число заболевших (мужчины, Россия)",
-    "Число заболевших (женщины, Россия)",
-
-    "Число заболевших (мужчины, выбран. регионы)",
-    "Число заболевших (женщины, выбран. регионы)",
-  ];
-
 export const calculatedNoSexRecognitionTableColumns = [
   {
     title: "Начальный возраст" as const,
     dataIndex: "startAge" as const,
     width: 120,
     fixed: "left",
+    align: "center",
   },
   {
     title: "Конечный возраст" as const,
     dataIndex: "endAge" as const,
     width: 120,
     fixed: "left",
+    align: "center",
   },
 
   {
@@ -442,8 +386,7 @@ export const calculatedSexRecognitionTableColumns = [
     align: "center",
   },
   {
-    title:
-      "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)" as const,
+    title: "Интенсивная заболеваемость на 100 тыс. (мужчины, выбран. регионы)" as const,
     dataIndex: "menIntensiveMorbidityChosenRegions" as const,
     width: 150,
     align: "center",
@@ -474,8 +417,7 @@ export const calculatedSexRecognitionTableColumns = [
     align: "center",
   },
   {
-    title:
-      "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)" as const,
+    title: "Интенсивная заболеваемость на 100 тыс. (женщины, выбран. регионы)" as const,
     dataIndex: "womenIntensiveMorbidityChosenRegions" as const,
     width: 150,
     align: "center",
@@ -493,5 +435,32 @@ export const calculatedSexRecognitionTableColumns = [
     align: "center",
   },
 ];
+
+export const calculatedTableColumnTypes = [
+  "population",
+  "morbidity",
+  "intensiveMorbidity",
+  "lowerIntensiveMorbidity",
+  "upperIntensiveMorbidity",
+] as const;
+
+export const plotlyMapModes = [
+  "абсолютная заболеваемость",
+  "интенсивная заболеваемость на 100 тысяч",
+  "стандартизованная абсолютная заболеваемость",
+  "стандартизованная интенсивная на 100 тысяч заболеваемость",
+  "контактное число",
+] as const;
+
+export type MapMode = (typeof plotlyMapModes)[number];
+
+export const fallbackImg = "./fallback.png";
+export const noResults = "Ничего не нашлось :(";
+export const loadingMessage = "Идёт загрузка...";
+export const loadingRegionsMessage = "Идёт загрузка регионов...";
+
+export const defaultMinColorValue = "rgb(255, 255, 255)";
+export const defaultMaxColorValue = "rgb(0, 0, 0)";
+export const defaultNullColorValue = "rgb(29, 190, 51)";
 
 export { availableYears, columns };
